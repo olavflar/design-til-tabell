@@ -1,0 +1,216 @@
+/* ============================================================
+   Designsystemet — Colors & Type
+   Source of truth: digdir/designsystemet (default theme,
+   built tokens v1.13.3 → packages/css/theme/designsystemet.css)
+
+   Default theme uses Inter at all weights and a 6-role
+   semantic color system (accent / neutral / brand1 / brand2 /
+   info / success / warning / danger). Each role has the same
+   sub-tokens: background, surface, border, text, base, plus
+   contrast pairs. Everything below maps the canonical
+   --ds-* token to short aliases (--fg1, --bg, --h1, etc.) for
+   convenience while keeping the originals intact.
+   ============================================================ */
+
+@import url('./theme/digdir.css');
+
+/* ---------- Webfont (Inter) ---------- */
+/* Designsystemet ships Inter as the default. Self-hosted woff2
+   in fonts/ — variable axis + per-weight statics for tooling
+   that doesn't support variable fonts. */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/InterVariable.woff2') format('woff2-variations'),
+       url('fonts/InterVariable.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('fonts/InterVariable-Italic.woff2') format('woff2-variations'),
+       url('fonts/InterVariable-Italic.woff2') format('woff2');
+}
+
+/* Static fallbacks at the three weights Designsystemet actually uses */
+@font-face {
+  font-family: 'Inter Static';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/Inter-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter Static';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/Inter-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter Static';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/Inter-SemiBold.woff2') format('woff2');
+}
+
+/* Inter Display — tighter optical sizing for large headings */
+@font-face {
+  font-family: 'Inter Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/InterDisplay-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter Display';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/InterDisplay-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter Display';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('fonts/InterDisplay-SemiBold.woff2') format('woff2');
+}
+
+:root {
+  /* Surface / background */
+  --bg:        var(--ds-color-neutral-background-default);   /* page */
+  --bg-tinted: var(--ds-color-neutral-background-tinted);    /* section bg */
+  --surface:   var(--ds-color-neutral-surface-default);      /* card */
+  --surface-tinted: var(--ds-color-neutral-surface-tinted);
+  --surface-hover:  var(--ds-color-neutral-surface-hover);
+  --surface-active: var(--ds-color-neutral-surface-active);
+
+  /* Foreground */
+  --fg1: var(--ds-color-neutral-text-default);   /* body, headings */
+  --fg2: var(--ds-color-neutral-text-subtle);    /* secondary copy */
+  --fg-on-base: var(--ds-color-neutral-base-contrast-default);
+
+  /* Border */
+  --border-subtle: var(--ds-color-neutral-border-subtle);
+  --border:        var(--ds-color-neutral-border-default);
+  --border-strong: var(--ds-color-neutral-border-strong);
+
+  /* Brand & action — accent (blue) is the primary action color */
+  --accent:        var(--ds-color-accent-base-default);   /* #0062BA */
+  --accent-hover:  var(--ds-color-accent-base-hover);
+  --accent-active: var(--ds-color-accent-base-active);
+  --accent-tinted: var(--ds-color-accent-surface-tinted);
+  --accent-text:   var(--ds-color-accent-text-default);
+
+  --brand1:        var(--ds-color-brand1-base-default);   /* #F45F63 Digdir red */
+  --brand2:        var(--ds-color-brand2-base-default);   /* #E5AA20 Digdir yellow */
+  --brand3:        var(--ds-color-brand3-base-default);   /* #1E98F5 Digdir blue */
+
+  /* Status */
+  --info:    var(--ds-color-info-base-default);     /* #0A71C0 */
+  --success: var(--ds-color-success-base-default);  /* #068718 */
+  --warning: var(--ds-color-warning-base-default);  /* #EA9B1B */
+  --danger:  var(--ds-color-danger-base-default);   /* #C01B1B */
+
+  /* Focus ring */
+  --focus-inner: var(--ds-color-focus-inner);
+  --focus-outer: var(--ds-color-focus-outer);
+
+  /* Type — base */
+  --font-family: 'Inter', 'Inter Static', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Inter Display', 'Inter', system-ui, sans-serif;
+  /* Inter: lowercase l with tail (Digdir recommendation) */
+  --font-features: "cv05" 1; /* @kind font */
+  --font-mono: 'Inter', 'Inter Static', sans-serif; /* Digdir: Inter only — no monospace family */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold: 600;
+
+  /* Type — semantic (medium size mode, the default) */
+  --h1-size: var(--ds-heading-xl-font-size);   /* 48px */
+  --h1-weight: 500;
+  --h1-lh: 1.3; /* @kind font */
+  --h1-tracking: -0.01em;
+
+  --h2-size: var(--ds-heading-lg-font-size);   /* 36px */
+  --h2-weight: 500;
+  --h2-lh: 1.3; /* @kind font */
+  --h2-tracking: -0.005em;
+
+  --h3-size: var(--ds-heading-md-font-size);   /* 30px */
+  --h3-weight: 500;
+  --h3-lh: 1.3; /* @kind font */
+
+  --h4-size: var(--ds-heading-sm-font-size);   /* 24px */
+  --h4-weight: 500;
+
+  --h5-size: var(--ds-heading-xs-font-size);   /* 21px */
+  --h6-size: var(--ds-heading-2xs-font-size);  /* 18px */
+
+  --body-lg: var(--ds-body-lg-font-size);     /* 21px */
+  --body:    var(--ds-body-md-font-size);     /* 18px — default body */
+  --body-sm: var(--ds-body-sm-font-size);     /* 16px */
+  --body-xs: var(--ds-body-xs-font-size);     /* 14px */
+
+  /* Spacing — exposed via --ds-size-N (4-step rem unit, 18px base).
+     Convenience aliases for common UI gaps. */
+  --space-1: var(--ds-size-1);
+  --space-2: var(--ds-size-2);
+  --space-3: var(--ds-size-3);
+  --space-4: var(--ds-size-4);
+  --space-5: var(--ds-size-5);
+  --space-6: var(--ds-size-6);
+  --space-8: var(--ds-size-8);
+  --space-10: var(--ds-size-10);
+  --space-12: var(--ds-size-12);
+  --space-15: var(--ds-size-15);
+
+  /* Radii */
+  --radius-sm:  var(--ds-border-radius-sm);
+  --radius-md:  var(--ds-border-radius-md);
+  --radius-lg:  var(--ds-border-radius-lg);
+  --radius-xl:  var(--ds-border-radius-xl);
+  --radius-full: var(--ds-border-radius-full);
+
+  /* Shadows */
+  --shadow-xs: var(--ds-shadow-xs);
+  --shadow-sm: var(--ds-shadow-sm);
+  --shadow-md: var(--ds-shadow-md);
+  --shadow-lg: var(--ds-shadow-lg);
+  --shadow-xl: var(--ds-shadow-xl);
+}
+
+/* Base reset for cards / docs */
+html, body {
+  font-family: var(--font-family);
+  font-feature-settings: var(--font-features); /* cv05 = l with tail */
+  color: var(--fg1);
+  background: var(--bg);
+  font-size: 18px;          /* matches Designsystemet medium size mode (18px base) */
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Convenience semantic classes — match ds-heading data-size mapping */
+.h1, h1 { font-family: var(--font-display); font-size: var(--h1-size); font-weight: var(--h1-weight); line-height: var(--h1-lh); letter-spacing: var(--h1-tracking); margin: 0; }
+.h2, h2 { font-family: var(--font-display); font-size: var(--h2-size); font-weight: var(--h2-weight); line-height: var(--h2-lh); letter-spacing: var(--h2-tracking); margin: 0; }
+.h3, h3 { font-family: var(--font-display); font-size: var(--h3-size); font-weight: var(--h3-weight); line-height: 1.3; margin: 0; }
+.h4, h4 { font-family: var(--font-family); font-size: var(--h4-size); font-weight: 500; line-height: 1.3; margin: 0; }
+.h5, h5 { font-family: var(--font-family); font-size: var(--h5-size); font-weight: 500; line-height: 1.3; margin: 0; }
+.h6, h6 { font-family: var(--font-family); font-size: var(--h6-size); font-weight: 500; line-height: 1.3; margin: 0; }
+
+p, .body { font-size: var(--body); line-height: 1.5; margin: 0; color: var(--fg1); }
+.body-lg { font-size: var(--body-lg); line-height: 1.5; }
+.body-sm { font-size: var(--body-sm); line-height: 1.5; }
+.body-xs { font-size: var(--body-xs); line-height: 1.5; }
+.muted   { color: var(--fg2); }
+button, input, select, textarea { font-feature-settings: inherit; }
+code, kbd, samp { font-family: var(--font-mono); font-size: 0.9em; }

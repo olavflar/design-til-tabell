@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/designsystemet-digdir-theme-019dfd50-75d7-75cc-8809-eea5e551a9b6/styles.css">
+<script src="_ds/designsystemet-digdir-theme-019dfd50-75d7-75cc-8809-eea5e551a9b6/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:var(--ds-color-neutral-background-tinted);font-family:"Inter",sans-serif;font-feature-settings:"cv05" 1;color:var(--ds-color-neutral-text-default)}
+a{color:var(--ds-color-accent-text-subtle)}a:hover{color:var(--ds-color-accent-text-default)}
+</style>
+</helmet>
+<section style="padding:64px 64px 96px;display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:760px">
+    <p class="ds-paragraph" data-size="sm" style="margin:0;color:var(--ds-color-neutral-text-subtle)">Mønster: Strukturert data på små skjermer ·</p>
+    <h1 class="ds-heading" data-size="lg" style="margin:0">Tabell med horisontal skroll</h1>
+    <p class="ds-paragraph" style="margin:0;text-wrap:pretty">Generisk eksempel basert på SSB, Tabell 1 «Innenlandsk person- og godstransportarbeid, etter transportmåte». Samme data vist i 375 px bredde, bygget med tabellkomponenten i Designsystemet.</p>
+    <p class="ds-paragraph" data-size="sm" style="margin:0;text-wrap:pretty"><strong>WCAG 2.2, 1.4.10 Reflow:</strong> Innhold skal normalt fungere uten scrolling i to dimensjoner ved tilsvarende 320 CSS px bredde. Datatabeller er eksplisitt nevnt som unntak, fordi den todimensjonale strukturen kan være nødvendig for mening. Horisontal scroll er derfor tillatt for selve tabellen, men ikke for siden rundt.</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px;max-width:760px;padding:24px;background:var(--ds-color-neutral-background-default);border:1px solid var(--ds-color-neutral-border-subtle);border-radius:var(--ds-border-radius-lg)">
+    <h2 class="ds-heading" data-size="sm" style="margin:0">Når er horisontal scrolling greit?</h2>
+    <p class="ds-paragraph" style="margin:0;text-wrap:pretty"><strong>Forslag:</strong> Horisontal scrolling kan brukes når en tabell ikke får plass uten at lesbarhet eller sammenhengen mellom kolonner går tapt.</p>
+    <p class="ds-paragraph" style="margin:0;text-wrap:pretty">OK når datasett er komplekse og har flere objekter med data tilknyttet mange emner.</p>
+    <ul class="ds-list">
+      <li>Pass på at hvert objekt (rad) er identifiserbar også når en har rullet til høyre. (når hver rad er et objekt i datasettet) (feks sticky første kolonne)</li>
+      <li>Sørg for at det er tydelig at tabellen kan scrolles</li>
+      <li>Hold overskrifter synlige når brukeren trenger dem for å forstå dataene. (f.eks sticky førstekolonne)</li>
+      <li>Lange labels/objektnavn: nummerer eller lag kortversjon som brukes for rullingen. Eller vurder linjeskift i innholdet.</li>
+      <li>Tabel på mobil kan eventuelt gjort om til tabs. Det ville gi mer kontroll til brukerne</li>
+    </ul>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px;max-width:760px;padding:24px;background:var(--ds-color-neutral-background-default);border:1px solid var(--ds-color-neutral-border-subtle);border-radius:var(--ds-border-radius-lg)">
+    <h2 class="ds-heading" data-size="sm" style="margin:0">Skal brukeren få den samme informasjonen på alle skjermstørrelser?</h2>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+
+    <div id="1a" style="display:flex;flex-direction:column;gap:16px;width:375px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="background:var(--ds-color-accent-base-default);color:var(--ds-color-accent-base-contrast-default);font-weight:600;font-size:14px;padding:2px 10px;border-radius:999px">1a</span>
+        <h2 class="ds-heading" data-size="xs" style="margin:0">Horisontal skroll</h2>
+      </div>
+      <p class="ds-paragraph" data-size="sm" style="margin:0;text-wrap:pretty">Tabellen beholdes som den er og rulles sideveis. Når brukeren ruller, forsvinner radoverskriftene, og det blir uklart hva tallene beskriver.</p>
+      <div style="width:375px;height:780px;background:var(--ds-color-neutral-background-default);border:1px solid var(--ds-color-neutral-border-subtle);border-radius:24px;box-shadow:var(--ds-shadow-md);overflow:hidden;display:flex;flex-direction:column">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--ds-color-neutral-border-subtle);font-size:14px;font-weight:600">Statistikk</div>
+        <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <p class="ds-paragraph" data-size="sm" style="margin:0;color:var(--ds-color-accent-text-subtle);font-weight:500">Tabell 1</p>
+            <h3 id="t1a" class="ds-heading" data-size="2xs" style="margin:0">Innenlandsk person- og godstransportarbeid, etter transportmåte</h3>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:4px">
+            <button class="ds-button" data-variant="tertiary" data-size="sm" data-icon="true" aria-label="Rull til venstre" onClick="{{ leftA }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5 6.5 9 12l5.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+            <button class="ds-button" data-variant="tertiary" data-size="sm" data-icon="true" aria-label="Rull til høyre" onClick="{{ rightA }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9.5 6.5 15 12l-5.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+          </div>
+          <div ref="{{ refA }}" tabindex="0" role="region" aria-labelledby="t1a" style="overflow-x:auto;margin:0 -20px;padding:0 20px">
+            <table class="ds-table" data-size="sm" style="width:max-content;min-width:100%">
+              <thead><tr>
+                <th scope="col" style="min-width:180px;vertical-align:bottom">Transportmåte</th>
+                <th scope="col" style="text-align:right;min-width:88px">2024</th>
+                <th scope="col" style="text-align:right;min-width:88px">2025</th>
+                <th scope="col" style="text-align:right;min-width:120px">Endring 2024–2025, prosent</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
+                  <tr>
+                    <th scope="row" style="font-weight:{{ r.weight }};padding-left:{{ r.indent }};max-width:180px;white-space:normal;background:{{ r.bg }}">{{ r.label }}</th>
+                    <td style="text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:{{ r.numWeight }};background:{{ r.bg }}">{{ r.a }}</td>
+                    <td style="text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:{{ r.numWeight }};background:{{ r.bg }}">{{ r.b }}</td>
+                    <td style="text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;background:{{ r.bg }}">{{ r.c }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <ol style="margin:0;padding-left:18px;font-size:14px;line-height:1.5;color:var(--ds-color-neutral-text-subtle);display:flex;flex-direction:column;gap:4px">
+            <sc-for list="{{ notes }}" as="n" hint-placeholder-count="3"><li>{{ n }}</li></sc-for>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div id="1b" style="display:flex;flex-direction:column;gap:16px;width:375px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="background:var(--ds-color-accent-base-default);color:var(--ds-color-accent-base-contrast-default);font-weight:600;font-size:14px;padding:2px 10px;border-radius:999px">1b</span>
+        <h2 class="ds-heading" data-size="xs" style="margin:0">Horisontal skroll med fast førstekolonne</h2>
+      </div>
+      <p class="ds-paragraph" data-size="sm" style="margin:0;text-wrap:pretty">Radoverskriftene står fast mens tallkolonnene rulles. En skygge viser at det er innhold under. Sammenhengen mellom verdi og rad bevares.</p>
+      <div style="width:375px;height:780px;background:var(--ds-color-neutral-background-default);border:1px solid var(--ds-color-neutral-border-subtle);border-radius:24px;box-shadow:var(--ds-shadow-md);overflow:hidden;display:flex;flex-direction:column">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--ds-color-neutral-border-subtle);font-size:14px;font-weight:600">Statistikk</div>
+        <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <p class="ds-paragraph" data-size="sm" style="margin:0;color:var(--ds-color-accent-text-subtle);font-weight:500">Tabell 1</p>
+            <h3 id="t1b" class="ds-heading" data-size="2xs" style="margin:0">Innenlandsk person- og godstransportarbeid, etter transportmåte</h3>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <p class="ds-paragraph" data-size="xs" style="margin:0;color:var(--ds-color-neutral-text-subtle)">Rull sideveis for å se flere kolonner</p>
+            <div style="display:flex;gap:4px">
+              <button class="ds-button" data-variant="tertiary" data-size="sm" data-icon="true" aria-label="Rull til venstre" onClick="{{ leftB }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14.5 6.5 9 12l5.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+              <button class="ds-button" data-variant="tertiary" data-size="sm" data-icon="true" aria-label="Rull til høyre" onClick="{{ rightB }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9.5 6.5 15 12l-5.5 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+            </div>
+          </div>
+          <div ref="{{ refB }}" onScroll="{{ onScrollB }}" tabindex="0" role="region" aria-labelledby="t1b" style="overflow-x:auto;margin:0 -20px">
+            <table class="ds-table" data-size="sm" style="width:max-content;min-width:100%">
+              <thead><tr>
+                <th scope="col" style="position:sticky;left:0;z-index:2;background:var(--ds-color-neutral-background-default);width:150px;min-width:150px;max-width:150px;vertical-align:bottom;padding-left:20px;box-shadow:{{ edge }}">Transportmåte</th>
+                <th scope="col" style="text-align:right;min-width:88px">2024</th>
+                <th scope="col" style="text-align:right;min-width:88px">2025</th>
+                <th scope="col" style="text-align:right;min-width:120px;padding-right:20px">Endring 2024–2025, prosent</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ rowsB }}" as="r" hint-placeholder-count="12">
+                  <tr>
+                    <th scope="row" style="position:sticky;left:0;z-index:1;width:150px;min-width:150px;max-width:150px;white-space:normal;hyphens:auto;font-weight:{{ r.weight }};padding-left:{{ r.indentB }};background:{{ r.bgSolid }};box-shadow:{{ r.edge }}">{{ r.label }}</th>
+                    <td style="text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:{{ r.numWeight }};background:{{ r.bg }}">{{ r.a }}</td>
+                    <td style="text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:{{ r.numWeight }};background:{{ r.bg }}">{{ r.b }}</td>
+                    <td style="text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;padding-right:20px;background:{{ r.bg }}">{{ r.c }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <ol style="margin:0;padding-left:18px;font-size:14px;line-height:1.5;color:var(--ds-color-neutral-text-subtle);display:flex;flex-direction:column;gap:4px">
+            <sc-for list="{{ notes }}" as="n" hint-placeholder-count="3"><li>{{ n }}</li></sc-for>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div id="1c" style="display:flex;flex-direction:column;gap:16px;width:1024px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="background:var(--ds-color-accent-base-default);color:var(--ds-color-accent-base-contrast-default);font-weight:600;font-size:14px;padding:2px 10px;border-radius:999px">1c</span>
+        <h2 class="ds-heading" data-size="xs" style="margin:0">Stor skjerm</h2>
+      </div>
+      <p class="ds-paragraph" data-size="sm" style="margin:0;max-width:640px;text-wrap:pretty">Samme tabell i 1024 px bredde. Alle kolonner får plass, så det er ikke behov for horisontal scrolling. Radoverskrifter står på én linje.</p>
+      <div style="width:1024px;background:var(--ds-color-neutral-background-default);border:1px solid var(--ds-color-neutral-border-subtle);border-radius:12px;box-shadow:var(--ds-shadow-md);overflow:hidden;display:flex;flex-direction:column">
+        <div style="padding:14px 32px;border-bottom:1px solid var(--ds-color-neutral-border-subtle);font-size:14px;font-weight:600">Statistikk</div>
+        <div style="padding:40px 64px 48px;display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <p class="ds-paragraph" data-size="sm" style="margin:0;color:var(--ds-color-accent-text-subtle);font-weight:500">Tabell 1</p>
+            <h3 class="ds-heading" data-size="xs" style="margin:0">Innenlandsk person- og godstransportarbeid, etter transportmåte</h3>
+          </div>
+          <table class="ds-table" data-size="md" style="width:100%">
+            <thead><tr>
+              <th scope="col">Transportmåte</th>
+              <th scope="col" style="text-align:right;width:130px">2024</th>
+              <th scope="col" style="text-align:right;width:130px">2025</th>
+              <th scope="col" style="text-align:right;width:200px">Endring 2024–2025, prosent</th>
+            </tr></thead>
+            <tbody>
+              <sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
+                <tr>
+                  <th scope="row" style="font-weight:{{ r.weight }};padding-left:{{ r.indentL }};background:{{ r.bg }}">{{ r.label }}</th>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:{{ r.numWeight }};background:{{ r.bg }}">{{ r.a }}</td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:{{ r.numWeight }};background:{{ r.bg }}">{{ r.b }}</td>
+                  <td style="text-align:right;font-variant-numeric:tabular-nums;background:{{ r.bg }}">{{ r.c }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+          <ol style="margin:0;padding-left:18px;font-size:14px;line-height:1.5;color:var(--ds-color-neutral-text-subtle);display:flex;flex-direction:column;gap:4px">
+            <sc-for list="{{ notes }}" as="n" hint-placeholder-count="3"><li>{{ n }}</li></sc-for>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const RAW = [
+  ['g','Persontransport uten kabotasje. Mill. personkm¹'],
+  [0,'I alt',75968,77681,true],[0,'Skinnegående transport',4720,4749],[0,'Lufttransport',5388,5548],[0,'Veitransport',64843,66325],[0,'Sjøtransport',1018,1061],
+  ['g','Godstransport uten kabotasje. Mill. tonnkm²'],
+  [0,'I alt',59127,58523,true],[0,'Fastlandstransport i alt',26586,26162],[1,'Jernbanetransport',1832,1892],[1,'Lufttransport',8,8],[1,'Veitransport',22824,22500],[1,'Sjøtransport',1922,1763],[2,'Bilferjeruter',204,218],[2,'Annen sjøtransport',1718,1545],[0,'Transport norsk kontinentalsokkel - fastland i alt',32541,32360],
+  ['g','Godstransport medregnet kabotasje. Mill. tonnkm³'],
+  [0,'I alt',75176,74964,true],[0,'Fastlandstransport i alt',41393,40957],[1,'Jernbanetransport',1876,1902],[1,'Lufttransport',8,8],[1,'Veitransport',23351,23213],[1,'Sjøtransport',16159,15835],[2,'Bilferjeruter',204,218],[2,'Annen sjøtransport',15955,15616],[3,'Norsk Ordinært Skipsregister (NOR)',1718,1545],[3,'Norsk Internasjonalt Skipsregister (NIS)',513,766],[3,'Utenlandske skipsregistre',13725,13305],[0,'Transport norsk kontinentalsokkel - fastland i alt',33783,34007]
+];
+const fmt = n => n.toLocaleString('nb-NO').replace(/\s/g, '\u00a0');
+const pct = (a, b) => { const v = (b - a) / a * 100; return (v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ','); };
+const TINT = 'var(--ds-color-neutral-background-tinted)';
+const WHITE = 'var(--ds-color-neutral-background-default)';
+const SHADOW = '6px 0 8px -4px rgba(0,0,0,.18)';
+class Component extends DCLogic {
+  state = { scrolled: false };
+  refA = React.createRef();
+  refB = React.createRef();
+  scroll(ref, d) { ref.current && ref.current.scrollBy({ left: d, behavior: 'smooth' }); }
+  renderVals() {
+    const edge = this.state.scrolled ? SHADOW : 'none';
+    const rows = RAW.map(r => {
+      if (r[0] === 'g') return { label: r[1], a: '', b: '', c: '', weight: 600, numWeight: 400, indent: '12px', indentB: '20px', indentL: '16px', bg: TINT, bgSolid: TINT, edge };
+      const [lvl, label, a, b, tot] = r;
+      return { label, a: fmt(a), b: fmt(b), c: pct(a, b), weight: tot ? 600 : 400, numWeight: tot ? 600 : 400,
+        indent: (12 + lvl * 14) + 'px', indentB: (20 + lvl * 12) + 'px', indentL: (16 + lvl * 24) + 'px', bg: 'transparent', bgSolid: WHITE, edge };
+    });
+    return {
+      rows, rowsB: rows, edge,
+      notes: [
+        'Bare medregnet norske transportmidler som har både på- og avstigning i Norge.',
+        'Omfatter gods på norske transportmidler som er lastet og losset i Norge.',
+        'Kabotasje omfatter gods på utenlandske transportmidler der godset er både lastet og losset i Norge.'
+      ],
+      refA: this.refA, refB: this.refB,
+      leftA: () => this.scroll(this.refA, -160), rightA: () => this.scroll(this.refA, 160),
+      leftB: () => this.scroll(this.refB, -160), rightB: () => this.scroll(this.refB, 160),
+      onScrollB: e => { const s = e.currentTarget.scrollLeft > 2; if (s !== this.state.scrolled) this.setState({ scrolled: s }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
