@@ -334,98 +334,98 @@ const TransportTable = ({ stickyColumn, stickyHeader }: Options) => {
       </div>
 
       <ScrollArea
-          labelledBy={titleId}
+        labelledBy={titleId}
+        stickyHeader={stickyHeader}
+        stickyColumn={stickyColumn}
+        onScrolledChange={setScrolled}
+      >
+        <Table
+          data-size='sm'
+          data-color='neutral'
           stickyHeader={stickyHeader}
-          stickyColumn={stickyColumn}
-          onScrolledChange={setScrolled}
+          aria-labelledby={titleId}
+          style={{ width: 'max-content', minWidth: '100%' }}
         >
-          <Table
-            data-size='sm'
-            data-color='neutral'
-            stickyHeader={stickyHeader}
-            aria-labelledby={titleId}
-            style={{ width: 'max-content', minWidth: '100%' }}
-          >
-            <Table.Head>
-              <Table.Row>
+          <Table.Head>
+            <Table.Row>
+              <Table.HeaderCell
+                scope='col'
+                style={{
+                  ...labelCell(),
+                  verticalAlign: 'bottom',
+                  ...sticky(stickyColumn, scrolled, undefined, 3),
+                }}
+              >
+                Transportmåte
+              </Table.HeaderCell>
+              {COLUMNS.map((c, i) => (
                 <Table.HeaderCell
+                  key={c}
                   scope='col'
                   style={{
-                    ...labelCell(),
-                    verticalAlign: 'bottom',
-                    ...sticky(stickyColumn, scrolled, undefined, 3),
+                    ...numCell,
+                    ...(i === COLUMNS.length - 1 && {
+                      whiteSpace: 'normal',
+                      minWidth: '7.5rem',
+                    }),
                   }}
                 >
-                  Transportmåte
+                  {c}
                 </Table.HeaderCell>
-                {COLUMNS.map((c, i) => (
-                  <Table.HeaderCell
-                    key={c}
-                    scope='col'
-                    style={{
-                      ...numCell,
-                      ...(i === COLUMNS.length - 1 && {
-                        whiteSpace: 'normal',
-                        minWidth: '7.5rem',
-                      }),
-                    }}
-                  >
-                    {c}
-                  </Table.HeaderCell>
-                ))}
-              </Table.Row>
-            </Table.Head>
+              ))}
+            </Table.Row>
+          </Table.Head>
 
-            {GROUPS.map((g) => (
-              <Table.Body key={g.label}>
-                <Table.Row>
-                  <Table.HeaderCell
-                    scope='rowgroup'
-                    style={{
-                      ...labelCell(),
-                      background: groupBackground,
-                      ...sticky(stickyColumn, scrolled, groupBackground),
-                    }}
-                  >
-                    {g.label}
-                  </Table.HeaderCell>
-                  <Table.Cell
-                    colSpan={COLUMNS.length}
-                    style={{ background: groupBackground }}
-                  />
-                </Table.Row>
-                {g.rows.map(([level, label, a, b, total]) => {
-                  const weight = total
-                    ? 'var(--ds-font-weight-semibold)'
-                    : 'var(--ds-font-weight-regular)';
-                  return (
-                    <Table.Row key={label + a}>
-                      <Table.HeaderCell
-                        scope='row'
-                        style={{
-                          ...labelCell(level),
-                          fontWeight: weight,
-                          ...sticky(stickyColumn, scrolled),
-                        }}
-                      >
-                        {label}
-                      </Table.HeaderCell>
-                      <Table.Cell style={{ ...numCell, fontWeight: weight }}>
-                        {formatNumber(a)}
-                      </Table.Cell>
-                      <Table.Cell style={{ ...numCell, fontWeight: weight }}>
-                        {formatNumber(b)}
-                      </Table.Cell>
-                      <Table.Cell style={numCell}>
-                        {formatChange(a, b)}
-                      </Table.Cell>
-                    </Table.Row>
-                  );
-                })}
-              </Table.Body>
-            ))}
-          </Table>
-        </ScrollArea>
+          {GROUPS.map((g) => (
+            <Table.Body key={g.label}>
+              <Table.Row>
+                <Table.HeaderCell
+                  scope='rowgroup'
+                  style={{
+                    ...labelCell(),
+                    background: groupBackground,
+                    ...sticky(stickyColumn, scrolled, groupBackground),
+                  }}
+                >
+                  {g.label}
+                </Table.HeaderCell>
+                <Table.Cell
+                  colSpan={COLUMNS.length}
+                  style={{ background: groupBackground }}
+                />
+              </Table.Row>
+              {g.rows.map(([level, label, a, b, total]) => {
+                const weight = total
+                  ? 'var(--ds-font-weight-semibold)'
+                  : 'var(--ds-font-weight-regular)';
+                return (
+                  <Table.Row key={label + a}>
+                    <Table.HeaderCell
+                      scope='row'
+                      style={{
+                        ...labelCell(level),
+                        fontWeight: weight,
+                        ...sticky(stickyColumn, scrolled),
+                      }}
+                    >
+                      {label}
+                    </Table.HeaderCell>
+                    <Table.Cell style={{ ...numCell, fontWeight: weight }}>
+                      {formatNumber(a)}
+                    </Table.Cell>
+                    <Table.Cell style={{ ...numCell, fontWeight: weight }}>
+                      {formatNumber(b)}
+                    </Table.Cell>
+                    <Table.Cell style={numCell}>
+                      {formatChange(a, b)}
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          ))}
+        </Table>
+      </ScrollArea>
 
       <ol
         style={{
@@ -778,8 +778,10 @@ const SORT_ORDERS: { value: SortOrder; label: string }[] = [
 ];
 
 const compareCases: Record<SortOrder, (a: Case, b: Case) => number> = {
-  nyest: (a, b) => sortableDate(b.received).localeCompare(sortableDate(a.received)),
-  eldst: (a, b) => sortableDate(a.received).localeCompare(sortableDate(b.received)),
+  nyest: (a, b) =>
+    sortableDate(b.received).localeCompare(sortableDate(a.received)),
+  eldst: (a, b) =>
+    sortableDate(a.received).localeCompare(sortableDate(b.received)),
   oppdatert: (a, b) =>
     sortableDate(b.updated).localeCompare(sortableDate(a.updated)),
   navn: (a, b) => a.title.localeCompare(b.title, 'nb'),
@@ -822,14 +824,87 @@ const CaseActions = ({ item }: { item: Case }) => {
   );
 };
 
+/** Bredden der tabellen får plass uten sideveis rulling */
+const TABLE_MIN_WIDTH = 832;
+
 /**
- * Kort med beskrivelsesliste, søk og sortering: hver rad i tabellen blir et
- * kort. Saksnummer og handlinger står øverst, og hver kolonne blir et par
+ * Om elementet er bredt nok til tabell. Måler elementet selv, ikke vinduet,
+ * så prototypen følger bredden på rammen den vises i.
+ */
+const useFitsTable = (ref: RefObject<HTMLElement | null>) => {
+  const [fits, setFits] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) =>
+      setFits(entry.contentRect.width >= TABLE_MIN_WIDTH),
+    );
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return fits;
+};
+
+/** De samme sakene som tabell, for full bredde */
+const CaseTable = ({
+  items,
+  labelledBy,
+}: {
+  items: Case[];
+  labelledBy: string;
+}) => (
+  <Table data-size='sm' data-color='neutral' aria-labelledby={labelledBy}>
+    <Table.Head>
+      <Table.Row>
+        <Table.HeaderCell scope='col'>Sak</Table.HeaderCell>
+        <Table.HeaderCell scope='col'>Saksnummer</Table.HeaderCell>
+        {CARD_FIELDS.filter(({ key }) => key !== 'title').map(
+          ({ key, label }) => (
+            <Table.HeaderCell key={key} scope='col'>
+              {label}
+            </Table.HeaderCell>
+          ),
+        )}
+        <Table.HeaderCell scope='col'>Handlinger</Table.HeaderCell>
+      </Table.Row>
+    </Table.Head>
+    <Table.Body>
+      {items.map((c) => (
+        <Table.Row key={c.id}>
+          <Table.HeaderCell scope='row'>
+            {/* Tabellen er nøytral, lenken beholder lenkefargen */}
+            <Link data-color='accent' href={`#${c.id}`}>
+              {c.title}
+            </Link>
+          </Table.HeaderCell>
+          <Table.Cell style={{ whiteSpace: 'nowrap' }}>
+            {c.caseNumber}
+          </Table.Cell>
+          <Table.Cell>
+            <StatusTag status={c.status} />
+          </Table.Cell>
+          <Table.Cell>{c.received}</Table.Cell>
+          <Table.Cell>{c.updated}</Table.Cell>
+          <Table.Cell>{c.handler}</Table.Cell>
+          <Table.Cell>
+            <CaseActions item={c} />
+          </Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table>
+);
+
+/**
+ * Kort med beskrivelsesliste, søk og sortering: på full bredde vises sakene
+ * som tabell, og når tabellen ikke får plass, blir hver rad et kort. Saksnummer og handlinger står øverst, og hver kolonne blir et par
  * med etikett og verdi. Søk, statusfilter og sortering over listen gjør det
  * mulig å finne én sak blant mange.
  */
 export const CasesSearchableCards = () => {
   const id = useId();
+  const ref = useRef<HTMLElement>(null);
+  const fitsTable = useFitsTable(ref);
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<Status | ''>('');
   const [order, setOrder] = useState<SortOrder>('nyest');
@@ -846,6 +921,7 @@ export const CasesSearchableCards = () => {
 
   return (
     <section
+      ref={ref}
       aria-labelledby={`${id}-heading`}
       style={{
         display: 'flex',
@@ -929,76 +1005,86 @@ export const CasesSearchableCards = () => {
             }`}
       </Paragraph>
 
-      <ul
-        style={{
-          ...listReset,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 20rem), 1fr))',
-          gap: 'var(--ds-size-3)',
-        }}
-      >
-        {shown.map((c) => (
-          <li key={c.id}>
-            <Card
-              data-color='neutral'
-              style={{ height: '100%', padding: 0, gap: 0 }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 'var(--ds-size-2)',
-                  padding: 'var(--ds-size-2) var(--ds-size-2) var(--ds-size-2) var(--ds-size-4)',
-                  borderBottom:
-                    'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
-                }}
+      {fitsTable ? (
+        shown.length > 0 && (
+          <CaseTable items={shown} labelledBy={`${id}-heading`} />
+        )
+      ) : (
+        <ul
+          style={{
+            ...listReset,
+            display: 'grid',
+            gridTemplateColumns:
+              'repeat(auto-fill, minmax(min(100%, 20rem), 1fr))',
+            gap: 'var(--ds-size-3)',
+          }}
+        >
+          {shown.map((c) => (
+            <li key={c.id}>
+              <Card
+                data-color='neutral'
+                style={{ height: '100%', padding: 0, gap: 0 }}
               >
-                <Heading level={4} data-size='2xs' style={{ margin: 0 }}>
-                  Sak {c.caseNumber}
-                </Heading>
-                <CaseActions item={c} />
-              </div>
-              <dl
-                style={{
-                  margin: 0,
-                  padding: '0 var(--ds-size-4)',
-                  fontSize: 'var(--ds-body-sm-font-size)',
-                }}
-              >
-                {CARD_FIELDS.map(({ key, label }, i) => (
-                  <div
-                    key={key}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'minmax(6.5rem, 2fr) 5fr',
-                      gap: 'var(--ds-size-3)',
-                      paddingBlock: 'var(--ds-size-2)',
-                      borderTop:
-                        i > 0
-                          ? 'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)'
-                          : undefined,
-                    }}
-                  >
-                    <dt style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
-                      {label}
-                    </dt>
-                    <dd style={{ margin: 0 }}>
-                      {key === 'status' ? (
-                        <StatusTag status={c.status} />
-                      ) : key === 'title' ? (
-                        <Link href={`#${c.id}`}>{c.title}</Link>
-                      ) : (
-                        c[key]
-                      )}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </Card>
-          </li>
-        ))}
-      </ul>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 'var(--ds-size-2)',
+                    padding:
+                      'var(--ds-size-2) var(--ds-size-2) var(--ds-size-2) var(--ds-size-4)',
+                    borderBottom:
+                      'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
+                  }}
+                >
+                  <Heading level={4} data-size='2xs' style={{ margin: 0 }}>
+                    Sak {c.caseNumber}
+                  </Heading>
+                  <CaseActions item={c} />
+                </div>
+                <dl
+                  style={{
+                    margin: 0,
+                    padding: '0 var(--ds-size-4)',
+                    fontSize: 'var(--ds-body-sm-font-size)',
+                  }}
+                >
+                  {CARD_FIELDS.map(({ key, label }, i) => (
+                    <div
+                      key={key}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'minmax(6.5rem, 2fr) 5fr',
+                        gap: 'var(--ds-size-3)',
+                        paddingBlock: 'var(--ds-size-2)',
+                        borderTop:
+                          i > 0
+                            ? 'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)'
+                            : undefined,
+                      }}
+                    >
+                      <dt
+                        style={{ color: 'var(--ds-color-neutral-text-subtle)' }}
+                      >
+                        {label}
+                      </dt>
+                      <dd style={{ margin: 0 }}>
+                        {key === 'status' ? (
+                          <StatusTag status={c.status} />
+                        ) : key === 'title' ? (
+                          <Link href={`#${c.id}`}>{c.title}</Link>
+                        ) : (
+                          c[key]
+                        )}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 };
