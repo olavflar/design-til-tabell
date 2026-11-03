@@ -1,8 +1,8 @@
 import {
-  Button,
   Card,
   Chip,
   Details,
+  Dropdown,
   Field,
   Fieldset,
   Heading,
@@ -14,14 +14,14 @@ import {
   Select,
   Table,
   Tag,
-  Tooltip,
 } from '@digdir/designsystemet-react';
 import {
+  ChatIcon,
+  ChevronDownIcon,
   ChevronRightIcon,
   DownloadIcon,
-  EyeIcon,
   PaperclipIcon,
-  TrashIcon,
+  XMarkOctagonIcon,
 } from '@navikt/aksel-icons';
 import {
   type CSSProperties,
@@ -58,7 +58,9 @@ const KeyValueTable = ({
   label: string;
   rows: [string, ReactNode][];
 }) => (
-  <Table data-size='sm' aria-label={label}>
+  <Table data-size='sm'>
+    {/* Tabeller skal alltid ha caption. Her står navnet allerede synlig over. */}
+    <caption className='ds-sr-only'>{label}</caption>
     <Table.Body>
       {rows.map(([key, value]) => (
         <Table.Row key={key}>
@@ -170,32 +172,31 @@ const formatChange = (a: number, b: number) => {
   const v = ((b - a) / a) * 100;
   return (v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ',');
 };
+/** Tall høyrejusteres, slik retningslinjene for Table sier */
+const numeric: CSSProperties = { textAlign: 'right' };
+
 const TransportTable = ({ stickyHeader }: { stickyHeader?: boolean }) => {
   const titleId = useId();
   return (
     <div style={stack()}>
-      <div>
-        <Paragraph data-size='sm'>Tabell 1</Paragraph>
-        <Heading id={titleId} level={3} data-size='2xs'>
-          {TITLE}
-        </Heading>
-      </div>
+      {/* Synlig tittel utenfor rulleområdet, så den ikke ruller bort sideveis */}
+      <Heading id={titleId} level={3} data-size='2xs'>
+        Tabell 1. {TITLE}
+      </Heading>
 
       {/* cqh er høyden til rammen rundt prototypen, ellers skjermhøyden */}
       <ScrollRegion
         labelledBy={titleId}
         maxHeight={stickyHeader ? '70cqh' : undefined}
       >
-        <Table
-          data-size='sm'
-          stickyHeader={stickyHeader}
-          aria-labelledby={titleId}
-        >
+        <Table data-size='sm' stickyHeader={stickyHeader}>
+          {/* Tabeller skal alltid ha caption. Tittelen står synlig over. */}
+          <caption className='ds-sr-only'>Tabell 1. {TITLE}</caption>
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell scope='col'>Transportmåte</Table.HeaderCell>
               {COLUMNS.map((c) => (
-                <Table.HeaderCell key={c} scope='col'>
+                <Table.HeaderCell key={c} scope='col' style={numeric}>
                   {c}
                 </Table.HeaderCell>
               ))}
@@ -205,9 +206,11 @@ const TransportTable = ({ stickyHeader }: { stickyHeader?: boolean }) => {
           {GROUPS.map((g) => (
             <Table.Body key={g.label}>
               <Table.Row>
-                <Table.HeaderCell scope='rowgroup' colSpan={COLUMNS.length + 1}>
-                  {g.label}
-                </Table.HeaderCell>
+                {/* Celler slås ikke sammen. Tomme celler er Table.Cell. */}
+                <Table.HeaderCell scope='rowgroup'>{g.label}</Table.HeaderCell>
+                {COLUMNS.map((c) => (
+                  <Table.Cell key={c} />
+                ))}
               </Table.Row>
               {g.rows.map(([, label, a, b, total]) => {
                 // Summeringsradene er uthevet med <strong>, ikke egen stil
@@ -217,13 +220,15 @@ const TransportTable = ({ stickyHeader }: { stickyHeader?: boolean }) => {
                     <Table.HeaderCell scope='row'>
                       <Text>{label}</Text>
                     </Table.HeaderCell>
-                    <Table.Cell>
+                    <Table.Cell style={numeric}>
                       <Text>{formatNumber(a)}</Text>
                     </Table.Cell>
-                    <Table.Cell>
+                    <Table.Cell style={numeric}>
                       <Text>{formatNumber(b)}</Text>
                     </Table.Cell>
-                    <Table.Cell>{formatChange(a, b)}</Table.Cell>
+                    <Table.Cell style={numeric}>
+                      {formatChange(a, b)}
+                    </Table.Cell>
                   </Table.Row>
                 );
               })}
@@ -514,7 +519,7 @@ const MESSAGES: Message[] = [
     subject: 'Vi trenger mer informasjon om søknaden din',
     preview:
       'Søknad om byggetillatelse, sak 2026/1432. Send inn tegninger av fasaden innen 15. november.',
-    received: 'I dag 09:14',
+    received: 'I dag kl. 09.14',
     unread: true,
     attachments: 1,
   },
@@ -524,7 +529,7 @@ const MESSAGES: Message[] = [
     subject: 'Vi har mottatt søknaden din',
     preview:
       'Søknad om tilskudd til lag og foreninger, sak 2026/1455. Du får svar innen fire uker.',
-    received: 'I går 14:02',
+    received: 'I går kl. 14.02',
     unread: true,
   },
   {
@@ -558,6 +563,23 @@ const MESSAGES: Message[] = [
     subject: 'Flyttingen din er registrert',
     preview: 'Den nye adressen din gjelder fra 1. august 2026.',
     received: '14.08.2026',
+  },
+  {
+    id: 'melding-7',
+    sender: 'Bymiljøetaten',
+    subject: 'Parkeringstillatelsen din er klar',
+    preview:
+      'Søknad om parkeringstillatelse, sak 2026/1187. Tillatelsen gjelder fra 1. oktober.',
+    received: '18.09.2026',
+    attachments: 1,
+  },
+  {
+    id: 'melding-8',
+    sender: 'Utdanningsetaten',
+    subject: 'Barnet ditt har fått plass i SFO',
+    preview:
+      'Plassen gjelder fra skolestart. Svar innen 1. juli om dere tar imot plassen.',
+    received: '12.06.2026',
   },
 ];
 
@@ -669,11 +691,7 @@ export const Inbox = () => {
               ? `Viser ${shown.length} av ${MESSAGES.length} meldinger`
               : `${unread} uleste av ${MESSAGES.length} meldinger`}
         </Paragraph>
-        {filtered && (
-          <Button variant='tertiary' data-size='sm' onClick={reset}>
-            Nullstill søk og filter
-          </Button>
-        )}
+        {filtered && <Chip.Button onClick={reset}>Tøm alle filtre</Chip.Button>}
       </div>
 
       <List.Unordered {...plainList}>
@@ -697,19 +715,28 @@ export const Inbox = () => {
               </Heading>
               <Paragraph data-size='sm'>{m.preview}</Paragraph>
               {(m.unread || m.attachments) && (
-                <div style={{ display: 'flex', gap: 'var(--ds-size-2)' }}>
+                // Flere tagger sammen ligger i en liste med navn, slik retningslinjene for Tag sier
+                <List.Unordered
+                  aria-label='Om meldingen'
+                  className={plainList.className}
+                  style={{ ...plainList.style, ...chipRow }}
+                >
                   {m.unread && (
-                    <Tag data-size='sm' data-color='info'>
-                      Ulest
-                    </Tag>
+                    <List.Item>
+                      <Tag data-size='sm' data-color='info'>
+                        Ulest
+                      </Tag>
+                    </List.Item>
                   )}
                   {m.attachments && (
-                    <Tag data-size='sm' data-color='neutral'>
-                      <PaperclipIcon aria-hidden />
-                      {m.attachments} vedlegg
-                    </Tag>
+                    <List.Item>
+                      <Tag data-size='sm' data-color='neutral'>
+                        <PaperclipIcon aria-hidden />
+                        {m.attachments} vedlegg
+                      </Tag>
+                    </List.Item>
                   )}
-                </div>
+                </List.Unordered>
               )}
             </Card>
           </List.Item>
@@ -722,6 +749,13 @@ export const Inbox = () => {
 /* -------------------------------------------------------------------------- */
 /* 1e: Tabell på full bredde, kort med søk og sortering når den ikke får plass */
 /* -------------------------------------------------------------------------- */
+
+/** Filterbrikker brytes over flere linjer når det trengs */
+const chipRow: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 'var(--ds-size-2)',
+};
 
 /** «dd.mm.åååå» som tall som kan sorteres */
 const sortableDate = (d: string) => d.split('.').reverse().join('');
@@ -754,33 +788,49 @@ const CARD_FIELDS: { key: keyof Case; label: string }[] = [
   { key: 'handler', label: 'Behandler' },
 ];
 
-const CaseActions = ({ item }: { item: Case }) => {
-  const actions = [
-    { label: 'Åpne', Icon: EyeIcon },
-    { label: 'Last ned kvittering for', Icon: DownloadIcon },
-    // En avsluttet sak kan ikke trekkes tilbake
-    ...(item.status === 'Avsluttet'
-      ? []
-      : [{ label: 'Trekk tilbake', Icon: TrashIcon }]),
-  ];
-  return (
-    <div style={{ display: 'flex', gap: 'var(--ds-size-1)' }}>
-      {actions.map(({ label, Icon }) => (
-        // Ikonet alene er ikke nok: knappen får hele handlingen og saken som navn
-        <Tooltip key={label} content={`${label} sak ${item.caseNumber}`}>
-          <Button
-            variant='tertiary'
-            data-size='sm'
-            icon
-            data-color={Icon === TrashIcon ? 'danger' : undefined}
-          >
-            <Icon aria-hidden />
-          </Button>
-        </Tooltip>
-      ))}
-    </div>
-  );
-};
+/**
+ * Handlingene for en sak ligger i en meny. Retningslinjene for Table sier at
+ * hver celle bør ha bare ett interaktivt element, og at en meny kan spare
+ * plass når en rad har flere handlinger. Å åpne saken gjør lenken i navnet.
+ */
+const CaseActions = ({ item }: { item: Case }) => (
+  <Dropdown.TriggerContext>
+    {/* Det tilgjengelige navnet starter med den synlige teksten (WCAG 2.5.3) */}
+    <Dropdown.Trigger
+      variant='tertiary'
+      data-size='sm'
+      aria-label={`Handlinger for sak ${item.caseNumber}`}
+    >
+      Handlinger
+      <ChevronDownIcon aria-hidden />
+    </Dropdown.Trigger>
+    <Dropdown placement='bottom-end' data-size='sm'>
+      <Dropdown.List>
+        <Dropdown.Item>
+          <Dropdown.Button>
+            <DownloadIcon aria-hidden />
+            Last ned kvittering
+          </Dropdown.Button>
+        </Dropdown.Item>
+        <Dropdown.Item>
+          <Dropdown.Button>
+            <ChatIcon aria-hidden />
+            Send melding
+          </Dropdown.Button>
+        </Dropdown.Item>
+        {/* En avsluttet sak kan ikke trekkes tilbake, så valget vises ikke */}
+        {item.status !== 'Avsluttet' && (
+          <Dropdown.Item>
+            <Dropdown.Button>
+              <XMarkOctagonIcon aria-hidden />
+              Trekk tilbake saken
+            </Dropdown.Button>
+          </Dropdown.Item>
+        )}
+      </Dropdown.List>
+    </Dropdown>
+  </Dropdown.TriggerContext>
+);
 
 /** Bredden der tabellen får plass uten sideveis rulling */
 const TABLE_MIN_WIDTH = 832;
@@ -813,23 +863,60 @@ const fieldValue = (c: Case, key: keyof Case): ReactNode =>
     c[key]
   );
 
-/** Sakene som tabell, for full bredde */
+/** Kolonnene tabellen kan sorteres etter, og hvilken rekkefølge et klikk gir */
+const SORTABLE: Partial<
+  Record<
+    keyof Case,
+    {
+      next: (o: SortOrder) => SortOrder;
+      sort: (o: SortOrder) => 'ascending' | 'descending' | 'none';
+    }
+  >
+> = {
+  title: {
+    next: () => 'navn',
+    sort: (o) => (o === 'navn' ? 'ascending' : 'none'),
+  },
+  received: {
+    next: (o) => (o === 'nyest' ? 'eldst' : 'nyest'),
+    sort: (o) =>
+      o === 'nyest' ? 'descending' : o === 'eldst' ? 'ascending' : 'none',
+  },
+  updated: {
+    next: () => 'oppdatert',
+    sort: (o) => (o === 'oppdatert' ? 'descending' : 'none'),
+  },
+};
+
+/** Sakene som tabell, for full bredde. Sorteres med kolonneoverskriftene. */
 const CaseTable = ({
   items,
-  labelledBy,
+  order,
+  onOrderChange,
 }: {
   items: Case[];
-  labelledBy: string;
+  order: SortOrder;
+  onOrderChange: (order: SortOrder) => void;
 }) => (
-  <Table data-size='sm' aria-labelledby={labelledBy}>
+  <Table data-size='sm'>
+    {/* Overskriften «Mine saker» står synlig over, så caption er bare for skjermlesere */}
+    <caption className='ds-sr-only'>Mine saker</caption>
     <Table.Head>
       <Table.Row>
         <Table.HeaderCell scope='col'>Saksnummer</Table.HeaderCell>
-        {CARD_FIELDS.map(({ key, label }) => (
-          <Table.HeaderCell key={key} scope='col'>
-            {label}
-          </Table.HeaderCell>
-        ))}
+        {CARD_FIELDS.map(({ key, label }) => {
+          const sortable = SORTABLE[key];
+          return (
+            <Table.HeaderCell
+              key={key}
+              scope='col'
+              sort={sortable?.sort(order)}
+              onClick={sortable && (() => onOrderChange(sortable.next(order)))}
+            >
+              {label}
+            </Table.HeaderCell>
+          );
+        })}
         <Table.HeaderCell scope='col'>Handlinger</Table.HeaderCell>
       </Table.Row>
     </Table.Head>
@@ -934,41 +1021,56 @@ export const CasesSearchableCards = () => {
         </Search>
       </Field>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 9rem), 1fr))',
-          gap: 'var(--ds-size-3)',
-        }}
-      >
-        <Field>
-          <Label>Status</Label>
-          <Select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as Status | '')}
-          >
-            <Select.Option value=''>Alle</Select.Option>
-            {Object.keys(STATUS_COLOR).map((s) => (
-              <Select.Option key={s} value={s}>
-                {s}
-              </Select.Option>
-            ))}
-          </Select>
-        </Field>
-        <Field>
-          <Label>Sorter etter</Label>
-          <Select
-            value={order}
-            onChange={(e) => setOrder(e.target.value as SortOrder)}
-          >
+      {/* Få valg: filterbrikker, ikke Select, slik retningslinjene for Chip og Select sier */}
+      <Fieldset>
+        <Fieldset.Legend>Status</Fieldset.Legend>
+        <div style={chipRow}>
+          {(['', ...Object.keys(STATUS_COLOR)] as (Status | '')[]).map((s) => (
+            <Chip.Radio
+              key={s || 'alle'}
+              name={`${id}-status`}
+              value={s}
+              checked={status === s}
+              onChange={() => setStatus(s)}
+            >
+              {s || 'Alle'}
+            </Chip.Radio>
+          ))}
+        </div>
+      </Fieldset>
+
+      {/* I tabellen sorteres det med kolonneoverskriftene */}
+      {!fitsTable && (
+        <Fieldset>
+          <Fieldset.Legend>Sorter etter</Fieldset.Legend>
+          <div style={chipRow}>
             {SORT_ORDERS.map((o) => (
-              <Select.Option key={o.value} value={o.value}>
+              <Chip.Radio
+                key={o.value}
+                name={`${id}-order`}
+                value={o.value}
+                checked={order === o.value}
+                onChange={() => setOrder(o.value)}
+              >
                 {o.label}
-              </Select.Option>
+              </Chip.Radio>
             ))}
-          </Select>
-        </Field>
-      </div>
+          </div>
+        </Fieldset>
+      )}
+
+      {(q || status) && (
+        <div>
+          <Chip.Button
+            onClick={() => {
+              setQuery('');
+              setStatus('');
+            }}
+          >
+            Tøm alle filtre
+          </Chip.Button>
+        </div>
+      )}
 
       {/* Skjermlesere får vite at innholdet er endret når søk, filter eller sortering endres */}
       <Paragraph role='status' data-size='sm'>
@@ -981,7 +1083,7 @@ export const CasesSearchableCards = () => {
 
       {shown.length > 0 &&
         (fitsTable ? (
-          <CaseTable items={shown} labelledBy={`${id}-heading`} />
+          <CaseTable items={shown} order={order} onOrderChange={setOrder} />
         ) : (
           <CaseCards items={shown} />
         ))}
@@ -1088,13 +1190,10 @@ type ComparisonProps = {
  * sammenligner fra venstre mot høyre per egenskap.
  */
 const LicenceComparison = ({ selected, onSelect }: ComparisonProps) => {
-  const titleId = useId();
   return (
     <div style={stack()}>
-      <Heading id={titleId} level={3} data-size='2xs'>
-        Sammenlign førerkortklasser
-      </Heading>
-      <Table data-size='sm' aria-labelledby={titleId}>
+      <Table data-size='sm'>
+        <caption>Sammenlign førerkortklasser</caption>
         <Table.Head>
           <Table.Row>
             <Table.HeaderCell scope='col'>Egenskap</Table.HeaderCell>
@@ -1109,14 +1208,7 @@ const LicenceComparison = ({ selected, onSelect }: ComparisonProps) => {
                     onChange={(e) => onSelect(column, e.target.value)}
                   >
                     {LICENCES.map((o) => (
-                      <Select.Option
-                        key={o.id}
-                        value={o.id}
-                        // Samme alternativ kan ikke stå i to kolonner
-                        disabled={selected.some(
-                          (s, i) => i !== column && s.id === o.id,
-                        )}
-                      >
+                      <Select.Option key={o.id} value={o.id}>
                         {/* Bare bokstavkoden, så valget får plass i en smal kolonne */}
                         {o.id}
                       </Select.Option>
@@ -1160,8 +1252,11 @@ export const CompareWithPicker = () => {
   return (
     <LicenceComparison
       selected={ids.map(byId)}
+      // Ingen deaktiverte valg: står klassen i den andre kolonnen, bytter de plass
       onSelect={(column, id) =>
-        setIds((prev) => prev.map((p, i) => (i === column ? id : p)))
+        setIds((prev) =>
+          prev.map((p, i) => (i === column ? id : p === id ? prev[column] : p)),
+        )
       }
     />
   );
