@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import {
-  Card,
   Details,
   Heading,
   List,
   Link,
   Paragraph,
-  Tag,
+  Tabs,
   ToggleGroup,
 } from "@digdir/designsystemet-react";
-import { ArrowLeftIcon } from "@navikt/aksel-icons";
-import { groups, variants } from "./variants.js";
+import { groups } from "./variants.js";
 import { BrowserFrame, PhoneFrame } from "./components/DeviceFrame.jsx";
 import { alternatives, intro, structureNote } from "./guidance.js";
 
@@ -54,24 +52,153 @@ function Guidance() {
   );
 }
 
-const useHash = () => {
-  const route = () =>
-    location.hash.startsWith("#/") ? location.hash.slice(2) : null;
-  const [hash, setHash] = useState(() => route() ?? "");
+// Hvert eksempel vises i tre bredder samtidig. 390 × 844 tilsvarer nyere
+// iPhone, 768 er et nettbrett på høykant, og desktop fyller bredden.
+const DEVICES = [
+  { key: "mobil", label: "Mobil", frame: "phone", width: 390, height: 720 },
+  { key: "nettbrett", label: "Nettbrett", frame: "browser", width: 768, height: 720 },
+  { key: "desktop", label: "Desktop", frame: "browser", height: 720 },
+];
+
+// På små skjermer er telefonen selv rammen, så da vises prototypen som en vanlig side.
+const useWideScreen = () => {
+  const query = "(min-width: 40rem)";
+  const [wide, setWide] = useState(() => matchMedia(query).matches);
   useEffect(() => {
-    const on = () => {
-      const r = route();
-      if (r === null) return; // vanlig anker i et eksempel, ikke en side
-      setHash(r);
-      window.scrollTo(0, 0);
-    };
-    window.addEventListener("hashchange", on);
-    return () => window.removeEventListener("hashchange", on);
+    const mq = matchMedia(query);
+    const on = () => setWide(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
   }, []);
-  return hash;
+  return wide;
 };
 
-function Overview() {
+function Prototype({ variant }) {
+  return (
+    <section className="article">
+      <Paragraph data-size="sm" className="eyebrow">
+        {variant.context.eyebrow}
+      </Paragraph>
+      <Heading level={2} data-size="lg">
+        {variant.context.heading}
+      </Heading>
+      <Paragraph>{variant.context.intro}</Paragraph>
+      <variant.Component />
+    </section>
+  );
+}
+
+/** Samme eksempel på mobil, nettbrett og desktop, eller på én av dem */
+function Devices({ variant, device }) {
+  const wide = useWideScreen();
+  if (!wide) return <Prototype variant={variant} />;
+  const shown = DEVICES.filter((d) => device === "alle" || d.key === device);
+  return (
+    <div className="devices">
+      {shown.map((d) => {
+        const Frame = d.frame === "phone" ? PhoneFrame : BrowserFrame;
+        return (
+          <figure key={d.key} className={`device device--${d.key}`}>
+            <figcaption>
+              {d.label}
+              {d.width ? ` (${d.width} px)` : ""}
+            </figcaption>
+            <Frame
+              width={d.width}
+              height={d.height}
+              label={`Eksempel ${variant.id}, ${d.label.toLowerCase()}`}
+            >
+              <div className="frame__content">
+                <Prototype variant={variant} />
+              </div>
+            </Frame>
+          </figure>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Ett scenario: teksten fra artikkelen først, så eksemplene */
+function Scenario({ group }) {
+  const [current, setCurrent] = useState(group.variants[0].id);
+  // Valget beholdes når brukeren bytter eksempel i samme scenario
+  const [device, setDevice] = useState("alle");
+  const wide = useWideScreen();
+  return (
+    <section className="scenario" aria-labelledby={`scenario-${group.id}`}>
+      <Heading id={`scenario-${group.id}`} level={2} data-size="md">
+        {group.title}
+      </Heading>
+      <div className="scenario__text">
+        <Heading level={3} data-size="xs">
+          Kontekst og behov
+        </Heading>
+        <Paragraph>{group.need}</Paragraph>
+        <Heading level={3} data-size="xs">
+          Eksempler
+        </Heading>
+        <List.Unordered>
+          {group.examples.map((e) => (
+            <List.Item key={e}>{e}</List.Item>
+          ))}
+        </List.Unordered>
+        <Heading level={3} data-size="xs">
+          Anbefalinger
+        </Heading>
+        <List.Unordered>
+          {group.recommendations.map((r) => (
+            <List.Item key={r}>{r}</List.Item>
+          ))}
+        </List.Unordered>
+      </div>
+
+      <Heading level={3} data-size="xs">
+        Slik kan det se ut
+      </Heading>
+      <Tabs value={current} onChange={setCurrent} data-size="sm">
+        <Tabs.List>
+          {group.variants.map((v) => (
+            <Tabs.Tab key={v.id} value={v.id}>
+              {v.id}: {v.title}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+        {/* Ett panel per eksempel, men bare det valgte tegnes */}
+        {group.variants.map((v) => (
+          <Tabs.Panel key={v.id} value={v.id}>
+            {v.id === current && (
+              <div className="scenario__example">
+                <Paragraph>{v.description}</Paragraph>
+                <Paragraph data-size="xs" className="eyebrow">
+                  Story: <code>{v.story}</code>
+                </Paragraph>
+                {wide && (
+                  <ToggleGroup
+                    data-size="sm"
+                    value={device}
+                    onChange={setDevice}
+                    aria-label={`Vis eksempel ${v.id} på`}
+                  >
+                    <ToggleGroup.Item value="alle">Alle</ToggleGroup.Item>
+                    {DEVICES.map((d) => (
+                      <ToggleGroup.Item key={d.key} value={d.key}>
+                        {d.label}
+                      </ToggleGroup.Item>
+                    ))}
+                  </ToggleGroup>
+                )}
+                <Devices variant={v} device={device} />
+              </div>
+            )}
+          </Tabs.Panel>
+        ))}
+      </Tabs>
+    </section>
+  );
+}
+
+export default function App() {
   return (
     <main className="page">
       <Paragraph data-size="sm" className="eyebrow">
@@ -81,8 +208,9 @@ function Overview() {
         Strukturert informasjon på små skjermer
       </Heading>
       <Paragraph>
-        Prototyper bygget med Designsystemet. Åpne dem på mobil, eller gjør
-        nettleservinduet smalt. Eksemplene ligger i
+        Prototyper bygget med Designsystemet. Hvert scenario viser teksten fra
+        artikkelen først, og så eksemplene på mobil, nettbrett og desktop.
+        Eksemplene ligger i
         <code> src/patterns/structured-data.stories.tsx</code>.
       </Paragraph>
       <section className="guidance" aria-labelledby="definition-heading">
@@ -103,171 +231,8 @@ function Overview() {
       </section>
       <Guidance />
       {groups.map((g) => (
-        <section key={g.title} className="variant-group">
-          <Heading level={2} data-size="sm">
-            {g.title}
-          </Heading>
-          <Paragraph data-size="sm">{g.need}</Paragraph>
-          <Paragraph data-size="sm">
-            <strong>Eksempler:</strong> {g.examples.join(", ")}.
-          </Paragraph>
-          <Heading level={3} data-size="2xs">
-            Anbefalinger
-          </Heading>
-          <List.Unordered data-size="sm">
-            {g.recommendations.map((r) => (
-              <List.Item key={r}>{r}</List.Item>
-            ))}
-          </List.Unordered>
-          <ul className="variant-list">
-            {g.variants.map((v) => (
-              <li key={v.id}>
-                <Card asChild data-color="accent">
-                  <a href={`#/${v.id}`}>
-                    <Tag data-size="sm" variant="outline">
-                      {v.id}
-                    </Tag>
-                    <Heading level={3} data-size="xs">
-                      {v.title}
-                    </Heading>
-                    <Paragraph data-size="sm">{v.description}</Paragraph>
-                  </a>
-                </Card>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <Scenario key={g.id} group={g} />
       ))}
     </main>
   );
-}
-
-const DEVICES = {
-  // 320 px er bredden WCAG 1.4.10 (Reflow) tester ved
-  wcag: { label: "WCAG", frame: "phone", width: 320, height: 680 },
-  // 390 × 844 tilsvarer nyere iPhone (Pixel er 393)
-  mobil: { label: "Mobil", frame: "phone", width: 390, height: 844 },
-  nettbrett: { label: "Nettbrett", frame: "browser", width: 768, height: 1024 },
-  full: { label: "Full bredde", frame: "browser", height: 900 },
-};
-
-// På små skjermer er telefonen selv rammen, så da vises prototypen som en vanlig side.
-const useWideScreen = () => {
-  const query = "(min-width: 40rem)";
-  const [wide, setWide] = useState(() => matchMedia(query).matches);
-  useEffect(() => {
-    const mq = matchMedia(query);
-    const on = () => setWide(mq.matches);
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
-  return wide;
-};
-
-const readDevice = () => {
-  try {
-    return localStorage.getItem("device") || "mobil";
-  } catch {
-    return "mobil";
-  }
-};
-
-function Prototype({ variant }) {
-  return (
-    <section className="article" aria-labelledby="prototype-heading">
-      <Paragraph data-size="sm" className="eyebrow">
-        {variant.context.eyebrow}
-      </Paragraph>
-      <Heading id="prototype-heading" level={2} data-size="lg">
-        {variant.context.heading}
-      </Heading>
-      <Paragraph>{variant.context.intro}</Paragraph>
-      <variant.Component />
-      <Heading level={2} data-size="sm">
-        Mer innhold
-      </Heading>
-      <Paragraph>
-        Fylltekst under eksempelet, slik at du kan rulle forbi den og se hvordan
-        den oppfører seg i en vanlig side.
-      </Paragraph>
-    </section>
-  );
-}
-
-function VariantPage({ variant }) {
-  const wide = useWideScreen();
-  const [device, setDevice] = useState(readDevice);
-  const choose = (d) => {
-    setDevice(d);
-    try {
-      localStorage.setItem("device", d);
-    } catch {}
-  };
-  const size = DEVICES[device] ?? DEVICES.mobil;
-  const Frame = size.frame === "phone" ? PhoneFrame : BrowserFrame;
-
-  const i = variants.indexOf(variant);
-  const prev = variants[i - 1];
-  const next = variants[i + 1];
-
-  return (
-    <main className="page page--variant">
-      <nav className="variant-nav" aria-label="Varianter">
-        <Link href="#/">
-          <ArrowLeftIcon aria-hidden />
-          Alle varianter
-        </Link>
-        <span className="variant-nav__steps">
-          {prev && <Link href={`#/${prev.id}`}>← {prev.title}</Link>}
-          {next && <Link href={`#/${next.id}`}>{next.title} →</Link>}
-        </span>
-      </nav>
-      <div className="variant-heading">
-        <Tag data-size="sm">{variant.id}</Tag>
-        <Heading level={1} data-size="sm">
-          {variant.title}
-        </Heading>
-      </div>
-      <Paragraph data-size="sm">{variant.description}</Paragraph>
-      <Paragraph data-size="xs" className="eyebrow">
-        Story: <code>{variant.story}</code>
-      </Paragraph>
-
-      {wide && (
-        <ToggleGroup
-          data-size="sm"
-          value={device}
-          onChange={choose}
-          aria-label="Visning"
-        >
-          {Object.entries(DEVICES).map(([key, d]) => (
-            <ToggleGroup.Item key={key} value={key}>
-              {d.label}
-              {d.width ? ` (${d.width})` : ""}
-            </ToggleGroup.Item>
-          ))}
-        </ToggleGroup>
-      )}
-
-      {wide ? (
-        <Frame
-          width={size.width}
-          height={size.height}
-          label={`Prototype ${variant.id}, ${size.label.toLowerCase()}`}
-        >
-          <div className="frame__content">
-            <Prototype variant={variant} />
-          </div>
-        </Frame>
-      ) : (
-        <Prototype variant={variant} />
-      )}
-    </main>
-  );
-}
-
-export default function App() {
-  const hash = useHash();
-  const variant = variants.find((v) => v.id === hash);
-  return variant ? <VariantPage variant={variant} /> : <Overview />;
 }

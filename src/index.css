@@ -11,6 +11,20 @@ body {
   max-width: 64rem;
   margin-inline: auto;
   padding: var(--ds-size-6) var(--ds-size-4) var(--ds-size-18);
+}
+
+/* Tekstinnholdet holder lesbar bredde, eksemplene får hele bredden */
+.page:has(.scenario) {
+  max-width: 90rem;
+}
+
+.page > :not(.scenario),
+.scenario > :not(.ds-tabs),
+.scenario__example > .ds-paragraph {
+  max-width: 64rem;
+}
+
+.page {
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-4);
@@ -284,4 +298,79 @@ body {
   border-radius: 50%;
   background: #c4c4c4;
   flex: none;
+}
+
+/* ---------- Scenario med eksempler i tre bredder ---------- */
+
+.scenario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-4);
+  margin-top: var(--ds-size-10);
+  padding-top: var(--ds-size-8);
+  border-top: var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle);
+}
+
+.scenario > *,
+.scenario__text > *,
+.scenario__example > * {
+  margin: 0;
+}
+
+.scenario__example > .ds-toggle-group {
+  align-self: flex-start;
+}
+
+.scenario__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+}
+
+.scenario__example {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+  padding-top: var(--ds-size-4);
+}
+
+/* Mobil og nettbrett side om side når det er plass, desktop under */
+.devices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--ds-size-8) var(--ds-size-6);
+  padding-top: var(--ds-size-4);
+}
+
+.device {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
+
+.device figcaption {
+  font-weight: var(--ds-font-weight-medium);
+}
+
+.device--mobil {
+  flex: 0 1 390px;
+}
+
+/* Alene får mobilen stå midt på */
+.device--mobil:only-child {
+  margin-inline: auto;
+}
+
+.device--nettbrett {
+  flex: 0 1 768px;
+}
+
+.device--desktop {
+  flex: 1 1 100%;
+}
+
+.device .frame {
+  align-self: stretch;
 }

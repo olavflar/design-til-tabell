@@ -11,6 +11,13 @@ const saker = {
     "Her ser du sakene du har sendt inn. Velg en sak for å se detaljer og hva som skjer videre.",
 };
 
+const innboks = {
+  eyebrow: "Min side",
+  heading: "Innboks",
+  intro:
+    "Her finner du meldinger og brev fra kommunen. Velg en melding for å lese den.",
+};
+
 const statistikk = {
   eyebrow: "Statistikk om",
   heading: "Innenlandsk transport",
@@ -25,8 +32,9 @@ const forerkort = {
     "Klassen bestemmer hvor tung bil og tilhenger du kan kjøre. Sammenlign klassene for å se hva som passer deg.",
 };
 
-export const groups = [
+const scenarios = [
   {
+    id: "1",
     title: "Scenario 1: Finne en bestemt rad eller enhet i en større oversikt",
     need: "Brukeren skal finne én bestemt rad eller enhet i en større oversikt, for å utføre en handling eller sjekke en tilstand. Brukeren skal ikke sammenligne verdier på tvers av enhetene.",
     examples: ["innboks", "oversikt over byggesaker"],
@@ -46,10 +54,10 @@ export const groups = [
       },
       {
         id: "1b",
-        story: "CasesDescriptionList",
-        title: "Liste med beskrivelsesliste (ul + dl)",
+        story: "CasesKeyValueList",
+        title: "Liste med etikett og verdi",
         description:
-          "Hver oppføring har en beskrivelsesliste der etikett og verdi henger sammen i koden. Det gjør koblingen tydelig for skjermlesere og KI-agenter, slik kolonneoverskrifter gjør i en tabell.",
+          "Hver oppføring har en tabell med to kolonner der etiketten er radoverskrift. Det gjør koblingen mellom etikett og verdi tydelig for skjermlesere og KI-agenter. Designsystemet har ingen komponent for beskrivelseslister (dl), så tabellen tar den rollen.",
         context: saker,
       },
       {
@@ -68,9 +76,26 @@ export const groups = [
           "Navn og status er alltid synlige. Saksnummer, dato og hvem som behandler saken ligger bak «Flere detaljer», fordi brukeren sjelden trenger dem for å finne riktig sak.",
         context: saker,
       },
+      {
+        id: "1e",
+        story: "CasesSearchableCards",
+        title: "Tabell som blir kort, med søk og sortering",
+        description:
+          "På full bredde vises sakene som tabell. Når tabellen ikke får plass, blir hver rad et kort med saksnummer og handlinger øverst og kolonnene som etikett og verdi. Søk, statusfilter og sortering virker likt i begge, og antall treff leses opp når listen endres.",
+        context: saker,
+      },
+      {
+        id: "1f",
+        story: "Inbox",
+        title: "Innboks",
+        description:
+          "Hver melding er et kort i en liste, med avsender og dato øverst, emnet som lenke og en kort forhåndsvisning. Søk, filterbrikker for uleste og vedlegg og et avsendervalg gjør det lett å finne én melding, og antall treff leses opp når listen endres. Uleste meldinger har uthevet emne og en «Ulest»-merkelapp, så det ikke bare vises med utheving.",
+        context: innboks,
+      },
     ],
   },
   {
+    id: "2",
     title: "Scenario 2: Sammenligne verdier på tvers av mange datapunkter",
     need: "Brukeren må se data i sammenheng i rader og kolonner, for å sammenligne, oppdage mønstre, finne avvik eller se historisk utvikling.",
     examples: [
@@ -87,23 +112,24 @@ export const groups = [
     variants: [
       {
         id: "2a",
-        story: "TableStickyFirstColumn",
-        title: "Horisontal rulling med fast førstekolonne",
+        story: "TableHorizontalScroll",
+        title: "Horisontal rulling",
         description:
-          "Radoverskriftene står fast mens tallkolonnene rulles. Hjelpetekst, pilknapper og en skygge viser at det er mer innhold til siden. Kolonneoverskriftene forsvinner når siden rulles nedover.",
+          "Tabellen beholdes og ruller sideveis når den ikke får plass. Designsystemet har ikke fast førstekolonne eller en indikator for at tabellen kan rulles, så radoverskriftene forsvinner når brukeren ruller. Det er et behov mønsteret bør melde inn til Designsystemet.",
         context: statistikk,
       },
       {
         id: "2b",
         story: "TableStickyHeader",
-        title: "Fast førstekolonne og faste kolonneoverskrifter",
+        title: "Faste kolonneoverskrifter",
         description:
-          "Bruker stickyHeader fra Designsystemet. Tabellen får begrenset høyde og ruller begge veier i samme område, slik at både radoverskrifter og kolonneoverskrifter alltid er synlige.",
+          "Bruker stickyHeader fra Designsystemet. Tabellen får begrenset høyde og ruller begge veier i samme område, slik at kolonneoverskriftene alltid er synlige.",
         context: statistikk,
       },
     ],
   },
   {
+    id: "3",
     title: "Scenario 3: Sammenligne få alternativer med mange egenskaper",
     need: "Brukeren skal velge mellom noen få alternativer på grunnlag av mange egenskaper.",
     examples: [
@@ -137,6 +163,7 @@ export const groups = [
   },
 ];
 
-export const variants = groups
-  .flatMap((g) => g.variants)
-  .map((v) => ({ ...v, Component: stories[v.story] }));
+export const groups = scenarios.map((g) => ({
+  ...g,
+  variants: g.variants.map((v) => ({ ...v, Component: stories[v.story] })),
+}));
