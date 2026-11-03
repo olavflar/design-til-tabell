@@ -6,11 +6,19 @@ import {
   Label,
   Link,
   Paragraph,
+  Search,
   Select,
   Table,
   Tag,
+  Tooltip,
 } from '@digdir/designsystemet-react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  DownloadIcon,
+  EyeIcon,
+  TrashIcon,
+} from '@navikt/aksel-icons';
 import {
   type CSSProperties,
   type ReactNode,
@@ -459,6 +467,7 @@ type Case = {
   caseNumber: string;
   status: Status;
   received: string;
+  updated: string;
   handler: string;
 };
 
@@ -469,6 +478,7 @@ const CASES: Case[] = [
     caseNumber: '2026/1432',
     status: 'Venter på deg',
     received: '12.10.2026',
+    updated: '28.10.2026',
     handler: 'Byggesaksavdelingen',
   },
   {
@@ -477,6 +487,7 @@ const CASES: Case[] = [
     caseNumber: '2026/1398',
     status: 'Under behandling',
     received: '03.10.2026',
+    updated: '21.10.2026',
     handler: 'Byggesaksavdelingen',
   },
   {
@@ -485,6 +496,7 @@ const CASES: Case[] = [
     caseNumber: '2026/1201',
     status: 'Under behandling',
     received: '18.09.2026',
+    updated: '30.09.2026',
     handler: 'Skatteoppkreveren',
   },
   {
@@ -493,6 +505,7 @@ const CASES: Case[] = [
     caseNumber: '2026/1187',
     status: 'Mottatt',
     received: '16.09.2026',
+    updated: '16.09.2026',
     handler: 'Bymiljøetaten',
   },
   {
@@ -501,7 +514,35 @@ const CASES: Case[] = [
     caseNumber: '2026/0954',
     status: 'Avsluttet',
     received: '02.08.2026',
+    updated: '14.08.2026',
     handler: 'Folkeregisteret',
+  },
+  {
+    id: 'sak-1455',
+    title: 'Søknad om tilskudd til lag og foreninger',
+    caseNumber: '2026/1455',
+    status: 'Mottatt',
+    received: '27.10.2026',
+    updated: '27.10.2026',
+    handler: 'Kulturetaten',
+  },
+  {
+    id: 'sak-1310',
+    title: 'Søknad om utvidet skjenkebevilling',
+    caseNumber: '2026/1310',
+    status: 'Venter på deg',
+    received: '25.09.2026',
+    updated: '22.10.2026',
+    handler: 'Næringsetaten',
+  },
+  {
+    id: 'sak-0871',
+    title: 'Klage på vedtak om byggetillatelse',
+    caseNumber: '2026/0871',
+    status: 'Avsluttet',
+    received: '11.07.2026',
+    updated: '29.09.2026',
+    handler: 'Byggesaksavdelingen',
   },
 ];
 
@@ -723,6 +764,244 @@ export const CasesExpandable = () => (
     </ul>
   </section>
 );
+
+/** «dd.mm.åååå» som tall som kan sorteres */
+const sortableDate = (d: string) => d.split('.').reverse().join('');
+
+type SortOrder = 'nyest' | 'eldst' | 'oppdatert' | 'navn';
+
+const SORT_ORDERS: { value: SortOrder; label: string }[] = [
+  { value: 'nyest', label: 'Nyeste først' },
+  { value: 'eldst', label: 'Eldste først' },
+  { value: 'oppdatert', label: 'Sist oppdatert' },
+  { value: 'navn', label: 'Navn A–Å' },
+];
+
+const compareCases: Record<SortOrder, (a: Case, b: Case) => number> = {
+  nyest: (a, b) => sortableDate(b.received).localeCompare(sortableDate(a.received)),
+  eldst: (a, b) => sortableDate(a.received).localeCompare(sortableDate(b.received)),
+  oppdatert: (a, b) =>
+    sortableDate(b.updated).localeCompare(sortableDate(a.updated)),
+  navn: (a, b) => a.title.localeCompare(b.title, 'nb'),
+};
+
+/** Alle kolonnene fra tabellen, som etikett og verdi i kortet */
+const CARD_FIELDS: { key: keyof Case; label: string }[] = [
+  { key: 'title', label: 'Sak' },
+  { key: 'status', label: 'Status' },
+  { key: 'received', label: 'Mottatt' },
+  { key: 'updated', label: 'Sist oppdatert' },
+  { key: 'handler', label: 'Behandles av' },
+];
+
+const CaseActions = ({ item }: { item: Case }) => {
+  const actions = [
+    { label: 'Åpne', Icon: EyeIcon },
+    { label: 'Last ned kvittering for', Icon: DownloadIcon },
+    // En avsluttet sak kan ikke trekkes tilbake
+    ...(item.status === 'Avsluttet'
+      ? []
+      : [{ label: 'Trekk tilbake', Icon: TrashIcon }]),
+  ];
+  return (
+    <div style={{ display: 'flex', gap: 'var(--ds-size-1)' }}>
+      {actions.map(({ label, Icon }) => (
+        // Ikonet alene er ikke nok: knappen får hele handlingen og saken som navn
+        <Tooltip key={label} content={`${label} sak ${item.caseNumber}`}>
+          <Button
+            variant='tertiary'
+            data-size='sm'
+            icon
+            data-color={Icon === TrashIcon ? 'danger' : undefined}
+          >
+            <Icon aria-hidden />
+          </Button>
+        </Tooltip>
+      ))}
+    </div>
+  );
+};
+
+/**
+ * Kort med beskrivelsesliste, søk og sortering: hver rad i tabellen blir et
+ * kort. Saksnummer og handlinger står øverst, og hver kolonne blir et par
+ * med etikett og verdi. Søk, statusfilter og sortering over listen gjør det
+ * mulig å finne én sak blant mange.
+ */
+export const CasesSearchableCards = () => {
+  const id = useId();
+  const [query, setQuery] = useState('');
+  const [status, setStatus] = useState<Status | ''>('');
+  const [order, setOrder] = useState<SortOrder>('nyest');
+
+  const q = query.trim().toLocaleLowerCase('nb');
+  const shown = CASES.filter(
+    (c) =>
+      (!status || c.status === status) &&
+      (!q ||
+        [c.title, c.caseNumber, c.handler].some((v) =>
+          v.toLocaleLowerCase('nb').includes(q),
+        )),
+  ).sort(compareCases[order]);
+
+  return (
+    <section
+      aria-labelledby={`${id}-heading`}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--ds-size-3)',
+      }}
+    >
+      <Heading
+        id={`${id}-heading`}
+        level={3}
+        data-size='2xs'
+        style={{ margin: 0 }}
+      >
+        Mine saker
+      </Heading>
+
+      <Search>
+        <Search.Input
+          aria-label='Søk etter sak, saksnummer eller behandler'
+          placeholder='Søk i sakene'
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <Search.Clear onClick={() => setQuery('')} />
+      </Search>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 9rem), 1fr))',
+          gap: 'var(--ds-size-2) var(--ds-size-3)',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <Label htmlFor={`${id}-status`} data-size='sm'>
+            Status
+          </Label>
+          <Select
+            id={`${id}-status`}
+            data-size='sm'
+            value={status}
+            onChange={(e) => setStatus(e.target.value as Status | '')}
+          >
+            <Select.Option value=''>Alle</Select.Option>
+            {Object.keys(STATUS_COLOR).map((s) => (
+              <Select.Option key={s} value={s}>
+                {s}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <Label htmlFor={`${id}-order`} data-size='sm'>
+            Sorter etter
+          </Label>
+          <Select
+            id={`${id}-order`}
+            data-size='sm'
+            value={order}
+            onChange={(e) => setOrder(e.target.value as SortOrder)}
+          >
+            {SORT_ORDERS.map((o) => (
+              <Select.Option key={o.value} value={o.value}>
+                {o.label}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      {/* Skjermlesere får vite at innholdet er endret når søk, filter eller sortering endres */}
+      <Paragraph
+        role='status'
+        data-size='sm'
+        style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}
+      >
+        {shown.length === 0
+          ? 'Ingen saker passer søket'
+          : `Viser ${shown.length} av ${CASES.length} saker. Sortert: ${
+              SORT_ORDERS.find((o) => o.value === order)!.label
+            }`}
+      </Paragraph>
+
+      <ul
+        style={{
+          ...listReset,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 20rem), 1fr))',
+          gap: 'var(--ds-size-3)',
+        }}
+      >
+        {shown.map((c) => (
+          <li key={c.id}>
+            <Card
+              data-color='neutral'
+              style={{ height: '100%', padding: 0, gap: 0 }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 'var(--ds-size-2)',
+                  padding: 'var(--ds-size-2) var(--ds-size-2) var(--ds-size-2) var(--ds-size-4)',
+                  borderBottom:
+                    'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
+                }}
+              >
+                <Heading level={4} data-size='2xs' style={{ margin: 0 }}>
+                  Sak {c.caseNumber}
+                </Heading>
+                <CaseActions item={c} />
+              </div>
+              <dl
+                style={{
+                  margin: 0,
+                  padding: '0 var(--ds-size-4)',
+                  fontSize: 'var(--ds-body-sm-font-size)',
+                }}
+              >
+                {CARD_FIELDS.map(({ key, label }, i) => (
+                  <div
+                    key={key}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(6.5rem, 2fr) 5fr',
+                      gap: 'var(--ds-size-3)',
+                      paddingBlock: 'var(--ds-size-2)',
+                      borderTop:
+                        i > 0
+                          ? 'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)'
+                          : undefined,
+                    }}
+                  >
+                    <dt style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
+                      {label}
+                    </dt>
+                    <dd style={{ margin: 0 }}>
+                      {key === 'status' ? (
+                        <StatusTag status={c.status} />
+                      ) : key === 'title' ? (
+                        <Link href={`#${c.id}`}>{c.title}</Link>
+                      ) : (
+                        c[key]
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </Card>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
 
 /* -------------------------------------------------------------------------- */
 /* Scenario 3: Sammenligne få alternativer med mange egenskaper               */

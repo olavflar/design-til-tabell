@@ -68,6 +68,14 @@ export const groups = [
           "Navn og status er alltid synlige. Saksnummer, dato og hvem som behandler saken ligger bak «Flere detaljer», fordi brukeren sjelden trenger dem for å finne riktig sak.",
         context: saker,
       },
+      {
+        id: "1e",
+        story: "CasesSearchableCards",
+        title: "Kort med beskrivelsesliste, søk og sortering",
+        description:
+          "Hver rad i tabellen blir et kort. Saksnummer og handlinger står øverst, og hver kolonne blir et par med etikett og verdi. Søk, statusfilter og sortering over listen gjør det mulig å finne én sak blant mange, og antall treff leses opp når listen endres.",
+        context: saker,
+      },
     ],
   },
   {
