@@ -1,8 +1,10 @@
 import {
   Button,
   Card,
+  Chip,
   Details,
   Field,
+  Fieldset,
   Heading,
   Label,
   Link,
@@ -559,24 +561,123 @@ const MESSAGES: Message[] = [
   },
 ];
 
+const SENDERS = [...new Set(MESSAGES.map((m) => m.sender))].sort((a, b) =>
+  a.localeCompare(b, 'nb'),
+);
+
 /**
  * Innboks: én melding per listeelement. Avsender og emne kommer først, så
  * dato og en kort forhåndsvisning. Uleste meldinger er merket med tekst,
  * ikke bare med utheving, så det også kommer fram for skjermlesere.
+ * Søk, filterbrikker og avsendervalg gjør det lett å finne én melding.
  */
 export const Inbox = () => {
   const id = useId();
+  const [query, setQuery] = useState('');
+  const [onlyUnread, setOnlyUnread] = useState(false);
+  const [onlyAttachments, setOnlyAttachments] = useState(false);
+  const [sender, setSender] = useState('');
+
+  const q = query.trim().toLocaleLowerCase('nb');
+  const shown = MESSAGES.filter(
+    (m) =>
+      (!onlyUnread || m.unread) &&
+      (!onlyAttachments || m.attachments) &&
+      (!sender || m.sender === sender) &&
+      (!q ||
+        [m.sender, m.subject, m.preview].some((v) =>
+          v.toLocaleLowerCase('nb').includes(q),
+        )),
+  );
   const unread = MESSAGES.filter((m) => m.unread).length;
+  const filtered = Boolean(q || onlyUnread || onlyAttachments || sender);
+
+  const reset = () => {
+    setQuery('');
+    setOnlyUnread(false);
+    setOnlyAttachments(false);
+    setSender('');
+  };
+
   return (
-    <section aria-labelledby={id} style={stack()}>
+    <section aria-labelledby={id} style={stack('var(--ds-size-3)')}>
       <Heading id={id} level={3} data-size='2xs'>
         Meldinger
       </Heading>
-      <Paragraph data-size='sm'>
-        {unread} uleste av {MESSAGES.length} meldinger
-      </Paragraph>
+
+      <Field>
+        <Label>Søk i meldingene</Label>
+        <Search>
+          <Search.Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Search.Clear onClick={() => setQuery('')} />
+        </Search>
+      </Field>
+
+      <Fieldset>
+        <Fieldset.Legend>Vis bare</Fieldset.Legend>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 'var(--ds-size-2)',
+          }}
+        >
+          <Chip.Checkbox
+            checked={onlyUnread}
+            onChange={(e) => setOnlyUnread(e.target.checked)}
+          >
+            Uleste ({unread})
+          </Chip.Checkbox>
+          <Chip.Checkbox
+            checked={onlyAttachments}
+            onChange={(e) => setOnlyAttachments(e.target.checked)}
+          >
+            Med vedlegg
+          </Chip.Checkbox>
+        </div>
+      </Fieldset>
+
+      <Field>
+        <Label>Avsender</Label>
+        <Select value={sender} onChange={(e) => setSender(e.target.value)}>
+          <Select.Option value=''>Alle avsendere</Select.Option>
+          {SENDERS.map((name) => (
+            <Select.Option key={name} value={name}>
+              {name}
+            </Select.Option>
+          ))}
+        </Select>
+      </Field>
+
+      {/* Skjermlesere får vite at innholdet er endret når søk eller filter endres */}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 'var(--ds-size-2)',
+        }}
+      >
+        <Paragraph role='status' data-size='sm'>
+          {shown.length === 0
+            ? 'Ingen meldinger passer søket'
+            : filtered
+              ? `Viser ${shown.length} av ${MESSAGES.length} meldinger`
+              : `${unread} uleste av ${MESSAGES.length} meldinger`}
+        </Paragraph>
+        {filtered && (
+          <Button variant='tertiary' data-size='sm' onClick={reset}>
+            Nullstill søk og filter
+          </Button>
+        )}
+      </div>
+
       <List.Unordered {...plainList}>
-        {MESSAGES.map((m) => (
+        {shown.map((m) => (
           <List.Item key={m.id}>
             <Card data-clickdelegatefor={`${m.id}-link`}>
               <div
@@ -605,9 +706,7 @@ export const Inbox = () => {
                   {m.attachments && (
                     <Tag data-size='sm' data-color='neutral'>
                       <PaperclipIcon aria-hidden />
-                      {m.attachments === 1
-                        ? '1 vedlegg'
-                        : `${m.attachments} vedlegg`}
+                      {m.attachments} vedlegg
                     </Tag>
                   )}
                 </div>

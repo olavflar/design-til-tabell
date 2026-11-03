@@ -89,7 +89,7 @@ const scenarios = [
         story: "Inbox",
         title: "Innboks",
         description:
-          "Hver melding er et kort i en liste, med avsender og dato øverst, emnet som lenke og en kort forhåndsvisning. Uleste meldinger har uthevet emne og en «Ulest»-merkelapp, så det ikke bare vises med utheving. Hele kortet er klikkbart via lenken i emnet.",
+          "Hver melding er et kort i en liste, med avsender og dato øverst, emnet som lenke og en kort forhåndsvisning. Søk, filterbrikker for uleste og vedlegg og et avsendervalg gjør det lett å finne én melding, og antall treff leses opp når listen endres. Uleste meldinger har uthevet emne og en «Ulest»-merkelapp, så det ikke bare vises med utheving.",
         context: innboks,
       },
     ],
