@@ -317,6 +317,10 @@ body {
   margin: 0;
 }
 
+.scenario__example > .ds-toggle-group {
+  align-self: flex-start;
+}
+
 .scenario__text {
   display: flex;
   flex-direction: column;
@@ -352,6 +356,11 @@ body {
 
 .device--mobil {
   flex: 0 1 390px;
+}
+
+/* Alene får mobilen stå midt på */
+.device--mobil:only-child {
+  margin-inline: auto;
 }
 
 .device--nettbrett {

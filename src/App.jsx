@@ -6,6 +6,7 @@ import {
   Link,
   Paragraph,
   Tabs,
+  ToggleGroup,
 } from "@digdir/designsystemet-react";
 import { groups } from "./variants.js";
 import { BrowserFrame, PhoneFrame } from "./components/DeviceFrame.jsx";
@@ -87,13 +88,14 @@ function Prototype({ variant }) {
   );
 }
 
-/** Samme eksempel på mobil, nettbrett og desktop */
-function Devices({ variant }) {
+/** Samme eksempel på mobil, nettbrett og desktop, eller på én av dem */
+function Devices({ variant, device }) {
   const wide = useWideScreen();
   if (!wide) return <Prototype variant={variant} />;
+  const shown = DEVICES.filter((d) => device === "alle" || d.key === device);
   return (
     <div className="devices">
-      {DEVICES.map((d) => {
+      {shown.map((d) => {
         const Frame = d.frame === "phone" ? PhoneFrame : BrowserFrame;
         return (
           <figure key={d.key} className={`device device--${d.key}`}>
@@ -120,6 +122,9 @@ function Devices({ variant }) {
 /** Ett scenario: teksten fra artikkelen først, så eksemplene */
 function Scenario({ group }) {
   const [current, setCurrent] = useState(group.variants[0].id);
+  // Valget beholdes når brukeren bytter eksempel i samme scenario
+  const [device, setDevice] = useState("alle");
+  const wide = useWideScreen();
   return (
     <section className="scenario" aria-labelledby={`scenario-${group.id}`}>
       <Heading id={`scenario-${group.id}`} level={2} data-size="md">
@@ -168,7 +173,22 @@ function Scenario({ group }) {
                 <Paragraph data-size="xs" className="eyebrow">
                   Story: <code>{v.story}</code>
                 </Paragraph>
-                <Devices variant={v} />
+                {wide && (
+                  <ToggleGroup
+                    data-size="sm"
+                    value={device}
+                    onChange={setDevice}
+                    aria-label={`Vis eksempel ${v.id} på`}
+                  >
+                    <ToggleGroup.Item value="alle">Alle</ToggleGroup.Item>
+                    {DEVICES.map((d) => (
+                      <ToggleGroup.Item key={d.key} value={d.key}>
+                        {d.label}
+                      </ToggleGroup.Item>
+                    ))}
+                  </ToggleGroup>
+                )}
+                <Devices variant={v} device={device} />
               </div>
             )}
           </Tabs.Panel>
