@@ -18,6 +18,7 @@ import {
   ChevronRightIcon,
   DownloadIcon,
   EyeIcon,
+  PaperclipIcon,
   TrashIcon,
 } from '@navikt/aksel-icons';
 import {
@@ -483,6 +484,135 @@ export const CasesExpandable = () => {
                 <MetaTable item={c} />
               </Details.Content>
             </Details>
+          </List.Item>
+        ))}
+      </List.Unordered>
+    </section>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/* 1f: Innboks                                                                */
+/* -------------------------------------------------------------------------- */
+
+type Message = {
+  id: string;
+  sender: string;
+  subject: string;
+  preview: string;
+  received: string;
+  unread?: boolean;
+  attachments?: number;
+};
+
+const MESSAGES: Message[] = [
+  {
+    id: 'melding-1',
+    sender: 'Byggesaksavdelingen',
+    subject: 'Vi trenger mer informasjon om søknaden din',
+    preview:
+      'Søknad om byggetillatelse, sak 2026/1432. Send inn tegninger av fasaden innen 15. november.',
+    received: 'I dag 09:14',
+    unread: true,
+    attachments: 1,
+  },
+  {
+    id: 'melding-2',
+    sender: 'Kulturetaten',
+    subject: 'Vi har mottatt søknaden din',
+    preview:
+      'Søknad om tilskudd til lag og foreninger, sak 2026/1455. Du får svar innen fire uker.',
+    received: 'I går 14:02',
+    unread: true,
+  },
+  {
+    id: 'melding-3',
+    sender: 'Næringsetaten',
+    subject: 'Påminnelse: Svar på spørsmål om skjenkebevillingen',
+    preview:
+      'Vi har ikke fått svar på brevet vårt fra 25. september. Fristen er 5. november.',
+    received: '22.10.2026',
+  },
+  {
+    id: 'melding-4',
+    sender: 'Byggesaksavdelingen',
+    subject: 'Saken din er under behandling',
+    preview:
+      'Søknad om ferdigattest, sak 2026/1398. Forventet saksbehandlingstid er tre uker.',
+    received: '21.10.2026',
+  },
+  {
+    id: 'melding-5',
+    sender: 'Skatteoppkreveren',
+    subject: 'Vedtak i klagesaken om eiendomsskatt',
+    preview:
+      'Klagen din er behandlet. Les vedtaket i vedlegget for å se resultatet og hvordan du kan klage.',
+    received: '30.09.2026',
+    attachments: 2,
+  },
+  {
+    id: 'melding-6',
+    sender: 'Folkeregisteret',
+    subject: 'Flyttingen din er registrert',
+    preview: 'Den nye adressen din gjelder fra 1. august 2026.',
+    received: '14.08.2026',
+  },
+];
+
+/**
+ * Innboks: én melding per listeelement. Avsender og emne kommer først, så
+ * dato og en kort forhåndsvisning. Uleste meldinger er merket med tekst,
+ * ikke bare med utheving, så det også kommer fram for skjermlesere.
+ */
+export const Inbox = () => {
+  const id = useId();
+  const unread = MESSAGES.filter((m) => m.unread).length;
+  return (
+    <section aria-labelledby={id} style={stack()}>
+      <Heading id={id} level={3} data-size='2xs'>
+        Meldinger
+      </Heading>
+      <Paragraph data-size='sm'>
+        {unread} uleste av {MESSAGES.length} meldinger
+      </Paragraph>
+      <List.Unordered {...plainList}>
+        {MESSAGES.map((m) => (
+          <List.Item key={m.id}>
+            <Card data-clickdelegatefor={`${m.id}-link`}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 'var(--ds-size-2)',
+                }}
+              >
+                <Paragraph data-size='sm'>{m.sender}</Paragraph>
+                <Paragraph data-size='sm'>{m.received}</Paragraph>
+              </div>
+              <Heading level={4} data-size='2xs'>
+                <Link id={`${m.id}-link`} href={`#${m.id}`}>
+                  {m.unread ? <strong>{m.subject}</strong> : m.subject}
+                </Link>
+              </Heading>
+              <Paragraph data-size='sm'>{m.preview}</Paragraph>
+              {(m.unread || m.attachments) && (
+                <div style={{ display: 'flex', gap: 'var(--ds-size-2)' }}>
+                  {m.unread && (
+                    <Tag data-size='sm' data-color='info'>
+                      Ulest
+                    </Tag>
+                  )}
+                  {m.attachments && (
+                    <Tag data-size='sm' data-color='neutral'>
+                      <PaperclipIcon aria-hidden />
+                      {m.attachments === 1
+                        ? '1 vedlegg'
+                        : `${m.attachments} vedlegg`}
+                    </Tag>
+                  )}
+                </div>
+              )}
+            </Card>
           </List.Item>
         ))}
       </List.Unordered>

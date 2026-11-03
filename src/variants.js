@@ -11,6 +11,13 @@ const saker = {
     "Her ser du sakene du har sendt inn. Velg en sak for å se detaljer og hva som skjer videre.",
 };
 
+const innboks = {
+  eyebrow: "Min side",
+  heading: "Innboks",
+  intro:
+    "Her finner du meldinger og brev fra kommunen. Velg en melding for å lese den.",
+};
+
 const statistikk = {
   eyebrow: "Statistikk om",
   heading: "Innenlandsk transport",
@@ -76,6 +83,14 @@ const scenarios = [
         description:
           "På full bredde vises sakene som tabell. Når tabellen ikke får plass, blir hver rad et kort med saksnummer og handlinger øverst og kolonnene som etikett og verdi. Søk, statusfilter og sortering virker likt i begge, og antall treff leses opp når listen endres.",
         context: saker,
+      },
+      {
+        id: "1f",
+        story: "Inbox",
+        title: "Innboks",
+        description:
+          "Hver melding er et kort i en liste, med avsender og dato øverst, emnet som lenke og en kort forhåndsvisning. Uleste meldinger har uthevet emne og en «Ulest»-merkelapp, så det ikke bare vises med utheving. Hele kortet er klikkbart via lenken i emnet.",
+        context: innboks,
       },
     ],
   },
