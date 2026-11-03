@@ -2,9 +2,11 @@ import {
   Button,
   Card,
   Details,
+  Field,
   Heading,
   Label,
   Link,
+  List,
   Paragraph,
   Search,
   Select,
@@ -13,7 +15,6 @@ import {
   Tooltip,
 } from '@digdir/designsystemet-react';
 import {
-  ChevronLeftIcon,
   ChevronRightIcon,
   DownloadIcon,
   EyeIcon,
@@ -28,6 +29,74 @@ import {
   useRef,
   useState,
 } from 'react';
+
+/*
+ * Alt utseende kommer fra Designsystemet: komponentene, tokens og CSS-klassene
+ * deres. Inline-stilene under er bare layout (flex, grid og avstand med
+ * --ds-size-tokens), som Designsystemet ikke har komponenter for.
+ */
+
+/** Stabel med jevn avstand, med avstand fra Designsystemet */
+const stack = (gap = 'var(--ds-size-2)'): CSSProperties => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap,
+});
+
+/**
+ * Etikett og verdi som tabell med to kolonner. Designsystemet har ingen
+ * komponent for beskrivelseslister, men en tabell med radoverskrifter gir den
+ * samme koblingen mellom etikett og verdi for skjermlesere.
+ */
+const KeyValueTable = ({
+  label,
+  rows,
+}: {
+  label: string;
+  rows: [string, ReactNode][];
+}) => (
+  <Table data-size='sm' aria-label={label}>
+    <Table.Body>
+      {rows.map(([key, value]) => (
+        <Table.Row key={key}>
+          <Table.HeaderCell scope='row'>{key}</Table.HeaderCell>
+          <Table.Cell>{value}</Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table>
+);
+
+/**
+ * Liste uten punkter og innrykk: klassen fra Designsystemet fjerner punktene,
+ * og komponent-tokenet til List fjerner innrykket.
+ */
+const plainList = {
+  className: 'ds-list--unstyled',
+  style: { '--dsc-list-padding-inline': 0 } as CSSProperties,
+};
+
+/** Område som ruller når tabellen er bredere enn plassen (WCAG 1.4.10) */
+const ScrollRegion = ({
+  labelledBy,
+  maxHeight,
+  children,
+}: {
+  labelledBy: string;
+  /** stickyHeader festes til nærmeste rulleområde, så det må ha en høyde */
+  maxHeight?: string;
+  children: ReactNode;
+}) => (
+  // Fokuserbart, så tabellen kan rulles med tastaturet
+  <div
+    role='region'
+    aria-labelledby={labelledBy}
+    tabIndex={0}
+    style={{ overflow: 'auto', maxHeight }}
+  >
+    {children}
+  </div>
+);
 
 /* -------------------------------------------------------------------------- */
 /* Scenario 2: Sammenligne verdier på tvers av mange datapunkter              */
@@ -98,278 +167,32 @@ const formatChange = (a: number, b: number) => {
   const v = ((b - a) / a) * 100;
   return (v < 0 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ',');
 };
-
-/* -------------------------------------------------------------------------- */
-/* Felles oppsett                                                             */
-/* -------------------------------------------------------------------------- */
-
-type Options = {
-  stickyColumn?: boolean;
-  stickyHeader?: boolean;
-};
-
-const labelCell = (level = 0): CSSProperties => ({
-  minWidth: '9.5rem',
-  maxWidth: '11rem',
-  whiteSpace: 'normal',
-  hyphens: 'auto',
-  paddingLeft: `calc(var(--ds-size-3) + ${level} * var(--ds-size-3))`,
-});
-
-const numCell: CSSProperties = {
-  textAlign: 'right',
-  whiteSpace: 'nowrap',
-  fontVariantNumeric: 'tabular-nums',
-  minWidth: '5rem',
-};
-
-const groupBackground = 'var(--ds-color-neutral-surface-tinted)';
-
-const listReset: CSSProperties = { listStyle: 'none', margin: 0, padding: 0 };
-
-/** Fast førstekolonne. Table har ikke dette innebygd, så det legges på cellen. */
-const sticky = (
-  on: boolean | undefined,
-  scrolled: boolean,
-  background = 'var(--ds-color-neutral-surface-default)',
-  zIndex = 1,
-): CSSProperties =>
-  on
-    ? {
-        position: 'sticky',
-        left: 0,
-        zIndex,
-        background,
-        boxShadow: scrolled
-          ? '6px 0 8px -4px color-mix(in srgb, var(--ds-color-neutral-text-default) 25%, transparent)'
-          : undefined,
-      }
-    : {};
-
-type ScrollState = { overflowing: boolean; atStart: boolean; atEnd: boolean };
-
-/** Holder rede på om innholdet er bredere enn plassen, og hvor langt det er rullet. */
-const useHorizontalScroll = (ref: RefObject<HTMLDivElement | null>) => {
-  const [state, setState] = useState<ScrollState>({
-    overflowing: false,
-    atStart: true,
-    atEnd: true,
-  });
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const update = () => {
-      const max = el.scrollWidth - el.clientWidth;
-      const next = {
-        overflowing: max > 1,
-        atStart: el.scrollLeft <= 1,
-        atEnd: el.scrollLeft >= max - 1,
-      };
-      setState((prev) =>
-        prev.overflowing === next.overflowing &&
-        prev.atStart === next.atStart &&
-        prev.atEnd === next.atEnd
-          ? prev
-          : next,
-      );
-    };
-    update();
-    el.addEventListener('scroll', update, { passive: true });
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    if (el.firstElementChild) ro.observe(el.firstElementChild);
-    return () => {
-      el.removeEventListener('scroll', update);
-      ro.disconnect();
-    };
-  }, [ref]);
-  return state;
-};
-
-const edgeShadow = (
-  side: 'left' | 'right',
-  visible: boolean,
-): CSSProperties => ({
-  position: 'absolute',
-  insetBlock: 0,
-  [side]: 0,
-  width: 'var(--ds-size-4)',
-  pointerEvents: 'none',
-  background: `linear-gradient(to ${side === 'left' ? 'right' : 'left'}, color-mix(in srgb, var(--ds-color-neutral-text-default) 18%, transparent), transparent)`,
-  opacity: visible ? 1 : 0,
-  transition: 'opacity 150ms',
-  zIndex: 4,
-});
-
-type ScrollAreaProps = {
-  labelledBy: string;
-  /** Høyden begrenses når tabellen har stickyHeader */
-  stickyHeader?: boolean;
-  /** Fast førstekolonne har egen skygge, så venstre kantskygge skjules */
-  stickyColumn?: boolean;
-  children: ReactNode;
-  onScrolledChange?: (scrolled: boolean) => void;
-};
-
-/**
- * Rulleområde for brede tabeller. Gjør det tydelig at tabellen kan rulles:
- * - hjelpetekst og pilknapper vises bare når tabellen er bredere enn plassen
- * - pilknappene deaktiveres når tabellen er rullet helt ut i den retningen
- * - skygge i kanten der det er mer innhold
- */
-const ScrollArea = ({
-  labelledBy,
-  stickyHeader,
-  stickyColumn,
-  children,
-  onScrolledChange,
-}: ScrollAreaProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { overflowing, atStart, atEnd } = useHorizontalScroll(ref);
-
-  useEffect(() => onScrolledChange?.(!atStart), [atStart, onScrolledChange]);
-
-  const scrollBy = (left: number) =>
-    ref.current?.scrollBy({ left, behavior: 'smooth' });
-
-  return (
-    <>
-      {overflowing && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 'var(--ds-size-2)',
-          }}
-        >
-          <Paragraph
-            data-size='xs'
-            style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}
-          >
-            Rull sideveis for å se alle kolonnene
-          </Paragraph>
-          <div style={{ display: 'flex', gap: 'var(--ds-size-1)' }}>
-            <Button
-              variant='tertiary'
-              data-size='sm'
-              icon
-              aria-label='Rull tabellen til venstre'
-              disabled={atStart}
-              onClick={() => scrollBy(-160)}
-            >
-              <ChevronLeftIcon aria-hidden />
-            </Button>
-            <Button
-              variant='tertiary'
-              data-size='sm'
-              icon
-              aria-label='Rull tabellen til høyre'
-              disabled={atEnd}
-              onClick={() => scrollBy(160)}
-            >
-              <ChevronRightIcon aria-hidden />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <div style={{ position: 'relative' }}>
-        {/* WCAG 1.4.10: tabellen ruller, ikke siden. Fokuserbar for tastatur. */}
-        <div
-          ref={ref}
-          role='region'
-          aria-labelledby={labelledBy}
-          tabIndex={0}
-          style={{
-            overflow: 'auto',
-            // stickyHeader festes til nærmeste rulleområde, så det må ha en høyde.
-            // cqh = høyden til nærmeste container, ellers skjermhøyden.
-            maxHeight: stickyHeader ? '70cqh' : undefined,
-            borderBlock: stickyHeader
-              ? 'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)'
-              : undefined,
-          }}
-        >
-          {children}
-        </div>
-        {!stickyColumn && (
-          <div
-            aria-hidden
-            style={edgeShadow('left', overflowing && !atStart)}
-          />
-        )}
-        <div aria-hidden style={edgeShadow('right', overflowing && !atEnd)} />
-      </div>
-    </>
-  );
-};
-
-const TransportTable = ({ stickyColumn, stickyHeader }: Options) => {
+const TransportTable = ({ stickyHeader }: { stickyHeader?: boolean }) => {
   const titleId = useId();
-  const [scrolled, setScrolled] = useState(false);
-
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--ds-size-2)',
-      }}
-    >
+    <div style={stack()}>
       <div>
-        <Paragraph
-          data-size='sm'
-          style={{
-            margin: 0,
-            fontWeight: 'var(--ds-font-weight-medium)',
-            color: 'var(--ds-color-accent-text-subtle)',
-          }}
-        >
-          Tabell 1
-        </Paragraph>
-        <Heading id={titleId} level={3} data-size='2xs' style={{ margin: 0 }}>
+        <Paragraph data-size='sm'>Tabell 1</Paragraph>
+        <Heading id={titleId} level={3} data-size='2xs'>
           {TITLE}
         </Heading>
       </div>
 
-      <ScrollArea
+      {/* cqh er høyden til rammen rundt prototypen, ellers skjermhøyden */}
+      <ScrollRegion
         labelledBy={titleId}
-        stickyHeader={stickyHeader}
-        stickyColumn={stickyColumn}
-        onScrolledChange={setScrolled}
+        maxHeight={stickyHeader ? '70cqh' : undefined}
       >
         <Table
           data-size='sm'
-          data-color='neutral'
           stickyHeader={stickyHeader}
           aria-labelledby={titleId}
-          style={{ width: 'max-content', minWidth: '100%' }}
         >
           <Table.Head>
             <Table.Row>
-              <Table.HeaderCell
-                scope='col'
-                style={{
-                  ...labelCell(),
-                  verticalAlign: 'bottom',
-                  ...sticky(stickyColumn, scrolled, undefined, 3),
-                }}
-              >
-                Transportmåte
-              </Table.HeaderCell>
-              {COLUMNS.map((c, i) => (
-                <Table.HeaderCell
-                  key={c}
-                  scope='col'
-                  style={{
-                    ...numCell,
-                    ...(i === COLUMNS.length - 1 && {
-                      whiteSpace: 'normal',
-                      minWidth: '7.5rem',
-                    }),
-                  }}
-                >
+              <Table.HeaderCell scope='col'>Transportmåte</Table.HeaderCell>
+              {COLUMNS.map((c) => (
+                <Table.HeaderCell key={c} scope='col'>
                   {c}
                 </Table.HeaderCell>
               ))}
@@ -379,66 +202,38 @@ const TransportTable = ({ stickyColumn, stickyHeader }: Options) => {
           {GROUPS.map((g) => (
             <Table.Body key={g.label}>
               <Table.Row>
-                <Table.HeaderCell
-                  scope='rowgroup'
-                  style={{
-                    ...labelCell(),
-                    background: groupBackground,
-                    ...sticky(stickyColumn, scrolled, groupBackground),
-                  }}
-                >
+                <Table.HeaderCell scope='rowgroup' colSpan={COLUMNS.length + 1}>
                   {g.label}
                 </Table.HeaderCell>
-                <Table.Cell
-                  colSpan={COLUMNS.length}
-                  style={{ background: groupBackground }}
-                />
               </Table.Row>
-              {g.rows.map(([level, label, a, b, total]) => {
-                const weight = total
-                  ? 'var(--ds-font-weight-semibold)'
-                  : 'var(--ds-font-weight-regular)';
+              {g.rows.map(([, label, a, b, total]) => {
+                // Summeringsradene er uthevet med <strong>, ikke egen stil
+                const Text = total ? 'strong' : 'span';
                 return (
                   <Table.Row key={label + a}>
-                    <Table.HeaderCell
-                      scope='row'
-                      style={{
-                        ...labelCell(level),
-                        fontWeight: weight,
-                        ...sticky(stickyColumn, scrolled),
-                      }}
-                    >
-                      {label}
+                    <Table.HeaderCell scope='row'>
+                      <Text>{label}</Text>
                     </Table.HeaderCell>
-                    <Table.Cell style={{ ...numCell, fontWeight: weight }}>
-                      {formatNumber(a)}
+                    <Table.Cell>
+                      <Text>{formatNumber(a)}</Text>
                     </Table.Cell>
-                    <Table.Cell style={{ ...numCell, fontWeight: weight }}>
-                      {formatNumber(b)}
+                    <Table.Cell>
+                      <Text>{formatNumber(b)}</Text>
                     </Table.Cell>
-                    <Table.Cell style={numCell}>
-                      {formatChange(a, b)}
-                    </Table.Cell>
+                    <Table.Cell>{formatChange(a, b)}</Table.Cell>
                   </Table.Row>
                 );
               })}
             </Table.Body>
           ))}
         </Table>
-      </ScrollArea>
+      </ScrollRegion>
 
-      <ol
-        style={{
-          margin: 0,
-          paddingLeft: '1.2em',
-          fontSize: 'var(--ds-body-sm-font-size)',
-          color: 'var(--ds-color-neutral-text-subtle)',
-        }}
-      >
+      <List.Ordered data-size='sm'>
         {NOTES.map((n) => (
-          <li key={n}>{n}</li>
+          <List.Item key={n}>{n}</List.Item>
         ))}
-      </ol>
+      </List.Ordered>
     </div>
   );
 };
@@ -447,13 +242,11 @@ const TransportTable = ({ stickyColumn, stickyHeader }: Options) => {
 /* Eksempler                                                                  */
 /* -------------------------------------------------------------------------- */
 
-/** 2a: Radoverskriftene står fast mens tallkolonnene rulles. */
-export const TableStickyFirstColumn = () => <TransportTable stickyColumn />;
+/** 2a: Tabellen beholdes og ruller sideveis når den ikke får plass. */
+export const TableHorizontalScroll = () => <TransportTable />;
 
-/** 2b: Fast førstekolonne og stickyHeader i ett rulleområde med begrenset høyde. */
-export const TableStickyHeader = () => (
-  <TransportTable stickyColumn stickyHeader />
-);
+/** 2b: stickyHeader holder kolonneoverskriftene synlige når tabellen rulles. */
+export const TableStickyHeader = () => <TransportTable stickyHeader />;
 
 /* -------------------------------------------------------------------------- */
 /* Scenario 1: Finne en bestemt rad eller enhet i en større oversikt         */
@@ -556,7 +349,7 @@ const STATUS_COLOR: Record<Status, string> = {
 const META: { key: keyof Case; label: string }[] = [
   { key: 'caseNumber', label: 'Saksnummer' },
   { key: 'received', label: 'Mottatt' },
-  { key: 'handler', label: 'Behandles av' },
+  { key: 'handler', label: 'Behandler' },
 ];
 
 const StatusTag = ({ status }: { status: Status }) => (
@@ -565,205 +358,141 @@ const StatusTag = ({ status }: { status: Status }) => (
   </Tag>
 );
 
-/** Beskrivelsesliste (<dl>) for metadata. Designsystemet har ikke egen komponent for dette. */
-const MetaList = ({ item, columns = 1 }: { item: Case; columns?: 1 | 2 }) => (
-  <dl
-    style={{
-      display: 'grid',
-      gridTemplateColumns: columns === 2 ? 'repeat(2, minmax(0, 1fr))' : '1fr',
-      gap: 'var(--ds-size-2) var(--ds-size-4)',
-      margin: 0,
-      fontSize: 'var(--ds-body-sm-font-size)',
-    }}
-  >
-    {META.map(({ key, label }) => (
-      <div key={key}>
-        <dt style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
-          {label}
-        </dt>
-        <dd style={{ margin: 0 }}>{item[key]}</dd>
-      </div>
-    ))}
-  </dl>
+/** Saksnummer, dato og behandler som etikett og verdi */
+const MetaTable = ({ item }: { item: Case }) => (
+  <KeyValueTable
+    label={`Detaljer om ${item.title}`}
+    rows={META.map(({ key, label }) => [label, item[key]])}
+  />
 );
 
-/** Liste (<ul>): objektnavn og litt metadata. Rask å skanne, fungerer på alle skjermbredder. */
-export const CasesList = () => (
-  <section aria-labelledby='cases-list-heading'>
-    <Heading
-      id='cases-list-heading'
-      level={3}
-      data-size='2xs'
-      style={{ margin: 0 }}
-    >
-      Mine saker
-    </Heading>
-    <ul style={{ ...listReset, marginTop: 'var(--ds-size-2)' }}>
-      {CASES.map((c) => (
-        <li
-          key={c.id}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--ds-size-1)',
-            paddingBlock: 'var(--ds-size-3)',
-            borderBottom:
-              'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
-          }}
-        >
-          <Link href={`#${c.id}`}>{c.title}</Link>
-          <Paragraph
-            data-size='sm'
-            style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}
-          >
-            {c.status} · Mottatt {c.received}
-          </Paragraph>
-        </li>
-      ))}
-    </ul>
-  </section>
-);
-
-/** Liste med beskrivelsesliste (<ul> + <dl>): mer metadata, tydelig kobling mellom etikett og verdi. */
-export const CasesDescriptionList = () => (
-  <section aria-labelledby='cases-dl-heading'>
-    <Heading
-      id='cases-dl-heading'
-      level={3}
-      data-size='2xs'
-      style={{ margin: 0 }}
-    >
-      Mine saker
-    </Heading>
-    <ul style={{ ...listReset, marginTop: 'var(--ds-size-2)' }}>
-      {CASES.map((c) => (
-        <li
-          key={c.id}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--ds-size-2)',
-            paddingBlock: 'var(--ds-size-4)',
-            borderBottom:
-              'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
-          }}
-        >
-          <Heading level={4} data-size='2xs' style={{ margin: 0 }}>
+/** 1a: Liste med objektnavn og litt metadata. Rask å skanne, fungerer på alle skjermbredder. */
+export const CasesList = () => {
+  const id = useId();
+  return (
+    <section aria-labelledby={id} style={stack()}>
+      <Heading id={id} level={3} data-size='2xs'>
+        Mine saker
+      </Heading>
+      <List.Unordered {...plainList}>
+        {CASES.map((c) => (
+          <List.Item key={c.id}>
             <Link href={`#${c.id}`}>{c.title}</Link>
-          </Heading>
-          <div>
-            <StatusTag status={c.status} />
-          </div>
-          <MetaList item={c} columns={2} />
-        </li>
-      ))}
-    </ul>
-  </section>
-);
+            <Paragraph data-size='sm'>
+              {c.status} · Mottatt {c.received}
+            </Paragraph>
+          </List.Item>
+        ))}
+      </List.Unordered>
+    </section>
+  );
+};
 
-/** Kort (rik liste): hvert kort er et listeelement, og hele kortet er klikkbart via lenken i overskriften. */
-export const CasesCards = () => (
-  <section aria-labelledby='cases-cards-heading'>
-    <Heading
-      id='cases-cards-heading'
-      level={3}
-      data-size='2xs'
-      style={{ margin: 0 }}
-    >
-      Mine saker
-    </Heading>
-    <ul
-      style={{
-        ...listReset,
-        marginTop: 'var(--ds-size-3)',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 18rem), 1fr))',
-        gap: 'var(--ds-size-3)',
-      }}
-    >
-      {CASES.map((c) => (
-        <li key={c.id}>
-          <Card
-            data-color='neutral'
-            data-clickdelegatefor={`${c.id}-link`}
-            style={{
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 'var(--ds-size-3)',
-              padding: 'var(--ds-size-4)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                gap: 'var(--ds-size-2)',
-              }}
-            >
-              <Heading level={4} data-size='2xs' style={{ margin: 0 }}>
-                <Link data-color='accent' id={`${c.id}-link`} href={`#${c.id}`}>
-                  {c.title}
-                </Link>
-              </Heading>
-              <ChevronRightIcon
-                aria-hidden
-                style={{ flexShrink: 0, fontSize: '1.5rem' }}
-              />
-            </div>
+/** 1b: Liste der hver sak har etikett og verdi i en tabell med to kolonner. */
+export const CasesKeyValueList = () => {
+  const id = useId();
+  return (
+    <section aria-labelledby={id} style={stack()}>
+      <Heading id={id} level={3} data-size='2xs'>
+        Mine saker
+      </Heading>
+      <List.Unordered {...plainList}>
+        {CASES.map((c) => (
+          <List.Item key={c.id} style={stack()}>
+            <Heading level={4} data-size='2xs'>
+              <Link href={`#${c.id}`}>{c.title}</Link>
+            </Heading>
             <div>
               <StatusTag status={c.status} />
             </div>
-            <MetaList item={c} />
-          </Card>
-        </li>
-      ))}
-    </ul>
-  </section>
-);
+            <MetaTable item={c} />
+          </List.Item>
+        ))}
+      </List.Unordered>
+    </section>
+  );
+};
 
-/** Liste med ekspanderbare detaljer: navn og status vises, sjeldnere brukte opplysninger ligger i Details. */
-export const CasesExpandable = () => (
-  <section aria-labelledby='cases-expandable-heading'>
-    <Heading
-      id='cases-expandable-heading'
-      level={3}
-      data-size='2xs'
-      style={{ margin: 0 }}
-    >
-      Mine saker
-    </Heading>
-    <ul style={{ ...listReset, marginTop: 'var(--ds-size-2)' }}>
-      {CASES.map((c) => (
-        <li
-          key={c.id}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--ds-size-2)',
-            paddingTop: 'var(--ds-size-4)',
-            borderBottom:
-              'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
-          }}
-        >
-          <Heading level={4} data-size='2xs' style={{ margin: 0 }}>
-            <Link href={`#${c.id}`}>{c.title}</Link>
-          </Heading>
-          <div>
-            <StatusTag status={c.status} />
-          </div>
-          <Details data-size='sm'>
-            <Details.Summary>Flere detaljer</Details.Summary>
-            <Details.Content>
-              <MetaList item={c} />
-            </Details.Content>
-          </Details>
-        </li>
-      ))}
-    </ul>
-  </section>
-);
+/** 1c: Kort (rik liste). Hele kortet er klikkbart via lenken i overskriften. */
+export const CasesCards = () => {
+  const id = useId();
+  return (
+    <section aria-labelledby={id} style={stack()}>
+      <Heading id={id} level={3} data-size='2xs'>
+        Mine saker
+      </Heading>
+      <List.Unordered
+        className={plainList.className}
+        style={{
+          ...plainList.style,
+          display: 'grid',
+          gridTemplateColumns:
+            'repeat(auto-fill, minmax(min(100%, 18rem), 1fr))',
+          gap: 'var(--ds-size-3)',
+        }}
+      >
+        {CASES.map((c) => (
+          <List.Item key={c.id}>
+            <Card data-clickdelegatefor={`${c.id}-link`}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 'var(--ds-size-2)',
+                }}
+              >
+                <Heading level={4} data-size='2xs'>
+                  <Link id={`${c.id}-link`} href={`#${c.id}`}>
+                    {c.title}
+                  </Link>
+                </Heading>
+                <ChevronRightIcon aria-hidden />
+              </div>
+              <div>
+                <StatusTag status={c.status} />
+              </div>
+              <MetaTable item={c} />
+            </Card>
+          </List.Item>
+        ))}
+      </List.Unordered>
+    </section>
+  );
+};
+
+/** 1d: Navn og status er synlige, sjeldnere brukte opplysninger ligger i Details. */
+export const CasesExpandable = () => {
+  const id = useId();
+  return (
+    <section aria-labelledby={id} style={stack()}>
+      <Heading id={id} level={3} data-size='2xs'>
+        Mine saker
+      </Heading>
+      <List.Unordered {...plainList}>
+        {CASES.map((c) => (
+          <List.Item key={c.id} style={stack()}>
+            <Heading level={4} data-size='2xs'>
+              <Link href={`#${c.id}`}>{c.title}</Link>
+            </Heading>
+            <div>
+              <StatusTag status={c.status} />
+            </div>
+            <Details data-size='sm'>
+              <Details.Summary>Flere detaljer</Details.Summary>
+              <Details.Content>
+                <MetaTable item={c} />
+              </Details.Content>
+            </Details>
+          </List.Item>
+        ))}
+      </List.Unordered>
+    </section>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/* 1e: Tabell på full bredde, kort med søk og sortering når den ikke får plass */
+/* -------------------------------------------------------------------------- */
 
 /** «dd.mm.åååå» som tall som kan sorteres */
 const sortableDate = (d: string) => d.split('.').reverse().join('');
@@ -793,7 +522,7 @@ const CARD_FIELDS: { key: keyof Case; label: string }[] = [
   { key: 'status', label: 'Status' },
   { key: 'received', label: 'Mottatt' },
   { key: 'updated', label: 'Sist oppdatert' },
-  { key: 'handler', label: 'Behandles av' },
+  { key: 'handler', label: 'Behandler' },
 ];
 
 const CaseActions = ({ item }: { item: Case }) => {
@@ -845,7 +574,17 @@ const useFitsTable = (ref: RefObject<HTMLElement | null>) => {
   return fits;
 };
 
-/** De samme sakene som tabell, for full bredde */
+/** Verdien i et felt, med status som Tag og saksnavnet som lenke */
+const fieldValue = (c: Case, key: keyof Case): ReactNode =>
+  key === 'status' ? (
+    <StatusTag status={c.status} />
+  ) : key === 'title' ? (
+    <Link href={`#${c.id}`}>{c.title}</Link>
+  ) : (
+    c[key]
+  );
+
+/** Sakene som tabell, for full bredde */
 const CaseTable = ({
   items,
   labelledBy,
@@ -853,39 +592,25 @@ const CaseTable = ({
   items: Case[];
   labelledBy: string;
 }) => (
-  <Table data-size='sm' data-color='neutral' aria-labelledby={labelledBy}>
+  <Table data-size='sm' aria-labelledby={labelledBy}>
     <Table.Head>
       <Table.Row>
-        <Table.HeaderCell scope='col'>Sak</Table.HeaderCell>
         <Table.HeaderCell scope='col'>Saksnummer</Table.HeaderCell>
-        {CARD_FIELDS.filter(({ key }) => key !== 'title').map(
-          ({ key, label }) => (
-            <Table.HeaderCell key={key} scope='col'>
-              {label}
-            </Table.HeaderCell>
-          ),
-        )}
+        {CARD_FIELDS.map(({ key, label }) => (
+          <Table.HeaderCell key={key} scope='col'>
+            {label}
+          </Table.HeaderCell>
+        ))}
         <Table.HeaderCell scope='col'>Handlinger</Table.HeaderCell>
       </Table.Row>
     </Table.Head>
     <Table.Body>
       {items.map((c) => (
         <Table.Row key={c.id}>
-          <Table.HeaderCell scope='row'>
-            {/* Tabellen er nøytral, lenken beholder lenkefargen */}
-            <Link data-color='accent' href={`#${c.id}`}>
-              {c.title}
-            </Link>
-          </Table.HeaderCell>
-          <Table.Cell style={{ whiteSpace: 'nowrap' }}>
-            {c.caseNumber}
-          </Table.Cell>
-          <Table.Cell>
-            <StatusTag status={c.status} />
-          </Table.Cell>
-          <Table.Cell>{c.received}</Table.Cell>
-          <Table.Cell>{c.updated}</Table.Cell>
-          <Table.Cell>{c.handler}</Table.Cell>
+          <Table.HeaderCell scope='row'>{c.caseNumber}</Table.HeaderCell>
+          {CARD_FIELDS.map(({ key }) => (
+            <Table.Cell key={key}>{fieldValue(c, key)}</Table.Cell>
+          ))}
           <Table.Cell>
             <CaseActions item={c} />
           </Table.Cell>
@@ -895,11 +620,51 @@ const CaseTable = ({
   </Table>
 );
 
+/** Hver rad blir et kort: saksnummer og handlinger øverst, kolonnene som etikett og verdi */
+const CaseCards = ({ items }: { items: Case[] }) => (
+  <List.Unordered
+    className={plainList.className}
+    style={{
+      ...plainList.style,
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 20rem), 1fr))',
+      gap: 'var(--ds-size-3)',
+    }}
+  >
+    {items.map((c) => (
+      <List.Item key={c.id}>
+        <Card>
+          <Card.Block
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 'var(--ds-size-2)',
+            }}
+          >
+            <Heading level={4} data-size='2xs'>
+              Sak {c.caseNumber}
+            </Heading>
+            <CaseActions item={c} />
+          </Card.Block>
+          <Card.Block>
+            <KeyValueTable
+              label={`Sak ${c.caseNumber}`}
+              rows={CARD_FIELDS.map(({ key, label }) => [
+                label,
+                fieldValue(c, key),
+              ])}
+            />
+          </Card.Block>
+        </Card>
+      </List.Item>
+    ))}
+  </List.Unordered>
+);
+
 /**
- * Kort med beskrivelsesliste, søk og sortering: på full bredde vises sakene
- * som tabell, og når tabellen ikke får plass, blir hver rad et kort. Saksnummer og handlinger står øverst, og hver kolonne blir et par
- * med etikett og verdi. Søk, statusfilter og sortering over listen gjør det
- * mulig å finne én sak blant mange.
+ * På full bredde vises sakene som tabell. Når tabellen ikke får plass, blir
+ * hver rad et kort. Søk, statusfilter og sortering virker likt i begge.
  */
 export const CasesSearchableCards = () => {
   const id = useId();
@@ -923,45 +688,33 @@ export const CasesSearchableCards = () => {
     <section
       ref={ref}
       aria-labelledby={`${id}-heading`}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--ds-size-3)',
-      }}
+      style={stack('var(--ds-size-3)')}
     >
-      <Heading
-        id={`${id}-heading`}
-        level={3}
-        data-size='2xs'
-        style={{ margin: 0 }}
-      >
+      <Heading id={`${id}-heading`} level={3} data-size='2xs'>
         Mine saker
       </Heading>
 
-      <Search>
-        <Search.Input
-          aria-label='Søk etter sak, saksnummer eller behandler'
-          placeholder='Søk i sakene'
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <Search.Clear onClick={() => setQuery('')} />
-      </Search>
+      <Field>
+        <Label>Søk i sakene</Label>
+        <Search>
+          <Search.Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Search.Clear onClick={() => setQuery('')} />
+        </Search>
+      </Field>
 
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 9rem), 1fr))',
-          gap: 'var(--ds-size-2) var(--ds-size-3)',
+          gap: 'var(--ds-size-3)',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Label htmlFor={`${id}-status`} data-size='sm'>
-            Status
-          </Label>
+        <Field>
+          <Label>Status</Label>
           <Select
-            id={`${id}-status`}
-            data-size='sm'
             value={status}
             onChange={(e) => setStatus(e.target.value as Status | '')}
           >
@@ -972,14 +725,10 @@ export const CasesSearchableCards = () => {
               </Select.Option>
             ))}
           </Select>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Label htmlFor={`${id}-order`} data-size='sm'>
-            Sorter etter
-          </Label>
+        </Field>
+        <Field>
+          <Label>Sorter etter</Label>
           <Select
-            id={`${id}-order`}
-            data-size='sm'
             value={order}
             onChange={(e) => setOrder(e.target.value as SortOrder)}
           >
@@ -989,15 +738,11 @@ export const CasesSearchableCards = () => {
               </Select.Option>
             ))}
           </Select>
-        </div>
+        </Field>
       </div>
 
       {/* Skjermlesere får vite at innholdet er endret når søk, filter eller sortering endres */}
-      <Paragraph
-        role='status'
-        data-size='sm'
-        style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}
-      >
+      <Paragraph role='status' data-size='sm'>
         {shown.length === 0
           ? 'Ingen saker passer søket'
           : `Viser ${shown.length} av ${CASES.length} saker. Sortert: ${
@@ -1005,86 +750,12 @@ export const CasesSearchableCards = () => {
             }`}
       </Paragraph>
 
-      {fitsTable ? (
-        shown.length > 0 && (
+      {shown.length > 0 &&
+        (fitsTable ? (
           <CaseTable items={shown} labelledBy={`${id}-heading`} />
-        )
-      ) : (
-        <ul
-          style={{
-            ...listReset,
-            display: 'grid',
-            gridTemplateColumns:
-              'repeat(auto-fill, minmax(min(100%, 20rem), 1fr))',
-            gap: 'var(--ds-size-3)',
-          }}
-        >
-          {shown.map((c) => (
-            <li key={c.id}>
-              <Card
-                data-color='neutral'
-                style={{ height: '100%', padding: 0, gap: 0 }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: 'var(--ds-size-2)',
-                    padding:
-                      'var(--ds-size-2) var(--ds-size-2) var(--ds-size-2) var(--ds-size-4)',
-                    borderBottom:
-                      'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
-                  }}
-                >
-                  <Heading level={4} data-size='2xs' style={{ margin: 0 }}>
-                    Sak {c.caseNumber}
-                  </Heading>
-                  <CaseActions item={c} />
-                </div>
-                <dl
-                  style={{
-                    margin: 0,
-                    padding: '0 var(--ds-size-4)',
-                    fontSize: 'var(--ds-body-sm-font-size)',
-                  }}
-                >
-                  {CARD_FIELDS.map(({ key, label }, i) => (
-                    <div
-                      key={key}
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'minmax(6.5rem, 2fr) 5fr',
-                        gap: 'var(--ds-size-3)',
-                        paddingBlock: 'var(--ds-size-2)',
-                        borderTop:
-                          i > 0
-                            ? 'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)'
-                            : undefined,
-                      }}
-                    >
-                      <dt
-                        style={{ color: 'var(--ds-color-neutral-text-subtle)' }}
-                      >
-                        {label}
-                      </dt>
-                      <dd style={{ margin: 0 }}>
-                        {key === 'status' ? (
-                          <StatusTag status={c.status} />
-                        ) : key === 'title' ? (
-                          <Link href={`#${c.id}`}>{c.title}</Link>
-                        ) : (
-                          c[key]
-                        )}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </Card>
-            </li>
-          ))}
-        </ul>
-      )}
+        ) : (
+          <CaseCards items={shown} />
+        ))}
     </section>
   );
 };
@@ -1175,19 +846,6 @@ const PROPERTIES: { key: keyof Licence; label: string }[] = [
   { key: 'healthCertificate', label: 'Helseattest' },
 ];
 
-const propertyCell: CSSProperties = {
-  width: '30%',
-  whiteSpace: 'normal',
-  hyphens: 'auto',
-  verticalAlign: 'top',
-};
-
-const valueCell: CSSProperties = {
-  whiteSpace: 'normal',
-  hyphens: 'auto',
-  verticalAlign: 'top',
-};
-
 type ComparisonProps = {
   /** Alternativene som står side om side */
   selected: Licence[];
@@ -1203,75 +861,38 @@ type ComparisonProps = {
 const LicenceComparison = ({ selected, onSelect }: ComparisonProps) => {
   const titleId = useId();
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--ds-size-2)',
-      }}
-    >
-      <Heading id={titleId} level={3} data-size='2xs' style={{ margin: 0 }}>
+    <div style={stack()}>
+      <Heading id={titleId} level={3} data-size='2xs'>
         Sammenlign førerkortklasser
       </Heading>
-      <Table
-        data-size='sm'
-        data-color='neutral'
-        aria-labelledby={titleId}
-        style={{ width: '100%', tableLayout: 'fixed' }}
-      >
+      <Table data-size='sm' aria-labelledby={titleId}>
         <Table.Head>
           <Table.Row>
-            <Table.HeaderCell scope='col' style={propertyCell}>
-              Egenskap
-            </Table.HeaderCell>
+            <Table.HeaderCell scope='col'>Egenskap</Table.HeaderCell>
             {selected.map((l, column) => (
-              <Table.HeaderCell
-                key={column}
-                scope='col'
-                style={{
-                  ...valueCell,
-                  verticalAlign: 'bottom',
-                  // Velgeren har egen luft, så cellen trenger mindre
-                  ...(onSelect && { paddingInline: 'var(--ds-size-1)' }),
-                }}
-              >
+              <Table.HeaderCell key={column} scope='col'>
                 {onSelect ? (
-                  <>
-                    {/* Kolonneoverskriften er valget, så etiketten leses bare av skjermlesere */}
-                    <Label
-                      htmlFor={`${titleId}-${column}`}
-                      className='ds-sr-only'
-                    >
-                      Klasse i kolonne {column + 1}
-                    </Label>
-                    <Select
-                      id={`${titleId}-${column}`}
-                      data-size='sm'
-                      // Mindre luft rundt koden, så den får plass ved 320 px
-                      style={{
-                        paddingInlineStart: 'var(--ds-size-2)',
-                        paddingInlineEnd: '1.8em',
-                        maxWidth: '100%',
-                      }}
-                      width='auto'
-                      value={l.id}
-                      onChange={(e) => onSelect(column, e.target.value)}
-                    >
-                      {LICENCES.map((o) => (
-                        <Select.Option
-                          key={o.id}
-                          value={o.id}
-                          // Samme alternativ kan ikke stå i to kolonner
-                          disabled={selected.some(
-                            (s, i) => i !== column && s.id === o.id,
-                          )}
-                        >
-                          {/* Bare bokstavkoden, så valget får plass i en smal kolonne */}
-                          {o.id}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </>
+                  // Kolonneoverskriften er selve valget
+                  <Select
+                    aria-label={`Klasse i kolonne ${column + 1}`}
+                    data-size='sm'
+                    value={l.id}
+                    onChange={(e) => onSelect(column, e.target.value)}
+                  >
+                    {LICENCES.map((o) => (
+                      <Select.Option
+                        key={o.id}
+                        value={o.id}
+                        // Samme alternativ kan ikke stå i to kolonner
+                        disabled={selected.some(
+                          (s, i) => i !== column && s.id === o.id,
+                        )}
+                      >
+                        {/* Bare bokstavkoden, så valget får plass i en smal kolonne */}
+                        {o.id}
+                      </Select.Option>
+                    ))}
+                  </Select>
                 ) : (
                   l.name
                 )}
@@ -1282,22 +903,15 @@ const LicenceComparison = ({ selected, onSelect }: ComparisonProps) => {
         <Table.Body>
           {PROPERTIES.map(({ key, label }) => (
             <Table.Row key={key}>
-              <Table.HeaderCell scope='row' style={propertyCell}>
-                {label}
-              </Table.HeaderCell>
+              <Table.HeaderCell scope='row'>{label}</Table.HeaderCell>
               {selected.map((l, column) => (
-                <Table.Cell key={column} style={valueCell}>
-                  {l[key]}
-                </Table.Cell>
+                <Table.Cell key={column}>{l[key]}</Table.Cell>
               ))}
             </Table.Row>
           ))}
         </Table.Body>
       </Table>
-      <Paragraph
-        data-size='xs'
-        style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}
-      >
+      <Paragraph data-size='xs'>
         Forenklet eksempeldata. Se Statens vegvesen for gjeldende regler.
       </Paragraph>
     </div>
