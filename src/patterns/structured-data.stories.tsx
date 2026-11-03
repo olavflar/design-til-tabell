@@ -1,19 +1,16 @@
 import {
   Button,
   Card,
+  Details,
   Heading,
+  Label,
   Link,
   Paragraph,
+  Select,
   Table,
   Tag,
-  ToggleGroup,
 } from '@digdir/designsystemet-react';
-import {
-  BulletListIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  TableIcon,
-} from '@navikt/aksel-icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '@navikt/aksel-icons';
 import {
   type CSSProperties,
   type ReactNode,
@@ -23,6 +20,10 @@ import {
   useRef,
   useState,
 } from 'react';
+
+/* -------------------------------------------------------------------------- */
+/* Scenario 2: Sammenligne verdier på tvers av mange datapunkter              */
+/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 /* Data: SSB, Tabell 1 «Innenlandsk person- og godstransportarbeid,          */
@@ -97,8 +98,6 @@ const formatChange = (a: number, b: number) => {
 type Options = {
   stickyColumn?: boolean;
   stickyHeader?: boolean;
-  /** Lar brukeren bytte mellom tabell og liste */
-  alternativeView?: boolean;
 };
 
 const labelCell = (level = 0): CSSProperties => ({
@@ -298,84 +297,9 @@ const ScrollArea = ({
   );
 };
 
-/** Samme data som liste: hver rad blir en oppføring med verdiene under. */
-const TransportList = ({ labelledBy }: { labelledBy: string }) => (
-  <div role='region' aria-labelledby={labelledBy}>
-    {GROUPS.map((g) => (
-      <section key={g.label} style={{ marginBottom: 'var(--ds-size-4)' }}>
-        <Heading
-          level={4}
-          data-size='2xs'
-          style={{
-            margin: 0,
-            padding: 'var(--ds-size-2) var(--ds-size-3)',
-            background: groupBackground,
-          }}
-        >
-          {g.label}
-        </Heading>
-        <ul style={listReset}>
-          {g.rows.map(([level, label, a, b, total]) => (
-            <li
-              key={label + a}
-              style={{
-                padding: 'var(--ds-size-3)',
-                paddingLeft: `calc(var(--ds-size-3) + ${level} * var(--ds-size-4))`,
-                borderBottom:
-                  'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
-                fontWeight: total
-                  ? 'var(--ds-font-weight-semibold)'
-                  : undefined,
-              }}
-            >
-              {label}
-              <dl
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                  gap: 'var(--ds-size-2)',
-                  margin: 'var(--ds-size-1) 0 0',
-                  fontSize: 'var(--ds-body-sm-font-size)',
-                }}
-              >
-                {[
-                  [COLUMNS[0], formatNumber(a)],
-                  [COLUMNS[1], formatNumber(b)],
-                  ['Endring, %', formatChange(a, b)],
-                ].map(([term, value]) => (
-                  <div key={term}>
-                    <dt
-                      style={{
-                        color: 'var(--ds-color-neutral-text-subtle)',
-                        fontWeight: 'var(--ds-font-weight-regular)',
-                      }}
-                    >
-                      {term}
-                    </dt>
-                    <dd
-                      style={{ margin: 0, fontVariantNumeric: 'tabular-nums' }}
-                    >
-                      {value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
-  </div>
-);
-
-const TransportTable = ({
-  stickyColumn,
-  stickyHeader,
-  alternativeView,
-}: Options) => {
+const TransportTable = ({ stickyColumn, stickyHeader }: Options) => {
   const titleId = useId();
   const [scrolled, setScrolled] = useState(false);
-  const [view, setView] = useState<'tabell' | 'liste'>('tabell');
 
   return (
     <div
@@ -401,29 +325,7 @@ const TransportTable = ({
         </Heading>
       </div>
 
-      {alternativeView && (
-        <ToggleGroup
-          data-size='sm'
-          value={view}
-          onChange={(v) => setView(v as 'tabell' | 'liste')}
-          aria-label='Velg visning av tabell 1'
-          style={{ alignSelf: 'flex-start' }}
-        >
-          <ToggleGroup.Item value='tabell'>
-            <TableIcon aria-hidden />
-            Tabell
-          </ToggleGroup.Item>
-          <ToggleGroup.Item value='liste'>
-            <BulletListIcon aria-hidden />
-            Liste
-          </ToggleGroup.Item>
-        </ToggleGroup>
-      )}
-
-      {view === 'liste' ? (
-        <TransportList labelledBy={titleId} />
-      ) : (
-        <ScrollArea
+      <ScrollArea
           labelledBy={titleId}
           stickyHeader={stickyHeader}
           stickyColumn={stickyColumn}
@@ -516,7 +418,6 @@ const TransportTable = ({
             ))}
           </Table>
         </ScrollArea>
-      )}
 
       <ol
         style={{
@@ -538,19 +439,16 @@ const TransportTable = ({
 /* Eksempler                                                                  */
 /* -------------------------------------------------------------------------- */
 
-/** 1a: Tabellen rulles sideveis. Brukeren kan bytte til listevisning. */
-export const TableHorizontalScroll = () => <TransportTable alternativeView />;
-
-/** 1b: Radoverskriftene står fast mens tallkolonnene rulles. */
+/** 2a: Radoverskriftene står fast mens tallkolonnene rulles. */
 export const TableStickyFirstColumn = () => <TransportTable stickyColumn />;
 
-/** 1d: Fast førstekolonne og stickyHeader i ett rulleområde med begrenset høyde. */
+/** 2b: Fast førstekolonne og stickyHeader i ett rulleområde med begrenset høyde. */
 export const TableStickyHeader = () => (
   <TransportTable stickyColumn stickyHeader />
 );
 
 /* -------------------------------------------------------------------------- */
-/* Objektliste: samme data vist som tabell, liste og kort                     */
+/* Scenario 1: Finne en bestemt rad eller enhet i en større oversikt         */
 /* -------------------------------------------------------------------------- */
 
 type Status = 'Venter på deg' | 'Under behandling' | 'Mottatt' | 'Avsluttet';
@@ -647,64 +545,6 @@ const MetaList = ({ item, columns = 1 }: { item: Case; columns?: 1 | 2 }) => (
     ))}
   </dl>
 );
-
-/** Samme saker som tabell. Fungerer godt på stor skjerm, men krever sideveis rulling på mobil. */
-export const CasesTable = () => {
-  const titleId = useId();
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--ds-size-2)',
-      }}
-    >
-      <Heading id={titleId} level={3} data-size='2xs' style={{ margin: 0 }}>
-        Mine saker
-      </Heading>
-      <ScrollArea labelledBy={titleId}>
-        <Table
-          data-size='sm'
-          data-color='neutral'
-          aria-labelledby={titleId}
-          style={{ width: 'max-content', minWidth: '100%' }}
-        >
-          <Table.Head>
-            <Table.Row>
-              <Table.HeaderCell scope='col'>Sak</Table.HeaderCell>
-              <Table.HeaderCell scope='col'>Status</Table.HeaderCell>
-              {META.map(({ key, label }) => (
-                <Table.HeaderCell key={key} scope='col'>
-                  {label}
-                </Table.HeaderCell>
-              ))}
-            </Table.Row>
-          </Table.Head>
-          <Table.Body>
-            {CASES.map((c) => (
-              <Table.Row key={c.id}>
-                <Table.HeaderCell scope='row'>
-                  {/* Tabellen er nøytral, lenken beholder lenkefargen */}
-                  <Link data-color='accent' href={`#${c.id}`}>
-                    {c.title}
-                  </Link>
-                </Table.HeaderCell>
-                <Table.Cell>
-                  <StatusTag status={c.status} />
-                </Table.Cell>
-                {META.map(({ key }) => (
-                  <Table.Cell key={key} style={{ whiteSpace: 'nowrap' }}>
-                    {c[key]}
-                  </Table.Cell>
-                ))}
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      </ScrollArea>
-    </div>
-  );
-};
 
 /** Liste (<ul>): objektnavn og litt metadata. Rask å skanne, fungerer på alle skjermbredder. */
 export const CasesList = () => (
@@ -841,3 +681,280 @@ export const CasesCards = () => (
     </ul>
   </section>
 );
+
+/** Liste med ekspanderbare detaljer: navn og status vises, sjeldnere brukte opplysninger ligger i Details. */
+export const CasesExpandable = () => (
+  <section aria-labelledby='cases-expandable-heading'>
+    <Heading
+      id='cases-expandable-heading'
+      level={3}
+      data-size='2xs'
+      style={{ margin: 0 }}
+    >
+      Mine saker
+    </Heading>
+    <ul style={{ ...listReset, marginTop: 'var(--ds-size-2)' }}>
+      {CASES.map((c) => (
+        <li
+          key={c.id}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--ds-size-2)',
+            paddingTop: 'var(--ds-size-4)',
+            borderBottom:
+              'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
+          }}
+        >
+          <Heading level={4} data-size='2xs' style={{ margin: 0 }}>
+            <Link href={`#${c.id}`}>{c.title}</Link>
+          </Heading>
+          <div>
+            <StatusTag status={c.status} />
+          </div>
+          <Details data-size='sm'>
+            <Details.Summary>Flere detaljer</Details.Summary>
+            <Details.Content>
+              <MetaList item={c} />
+            </Details.Content>
+          </Details>
+        </li>
+      ))}
+    </ul>
+  </section>
+);
+
+/* -------------------------------------------------------------------------- */
+/* Scenario 3: Sammenligne få alternativer med mange egenskaper               */
+/* Eksempeldata, forenklet etter Statens vegvesens oversikt over førerkort.   */
+/* -------------------------------------------------------------------------- */
+
+type Licence = {
+  id: string;
+  name: string;
+  vehicle: string;
+  weight: string;
+  trailer: string;
+  age: string;
+  requires: string;
+  tests: string;
+  healthCertificate: string;
+};
+
+const LICENCES: Licence[] = [
+  {
+    id: 'B',
+    name: 'Klasse B',
+    vehicle: 'Personbil',
+    weight: 'Inntil 3\u00a0500 kg',
+    trailer: 'Inntil 750 kg',
+    age: '18 år',
+    requires: 'Ingen',
+    tests: 'Teori- og førerprøve',
+    healthCertificate: 'Nei',
+  },
+  {
+    id: 'B96',
+    name: 'Klasse B96',
+    vehicle: 'Personbil med tyngre tilhenger',
+    weight: 'Inntil 3\u00a0500 kg',
+    trailer: 'Inntil 4\u00a0250 kg med bilen',
+    age: '18 år',
+    requires: 'Klasse B',
+    tests: 'Ingen, bare kurs',
+    healthCertificate: 'Nei',
+  },
+  {
+    id: 'BE',
+    name: 'Klasse BE',
+    vehicle: 'Personbil med stor tilhenger',
+    weight: 'Inntil 3\u00a0500 kg',
+    trailer: 'Inntil 3\u00a0500 kg',
+    age: '18 år',
+    requires: 'Klasse B',
+    tests: 'Førerprøve',
+    healthCertificate: 'Nei',
+  },
+  {
+    id: 'C1',
+    name: 'Klasse C1',
+    vehicle: 'Lett lastebil',
+    weight: 'Inntil 7\u00a0500 kg',
+    trailer: 'Inntil 750 kg',
+    age: '18 år',
+    requires: 'Klasse B',
+    tests: 'Teori- og førerprøve',
+    healthCertificate: 'Ja',
+  },
+  {
+    id: 'C',
+    name: 'Klasse C',
+    vehicle: 'Lastebil',
+    weight: 'Over 3\u00a0500 kg',
+    trailer: 'Inntil 750 kg',
+    age: '21 år',
+    requires: 'Klasse B',
+    tests: 'Teori- og førerprøve',
+    healthCertificate: 'Ja',
+  },
+];
+
+/** Egenskapene blir rader når aksene byttes om. */
+const PROPERTIES: { key: keyof Licence; label: string }[] = [
+  { key: 'vehicle', label: 'Hva du kan kjøre' },
+  { key: 'weight', label: 'Tillatt totalvekt for bilen' },
+  { key: 'trailer', label: 'Tilhenger' },
+  { key: 'age', label: 'Aldersgrense' },
+  { key: 'requires', label: 'Må ha fra før' },
+  { key: 'tests', label: 'Prøver' },
+  { key: 'healthCertificate', label: 'Helseattest' },
+];
+
+const propertyCell: CSSProperties = {
+  width: '30%',
+  whiteSpace: 'normal',
+  hyphens: 'auto',
+  verticalAlign: 'top',
+};
+
+const valueCell: CSSProperties = {
+  whiteSpace: 'normal',
+  hyphens: 'auto',
+  verticalAlign: 'top',
+};
+
+type ComparisonProps = {
+  /** Alternativene som står side om side */
+  selected: Licence[];
+  /** Gir hver kolonne en velger i stedet for et fast navn */
+  onSelect?: (column: number, id: string) => void;
+};
+
+/**
+ * Transponert tabell: egenskapene går nedover som rader, og de 2–3
+ * alternativene står i smale kolonner til høyre. Brukeren leser og
+ * sammenligner fra venstre mot høyre per egenskap.
+ */
+const LicenceComparison = ({ selected, onSelect }: ComparisonProps) => {
+  const titleId = useId();
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--ds-size-2)',
+      }}
+    >
+      <Heading id={titleId} level={3} data-size='2xs' style={{ margin: 0 }}>
+        Sammenlign førerkortklasser
+      </Heading>
+      <Table
+        data-size='sm'
+        data-color='neutral'
+        aria-labelledby={titleId}
+        style={{ width: '100%', tableLayout: 'fixed' }}
+      >
+        <Table.Head>
+          <Table.Row>
+            <Table.HeaderCell scope='col' style={propertyCell}>
+              Egenskap
+            </Table.HeaderCell>
+            {selected.map((l, column) => (
+              <Table.HeaderCell
+                key={column}
+                scope='col'
+                style={{
+                  ...valueCell,
+                  verticalAlign: 'bottom',
+                  // Velgeren har egen luft, så cellen trenger mindre
+                  ...(onSelect && { paddingInline: 'var(--ds-size-1)' }),
+                }}
+              >
+                {onSelect ? (
+                  <>
+                    {/* Kolonneoverskriften er valget, så etiketten leses bare av skjermlesere */}
+                    <Label
+                      htmlFor={`${titleId}-${column}`}
+                      className='ds-sr-only'
+                    >
+                      Klasse i kolonne {column + 1}
+                    </Label>
+                    <Select
+                      id={`${titleId}-${column}`}
+                      data-size='sm'
+                      // Mindre luft rundt koden, så den får plass ved 320 px
+                      style={{
+                        paddingInlineStart: 'var(--ds-size-2)',
+                        paddingInlineEnd: '1.8em',
+                        maxWidth: '100%',
+                      }}
+                      width='auto'
+                      value={l.id}
+                      onChange={(e) => onSelect(column, e.target.value)}
+                    >
+                      {LICENCES.map((o) => (
+                        <Select.Option
+                          key={o.id}
+                          value={o.id}
+                          // Samme alternativ kan ikke stå i to kolonner
+                          disabled={selected.some(
+                            (s, i) => i !== column && s.id === o.id,
+                          )}
+                        >
+                          {/* Bare bokstavkoden, så valget får plass i en smal kolonne */}
+                          {o.id}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </>
+                ) : (
+                  l.name
+                )}
+              </Table.HeaderCell>
+            ))}
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {PROPERTIES.map(({ key, label }) => (
+            <Table.Row key={key}>
+              <Table.HeaderCell scope='row' style={propertyCell}>
+                {label}
+              </Table.HeaderCell>
+              {selected.map((l, column) => (
+                <Table.Cell key={column} style={valueCell}>
+                  {l[key]}
+                </Table.Cell>
+              ))}
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
+      <Paragraph
+        data-size='xs'
+        style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}
+      >
+        Forenklet eksempeldata. Se Statens vegvesen for gjeldende regler.
+      </Paragraph>
+    </div>
+  );
+};
+
+const byId = (id: string) => LICENCES.find((l) => l.id === id)!;
+
+/** 3a: Tre faste alternativer side om side, med egenskapene som rader. */
+export const CompareTransposed = () => (
+  <LicenceComparison selected={['B', 'B96', 'BE'].map(byId)} />
+);
+
+/** 3b: Flere alternativer enn det er plass til. Brukeren velger hva som står i hver kolonne. */
+export const CompareWithPicker = () => {
+  const [ids, setIds] = useState(['B', 'C1']);
+  return (
+    <LicenceComparison
+      selected={ids.map(byId)}
+      onSelect={(column, id) =>
+        setIds((prev) => prev.map((p, i) => (i === column ? id : p)))
+      }
+    />
+  );
+};

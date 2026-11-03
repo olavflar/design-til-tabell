@@ -2,13 +2,7 @@ import * as stories from "./patterns/structured-data.stories.tsx";
 
 // Hver variant peker på en story i structured-data.stories.tsx, som er
 // formatet mønsterartiklene på designsystemet.no bruker (<Story story="..." />).
-
-const statistikk = {
-  eyebrow: "Statistikk om",
-  heading: "Innenlandsk transport",
-  intro:
-    "Statistikken viser hvordan transport av personer og gods i Norge utvikler seg med tog, på veiene, i lufta og på sjøen.",
-};
+// Gruppene følger brukerscenarioene i mønsterartikkelen.
 
 const saker = {
   eyebrow: "Min side",
@@ -17,53 +11,33 @@ const saker = {
     "Her ser du sakene du har sendt inn. Velg en sak for å se detaljer og hva som skjer videre.",
 };
 
+const statistikk = {
+  eyebrow: "Statistikk om",
+  heading: "Innenlandsk transport",
+  intro:
+    "Statistikken viser hvordan transport av personer og gods i Norge utvikler seg med tog, på veiene, i lufta og på sjøen.",
+};
+
+const forerkort = {
+  eyebrow: "Førerkort",
+  heading: "Hvilken førerkortklasse trenger du?",
+  intro:
+    "Klassen bestemmer hvor tung bil og tilhenger du kan kjøre. Sammenlign klassene for å se hva som passer deg.",
+};
+
 export const groups = [
   {
-    title: "Tabell med horisontal skroll",
-    description:
-      "Statistikktabell der brukeren skal sammenligne verdier på tvers av rader og kolonner.",
+    title: "Scenario 1: Finne en bestemt rad eller enhet i en større oversikt",
+    need: "Brukeren skal finne én bestemt rad eller enhet i en større oversikt, for å utføre en handling eller sjekke en tilstand. Brukeren skal ikke sammenligne verdier på tvers av enhetene.",
+    examples: ["innboks", "oversikt over byggesaker"],
+    recommendations: [
+      "Bruk listevisning eller rik liste/kort.",
+      "Skap et tydelig hierarki som gjør at den viktigste informasjonen er lett å finne.",
+      "Skjul sekundær informasjon i et ekspanderbart felt dersom det sjelden er behov for den.",
+    ],
     variants: [
       {
         id: "1a",
-        story: "TableHorizontalScroll",
-        title: "Horisontal skroll",
-        description:
-          "Tabellen beholdes som den er og rulles sideveis. Når brukeren ruller, forsvinner radoverskriftene, og det blir uklart hva tallene beskriver. Brukeren kan bytte til listevisning, der hver rad vises med verdiene under og ingenting må rulles sideveis.",
-        context: statistikk,
-      },
-      {
-        id: "1b",
-        story: "TableStickyFirstColumn",
-        title: "Horisontal skroll med fast førstekolonne",
-        description:
-          "Radoverskriftene står fast mens tallkolonnene rulles. En skygge viser at det er innhold under. Kolonneoverskriftene forsvinner når siden rulles nedover.",
-        context: statistikk,
-      },
-      {
-        id: "1d",
-        story: "TableStickyHeader",
-        title: "Fast førstekolonne og sticky header",
-        description:
-          "Bruker stickyHeader fra Designsystemet. Tabellen får begrenset høyde og ruller begge veier i samme område, slik at både radoverskrifter og kolonneoverskrifter alltid er synlige.",
-        context: statistikk,
-      },
-    ],
-  },
-  {
-    title: "Tabell, liste og kort",
-    description:
-      "Samme oversikt over saker vist på fire måter. Hver sak er et objekt med navn, status og noen få metadata, og brukeren skal finne og åpne én sak.",
-    variants: [
-      {
-        id: "2a",
-        story: "CasesTable",
-        title: "Tabell",
-        description:
-          "Gir god oversikt på stor skjerm. På mobil må brukeren rulle sideveis for å se metadataene, selv om det ikke er behov for å sammenligne dem.",
-        context: saker,
-      },
-      {
-        id: "2b",
         story: "CasesList",
         title: "Liste (ul)",
         description:
@@ -71,7 +45,7 @@ export const groups = [
         context: saker,
       },
       {
-        id: "2c",
+        id: "1b",
         story: "CasesDescriptionList",
         title: "Liste med beskrivelsesliste (ul + dl)",
         description:
@@ -79,12 +53,85 @@ export const groups = [
         context: saker,
       },
       {
-        id: "2d",
+        id: "1c",
         story: "CasesCards",
         title: "Kort (rik liste)",
         description:
           "Hvert kort er et listeelement med mer innhold og status. Hele kortet er klikkbart via lenken i overskriften. Bruker mer plass, men tilpasser seg skjermbredden.",
         context: saker,
+      },
+      {
+        id: "1d",
+        story: "CasesExpandable",
+        title: "Liste med ekspanderbare detaljer",
+        description:
+          "Navn og status er alltid synlige. Saksnummer, dato og hvem som behandler saken ligger bak «Flere detaljer», fordi brukeren sjelden trenger dem for å finne riktig sak.",
+        context: saker,
+      },
+    ],
+  },
+  {
+    title: "Scenario 2: Sammenligne verdier på tvers av mange datapunkter",
+    need: "Brukeren må se data i sammenheng i rader og kolonner, for å sammenligne, oppdage mønstre, finne avvik eller se historisk utvikling.",
+    examples: [
+      "tidsserie- og måledata",
+      "pris- og takstmatriser",
+      "statistiske oversikter",
+    ],
+    recommendations: [
+      "Behold tabellstrukturen, men gjør tabellen horisontalt rullbar hvis det trengs.",
+      "Lås første kolonne slik at objektets navn alltid er synlig mens brukeren ruller sideveis.",
+      "Lås kolonneoverskriftene i toppen dersom tabellen er lang vertikalt.",
+      "Gi en visuell indikator på at tabellen er utfallende og kan rulles.",
+    ],
+    variants: [
+      {
+        id: "2a",
+        story: "TableStickyFirstColumn",
+        title: "Horisontal rulling med fast førstekolonne",
+        description:
+          "Radoverskriftene står fast mens tallkolonnene rulles. Hjelpetekst, pilknapper og en skygge viser at det er mer innhold til siden. Kolonneoverskriftene forsvinner når siden rulles nedover.",
+        context: statistikk,
+      },
+      {
+        id: "2b",
+        story: "TableStickyHeader",
+        title: "Fast førstekolonne og faste kolonneoverskrifter",
+        description:
+          "Bruker stickyHeader fra Designsystemet. Tabellen får begrenset høyde og ruller begge veier i samme område, slik at både radoverskrifter og kolonneoverskrifter alltid er synlige.",
+        context: statistikk,
+      },
+    ],
+  },
+  {
+    title: "Scenario 3: Sammenligne få alternativer med mange egenskaper",
+    need: "Brukeren skal velge mellom noen få alternativer på grunnlag av mange egenskaper.",
+    examples: [
+      "valg av avtale- eller ytelsesmodell",
+      "kriterier for tjenester eller ordninger",
+      "produkt- eller studiekataloger",
+    ],
+    recommendations: [
+      "Bytt om på aksene (transponer) slik at egenskapene går nedover siden som rader.",
+      "Plasser de 2 til 3 alternativene ved siden av hverandre i smale kolonner til høyre.",
+      "Er det flere enn 2 til 3 alternativer, la brukeren velge hva som skal stå i hver kolonne.",
+    ],
+    variants: [
+      {
+        id: "3a",
+        story: "CompareTransposed",
+        title: "Transponert tabell",
+        description:
+          "Tre førerkortklasser står side om side, og egenskapene går nedover som rader. Brukeren leser fra venstre mot høyre per egenskap, uten å rulle sideveis.",
+        context: forerkort,
+      },
+      {
+        id: "3b",
+        story: "CompareWithPicker",
+        title: "Transponert tabell med velger per kolonne",
+        description:
+          "Det finnes fem klasser, men bare to får plass side om side på mobil. En nedtrekksliste øverst i hver kolonne lar brukeren velge hvilke klasser som sammenlignes.",
+        context: forerkort,
       },
     ],
   },

@@ -107,7 +107,18 @@ function Overview() {
           <Heading level={2} data-size="sm">
             {g.title}
           </Heading>
-          <Paragraph data-size="sm">{g.description}</Paragraph>
+          <Paragraph data-size="sm">{g.need}</Paragraph>
+          <Paragraph data-size="sm">
+            <strong>Eksempler:</strong> {g.examples.join(", ")}.
+          </Paragraph>
+          <Heading level={3} data-size="2xs">
+            Anbefalinger
+          </Heading>
+          <List.Unordered data-size="sm">
+            {g.recommendations.map((r) => (
+              <List.Item key={r}>{r}</List.Item>
+            ))}
+          </List.Unordered>
           <ul className="variant-list">
             {g.variants.map((v) => (
               <li key={v.id}>
