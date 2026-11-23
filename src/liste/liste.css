@@ -76,3 +76,51 @@
 .frame--browser .frame__content.hifi { padding-inline: var(--ds-size-4); }
 .case-table :is(th, td) { padding-inline: var(--ds-size-2); }
 .case-table .ds-tag { white-space: normal; }
+
+/* ---------- Nummerert liste som ser ut som en tabell ----------
+   Smal: hver oppføring stables, med etiketten foran verdien.
+   Bred (container query): kolonner med felles bredder via subgrid,
+   en visuell overskriftsrad, og plassen som første kolonne. */
+.ol-table { container-type: inline-size; }
+.ol-table__head { display: none; }
+.ol-table__list { list-style: none; margin: 0; padding: 0; counter-reset: plass; border-top: 1px solid var(--ds-color-neutral-border-subtle); }
+.ol-table__list > li {
+  counter-increment: plass;
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  column-gap: var(--ds-size-2);
+  padding-block: var(--ds-size-3);
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+.ol-table__list > li > * { margin: 0; grid-column: 2; }
+/* Plassen vises med en teller. Skjermlesere får den fra ol, så den skjules for dem. */
+.ol-table__list > li::before {
+  content: counter(plass) "." / "";
+  grid-column: 1; grid-row: 1 / span 3;
+  font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.ol-table__label { color: var(--ds-color-neutral-text-subtle); }
+
+@container (min-width: 36rem) {
+  .ol-table { display: grid; grid-template-columns: 4rem minmax(0, 1fr) auto auto; }
+  .ol-table__head,
+  .ol-table__list,
+  .ol-table__list > li { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; column-gap: var(--ds-size-5); }
+  .ol-table__head {
+    padding: var(--ds-size-2) var(--ds-size-2);
+    font-weight: 600; font-size: var(--ds-font-size-3);
+    border-bottom: 2px solid var(--ds-color-accent-border-subtle);
+  }
+  .ol-table__list { border-top: 0; }
+  .ol-table__list > li { padding: var(--ds-size-3) var(--ds-size-2); align-items: baseline; }
+  .ol-table__list > li:nth-child(even) { background: var(--ds-color-neutral-surface-tinted); }
+  .ol-table__list > li::before { grid-row: auto; }
+  .ol-table__list > li > * { grid-column: auto; }
+  .ol-table__head > :nth-child(n + 3),
+  .ol-table__list .num { text-align: right; }
+  /* Overskriftsraden vises, så etikettene skjules visuelt, men leses fortsatt opp */
+  .ol-table__label {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip-path: inset(50%); white-space: nowrap;
+  }
+}

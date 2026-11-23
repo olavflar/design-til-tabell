@@ -457,6 +457,63 @@ function SearchableCases({ id, large = false }) {
   );
 }
 
+/* ---------- Nummerert liste som ser ut som en tabell ---------- */
+
+/* Køen hos byggesak: her betyr rekkefølgen noe, så det er en nummerert liste */
+const QUEUE = [
+  { id: "ko-1", title: "Søknad om byggetillatelse, Storgata 12", received: "02.10.2026", answer: "Uke 48" },
+  { id: "ko-2", title: "Søknad om ferdigattest, Bakkeveien 3", received: "05.10.2026", answer: "Uke 49" },
+  { id: "ko-3", title: "Søknad om byggetillatelse, Elvegata 7", received: "12.10.2026", answer: "Uke 50" },
+  { id: "ko-4", title: "Søknad om dispensasjon, Fjellveien 21", received: "19.10.2026", answer: "Uke 51" },
+  { id: "ko-5", title: "Søknad om rivetillatelse, Torget 1", received: "27.10.2026", answer: "Uke 2" },
+];
+const QUEUE_COLUMNS = ["Plass", "Søknad", "Mottatt", "Forventet svar"];
+
+/**
+ * Én nummerert liste for alle skjermbredder. Når listen er bred nok, står
+ * verdiene i kolonner under en overskriftsrad, så den ser ut som en tabell.
+ * Overskriftsraden er bare visuell (aria-hidden). Hver verdi har sin egen
+ * etikett, som er skjult når overskriftsraden vises, og synlig når listen
+ * stables. Skjermlesere får vite plassen fra den nummererte listen
+ * («1 av 5»), og etiketten fra hver verdi.
+ */
+function QueueList({ labelledBy }) {
+  return (
+    <div className="ol-table">
+      <div className="ol-table__head" aria-hidden>
+        {QUEUE_COLUMNS.map((c) => <span key={c}>{c}</span>)}
+      </div>
+      <ol className="ol-table__list" role="list" aria-labelledby={labelledBy}>
+        {QUEUE.map((q) => (
+          <li key={q.id}>
+            <Heading level={4} data-size="2xs" className="ol-table__title">
+              <Link href={`#${q.id}`}>{q.title}</Link>
+            </Heading>
+            <Paragraph data-size="sm" className="num">
+              <span className="ol-table__label">Mottatt </span>{q.received}
+            </Paragraph>
+            <Paragraph data-size="sm" className="num">
+              <span className="ol-table__label">Forventet svar </span>{q.answer}
+            </Paragraph>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function QueueScreen({ id }) {
+  return (
+    <div className="frame__content hifi">
+      <Heading level={3} data-size="sm" id={id}>Køen hos byggesak</Heading>
+      <Paragraph data-size="sm" className="meta">
+        Søknadene behandles i den rekkefølgen de kom inn. <Tag data-size="sm" data-color="warning">Fiktive søknader</Tag>
+      </Paragraph>
+      <QueueList labelledBy={id} />
+    </div>
+  );
+}
+
 export default function Liste() {
   const sorted = [...CASES].sort(byNewest);
 
@@ -554,6 +611,21 @@ export default function Liste() {
           render={(id) => (
             <Small id={id}><DialogList items={sorted} labelledBy={id} /></Small>
           )}
+        />
+      </section>
+
+      <section>
+        <Heading level={2} data-size="md">Nummerert liste som ser ut som en tabell</Heading>
+        <Paragraph>
+          Når rekkefølgen er en del av innholdet, for eksempel en kø, og hver oppføring har noen få verdier som bør stå
+          på linje på stor skjerm.
+        </Paragraph>
+        <Example
+          id="queue"
+          smallLabel="Nummerert liste, liten skjerm"
+          large={<QueueScreen id="queue-large" />}
+          caption="Det er samme nummererte liste på begge skjermene. På stor skjerm står verdiene i kolonner med en overskriftsrad over, så den ser ut som en tabell. På liten skjerm stables hver oppføring, og etiketten står foran verdien. Overskriftsraden er bare visuell. For skjermlesere har hver verdi sin egen etikett, og plassen kommer fra nummereringen. Brukeren kan ikke bevege seg opp og ned i en kolonne slik som i en ekte tabell. Skal brukeren sammenligne verdier på tvers av oppføringene, er en tabell med en kolonne for plass bedre."
+          render={(id) => <QueueScreen id={id} />}
         />
       </section>
     </main>
