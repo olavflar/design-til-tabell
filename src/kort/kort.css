@@ -45,7 +45,8 @@
 .cost-card__top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--ds-size-3); }
 .cost-card__top > * { margin: 0; }
 /* Endre og Slett: to like knapper ved siden av hverandre */
-.actions { display: flex; gap: var(--ds-size-2); justify-content: flex-end; }
+.action-cell { width: 1%; white-space: nowrap; }
+.actions { display: flex; gap: var(--ds-size-2); }
 .actions--card { display: grid; grid-template-columns: 1fr 1fr; margin-top: var(--ds-size-2); }
 .actions--card > * { justify-content: center; }
 .cost-table .ds-validation-message { justify-content: flex-end; }
@@ -53,3 +54,12 @@
 .confirm > p { margin: 0; }
 .confirm__buttons { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); }
 .full { width: 100%; justify-content: center; }
+.table-scroll { overflow-x: auto; }
+/* Stor skjerm: litt mindre luft i cellene, så alle kolonnene får plass i rammen */
+.case-table.ds-table { --dsc-table-padding: var(--ds-size-2) var(--ds-size-2); }
+/* Hi-fi-sidene får bredere flate, så desktop-rammen har plass til hele tabellen */
+.art { max-width: 90rem; }
+.case-table .ds-button { white-space: nowrap; }
+.frame--browser .frame__content.hifi { padding-inline: var(--ds-size-4); }
+.case-table :is(th, td) { padding-inline: var(--ds-size-2); }
+.case-table .ds-tag { white-space: normal; }

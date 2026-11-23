@@ -23,7 +23,8 @@ const sorted = [...CASES].sort(byNewest);
 /** Etikett og verdi som radoverskrift og celle, så koblingen er med i koden */
 function KeyValue({ label, rows }) {
   return (
-    <Table data-size="sm" className="kv" aria-label={label}>
+    <Table data-size="sm" className="kv">
+      <caption className="ds-sr-only">{label}</caption>
       <Table.Body>
         {rows.map(([k, v]) => (
           <Table.Row key={k}>
@@ -141,11 +142,14 @@ function DeleteButton({ item, onDelete }) {
       >
         Slett
       </Popover.Trigger>
-      <Popover open={open} onClose={() => setOpen(false)} placement="top" className="confirm">
-        <Paragraph data-size="sm">Vil du slette «{item.name}»? Du kan ikke angre.</Paragraph>
-        <div className="confirm__buttons">
-          <Button data-size="sm" data-color="danger" onClick={onDelete}>Ja, slett</Button>
-          <Button data-size="sm" variant="secondary" onClick={() => setOpen(false)}>Avbryt</Button>
+      <Popover open={open} onClose={() => setOpen(false)} placement="top">
+        {/* Oppsettet ligger på et eget element: display på selve popoveren ville vist den også når den er lukket */}
+        <div className="confirm">
+          <Paragraph data-size="sm">Vil du slette «{item.name}»? Du kan ikke angre.</Paragraph>
+          <div className="confirm__buttons">
+            <Button data-size="sm" data-color="danger" onClick={onDelete}>Ja, slett</Button>
+            <Button data-size="sm" variant="secondary" onClick={() => setOpen(false)}>Avbryt</Button>
+          </div>
         </div>
       </Popover>
     </Popover.TriggerContext>
@@ -161,7 +165,8 @@ function CostTable({ items, onDelete }) {
           <Table.HeaderCell scope="col">Kostnad</Table.HeaderCell>
           <Table.HeaderCell scope="col">Kategori</Table.HeaderCell>
           <Table.HeaderCell scope="col" className="num-col">Beløp</Table.HeaderCell>
-          <Table.HeaderCell scope="col"><span className="ds-sr-only">Handlinger</span></Table.HeaderCell>
+          {/* Ett interaktivt element per celle, slik retningslinjene for Table sier */}
+          <Table.HeaderCell scope="colgroup" colSpan={2}><span className="ds-sr-only">Handlinger</span></Table.HeaderCell>
         </Table.Row>
       </Table.Head>
       <Table.Body>
@@ -174,12 +179,8 @@ function CostTable({ items, onDelete }) {
               <Table.Cell className="num-col">
                 {error ? <ValidationMessage data-size="sm">{ERROR}</ValidationMessage> : kr(c.amount)}
               </Table.Cell>
-              <Table.Cell>
-                <div className="actions">
-                  <EditButton item={c} />
-                  <DeleteButton item={c} onDelete={() => onDelete(c.id)} />
-                </div>
-              </Table.Cell>
+              <Table.Cell className="action-cell"><EditButton item={c} /></Table.Cell>
+              <Table.Cell className="action-cell"><DeleteButton item={c} onDelete={() => onDelete(c.id)} /></Table.Cell>
             </Table.Row>
           );
         })}

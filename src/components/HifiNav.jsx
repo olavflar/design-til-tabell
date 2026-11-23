@@ -1,8 +1,8 @@
 /** Faner mellom hi-fi-sidene. Hver fane er en egen side, så dette er lenker med aria-current. */
 const PAGES = [
-  { href: "/tabell.html", label: "Tabell" },
-  { href: "/liste.html", label: "Liste" },
-  { href: "/kort.html", label: "Kort" },
+  { href: "tabell.html", label: "Tabell" },
+  { href: "liste.html", label: "Liste" },
+  { href: "kort.html", label: "Kort" },
 ];
 
 export default function HifiNav({ current }) {

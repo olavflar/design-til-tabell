@@ -47,7 +47,10 @@ export function Intro({ id, total }) {
 /** Sakene som tabell, for stor skjerm */
 export function CaseTable({ items, labelledBy }) {
   return (
-    <Table data-size="sm" zebra aria-labelledby={labelledBy} className="case-table">
+    // Rulleflate i tilfelle tabellen er bredere enn skjermen
+    <div className="table-scroll" role="region" aria-label={`${TITLE}, tabell`} tabIndex={0}>
+    <Table data-size="sm" zebra className="case-table">
+      <caption className="ds-sr-only">{TITLE}</caption>
       <Table.Head>
         <Table.Row>
           <Table.HeaderCell scope="col">Sak</Table.HeaderCell>
@@ -71,6 +74,7 @@ export function CaseTable({ items, labelledBy }) {
         ))}
       </Table.Body>
     </Table>
+    </div>
   );
 }
 

@@ -13,7 +13,6 @@ import {
   List,
   Paragraph,
   Input,
-  Select,
   Table,
   Tag,
 } from "@digdir/designsystemet-react";
@@ -21,7 +20,7 @@ import { XMarkIcon } from "@navikt/aksel-icons";
 import { useFrameLayer } from "../components/DeviceFrame.jsx";
 import HifiNav from "../components/HifiNav.jsx";
 import {
-  CASES, STATUSES, StatusTag, SORT_ORDERS, byNewest, Intro, CaseTable, Example, Small,
+  CASES, TITLE, STATUSES, StatusTag, SORT_ORDERS, byNewest, Intro, CaseTable, Example, Small,
 } from "../components/cases.jsx";
 
 /* Hi-fi av listeeksemplene i artikkelen: tabell på stor skjerm → liste på liten
@@ -115,7 +114,8 @@ function DetailsList({ items, labelledBy }) {
           <Details data-size="sm" className="item-details">
             <Details.Summary>Detaljer om saken</Details.Summary>
             <Details.Content>
-              <Table data-size="sm" className="kv" aria-label={`Detaljer om ${c.title}`}>
+              <Table data-size="sm" className="kv">
+                <caption className="ds-sr-only">Detaljer om {c.title}</caption>
                 <Table.Body>
                   {[
                     ["Saksnummer", c.caseNumber],
@@ -198,7 +198,8 @@ function CaseDialog({ c }) {
               <Heading level={2} data-size="xs" id={headingId}>{c.title}</Heading>
             </Dialog.Block>
             <Dialog.Block>
-              <Table data-size="sm" className="kv" aria-labelledby={headingId}>
+              <Table data-size="sm" className="kv">
+                <caption className="ds-sr-only">{c.title}</caption>
                 <Table.Body>
                   {detailRows(c).map(([k, v]) => (
                     <Table.Row key={k}>
@@ -237,7 +238,8 @@ function DialogList({ items, labelledBy }) {
 /** Tabell for stor skjerm der hver rad har en knapp som åpner samme dialog */
 function DialogTable({ items, labelledBy }) {
   return (
-    <Table data-size="sm" zebra aria-labelledby={labelledBy} className="case-table">
+    <Table data-size="sm" zebra className="case-table">
+      <caption className="ds-sr-only">{TITLE}</caption>
       <Table.Head>
         <Table.Row>
           <Table.HeaderCell scope="col">Sak</Table.HeaderCell>
@@ -271,7 +273,8 @@ function Mapping() {
       <figure>
         <figcaption>Tabellrad</figcaption>
         <div className="mapping__scroll">
-          <Table data-size="sm" className="case-table" aria-label="Én sak som tabellrad">
+          <Table data-size="sm" className="case-table">
+            <caption className="ds-sr-only">Én sak som tabellrad</caption>
             <Table.Head>
               <Table.Row>
                 <Table.HeaderCell scope="col">Sak</Table.HeaderCell>
@@ -349,7 +352,7 @@ function SearchableCases({ id, large = false }) {
   return (
     <div className="frame__content hifi">
       <Intro id={id} total={CASES.length} />
-      <div className={large ? "controls controls--wide" : "controls"}>
+      <div className="controls">
         <Field data-size="sm">
           <Label>Søk i sakene</Label>
           {/* Search er avviklet. Designsystemet anbefaler Input med type="search" i Field med Label.
@@ -381,15 +384,25 @@ function SearchableCases({ id, large = false }) {
             )}
           </div>
         </Field>
-        <Field data-size="sm">
-          <Label>Sorter etter</Label>
-          <Select value={order} onChange={(e) => setOrder(e.target.value)}>
-            {SORT_ORDERS.map((o) => (
-              <Select.Option key={o.value} value={o.value}>{o.label}</Select.Option>
-            ))}
-          </Select>
-        </Field>
       </div>
+      {/* Fire valg: Select brukes først fra 7 valg, så sorteringen er filterbrikker med ett valg */}
+      <Fieldset data-size="sm">
+        <Fieldset.Legend>Sorter etter</Fieldset.Legend>
+        <div className="chips">
+          {SORT_ORDERS.map((o) => (
+            <Chip.Radio
+              key={o.value}
+              data-size="sm"
+              name={`${uid}-sort`}
+              value={o.value}
+              checked={order === o.value}
+              onChange={() => setOrder(o.value)}
+            >
+              {o.label}
+            </Chip.Radio>
+          ))}
+        </div>
+      </Fieldset>
       <Fieldset data-size="sm">
         <Fieldset.Legend>Status</Fieldset.Legend>
         <Fieldset.Description>Velg én eller flere. Ingen valgt viser alle.</Fieldset.Description>
@@ -489,7 +502,7 @@ export default function Liste() {
           id="search"
           smallLabel="Liste med søk og filter, liten skjerm"
           large={<SearchableCases id="search-large" large />}
-          caption="I tabellen sorterer brukeren ofte med kolonneoverskriftene. Listen har ingen overskrifter, så sorteringen er en nedtrekksliste med «Nyeste først» som standard. Statusfilteret er filterbrikker, fordi det er få valg. Brukeren kan velge flere statuser samtidig, og valgte filtre vises samlet over listen, der hvert filter kan fjernes for seg. Antall treff leses opp av skjermleser når listen endres."
+          caption="Søk, sortering og statusfilter står over listen og virker likt i tabellen og listen. Sorteringen har fire valg, så den er filterbrikker der brukeren velger ett, og ikke en nedtrekksliste. Statusfilteret er filterbrikker der brukeren kan velge flere statuser samtidig. Valgte filtre vises samlet over listen, der hvert filter kan fjernes for seg. Antall treff leses opp av skjermleser når listen endres."
           render={(id) => <SearchableCases id={id} />}
         />
       </section>

@@ -67,3 +67,12 @@
   background: var(--ds-color-accent-base-default); color: var(--ds-color-accent-base-contrast-default);
 }
 .places { max-width: 44rem; }
+.table-scroll { overflow-x: auto; }
+/* Stor skjerm: litt mindre luft i cellene, så alle kolonnene får plass i rammen */
+.case-table.ds-table { --dsc-table-padding: var(--ds-size-2) var(--ds-size-2); }
+/* Hi-fi-sidene får bredere flate, så desktop-rammen har plass til hele tabellen */
+.art { max-width: 90rem; }
+.case-table .ds-button { white-space: nowrap; }
+.frame--browser .frame__content.hifi { padding-inline: var(--ds-size-4); }
+.case-table :is(th, td) { padding-inline: var(--ds-size-2); }
+.case-table .ds-tag { white-space: normal; }

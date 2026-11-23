@@ -36,7 +36,8 @@ const TITLE = "Nye elbiler per fylke";
 
 function StatTable({ data, captionId, className }) {
   return (
-    <Table data-size="sm" zebra stickyHeader className={className} aria-labelledby={captionId}>
+    <Table data-size="sm" zebra stickyHeader className={className}>
+      <caption className="ds-sr-only">{TITLE}</caption>
       <Table.Head>
         <Table.Row>
           <Table.HeaderCell scope="col">Fylke</Table.HeaderCell>
@@ -121,7 +122,8 @@ function ColumnNavScreen({ stickyHeader = false, stickyNav = true }) {
   return (
     <div className="frame__content hifi">
       <Intro id="t-cols" />
-      <Table data-size="sm" zebra stickyHeader={stickyHeader} aria-labelledby="t-cols" className="flipped">
+      <Table data-size="sm" zebra stickyHeader={stickyHeader} className="flipped">
+        <caption className="ds-sr-only">{TITLE}</caption>
         <Table.Head>
           <Table.Row>
             <Table.HeaderCell scope="col">Fylke</Table.HeaderCell>
@@ -240,7 +242,8 @@ function TransposedScreen() {
           </Field>
         ))}
       </div>
-      <Table data-size="sm" zebra aria-labelledby="t-flip" className="flipped">
+      <Table data-size="sm" zebra className="flipped">
+        <caption className="ds-sr-only">{TITLE}</caption>
         <Table.Head>
           <Table.Row>
             <Table.HeaderCell scope="col">År</Table.HeaderCell>
