@@ -1,0 +1,69 @@
+/* Hi-fi liste: bare oppsett som Designsystemet ikke dekker direkte */
+.hifi { display: flex; flex-direction: column; gap: var(--ds-size-3); padding-top: var(--ds-size-4); }
+.hifi > * { margin: 0; }
+.meta { color: var(--ds-color-neutral-text-subtle); display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-size-2); margin: 0; }
+.subtle { color: var(--ds-color-neutral-text-subtle); font-weight: 400; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.art > header { display: flex; flex-direction: column; gap: var(--ds-size-3); }
+
+/* Stablet liste */
+.stacked { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--ds-color-neutral-border-subtle); }
+.stacked > li {
+  display: flex; flex-direction: column; gap: var(--ds-size-1);
+  padding-block: var(--ds-size-3);
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+}
+.stacked > li + li { margin-top: 0; }
+.stacked .row {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+  gap: var(--ds-size-1) var(--ds-size-3);
+}
+.stacked .row > *, .stacked > li > * { margin: 0; }
+.row__title { flex: 1 1 12rem; }
+
+/* Gruppert liste */
+.groups { display: flex; flex-direction: column; gap: var(--ds-size-6); }
+.group { display: flex; flex-direction: column; gap: var(--ds-size-2); }
+.group > * { margin: 0; }
+
+/* Detaljer ved behov */
+.item-details { margin-top: var(--ds-size-1); }
+.kv { width: 100%; }
+.kv th { width: 40%; font-weight: 500; }
+
+/* Søk og filter */
+.controls { display: grid; gap: var(--ds-size-3); }
+.controls--wide { grid-template-columns: 2fr 1fr; align-items: end; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); }
+
+.case-table { width: 100%; }
+.case-table th[scope="row"] { font-weight: 400; }
+
+/* Valgte filtre */
+.active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-size-2); }
+.active-filters > p { margin: 0; }
+.active-filters ul { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); margin: 0; padding: 0; list-style: none; }
+
+/* Søkefelt: Input type="search" med egen tøm-knapp (Search er avviklet) */
+.search-field { position: relative; }
+.search-field input::-webkit-search-cancel-button { display: none; }
+.search-field input:not(:placeholder-shown) { padding-inline-end: var(--ds-size-10); }
+.search-field__clear { position: absolute; inset-block: 0; inset-inline-end: var(--ds-size-1); margin-block: auto; }
+
+/* Dialog-knapp: står til venstre under oppføringen */
+.more-btn { align-self: flex-start; margin-inline-start: calc(var(--ds-size-3) * -1); }
+
+/* Fire faste plasser */
+.mapping { display: flex; flex-direction: column; gap: var(--ds-size-4); max-width: 64rem !important; }
+.mapping > * { margin: 0; }
+.mapping figure { margin: 0; display: flex; flex-direction: column; gap: var(--ds-size-2); }
+.mapping figcaption { color: var(--ds-color-neutral-text-subtle); font-size: var(--ds-font-size-3); font-weight: 500; }
+.mapping__scroll { overflow-x: auto; }
+.mapping__item { max-width: 26rem; }
+.num-badge {
+  display: inline-grid; place-items: center;
+  width: 1.4em; height: 1.4em; border-radius: 50%;
+  font-size: 0.75rem; font-weight: 600; line-height: 1; vertical-align: 0.1em;
+  background: var(--ds-color-accent-base-default); color: var(--ds-color-accent-base-contrast-default);
+}
+.places { max-width: 44rem; }

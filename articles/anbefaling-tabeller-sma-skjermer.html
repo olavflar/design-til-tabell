@@ -1,0 +1,634 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabeller på små skjermer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: én lesekolonne med skisser i to-delte figurer (stor skjerm → liten skjerm) som stables på mobil. Følger Designsystemets uttrykk: Inter, Digdir-blå. */
+:root{
+  --bg:#ffffff; --surface:#f3f5f8; --ink:#1e2b3c; --muted:#56647a; --line:#d3d9e2;
+  --accent:#0062ba; --accent-tint:#dcebfa;
+  --ok:#0b7a29; --ok-tint:#d6f0dc; --warn:#7f5300; --warn-tint:#fbe9c4;
+  --danger:#b71c1c; --danger-tint:#fbe1e1;
+  --sk-frame:#ffffff; --sk-ink:#3b4a5e; --sk-soft:#a9b4c3; --sk-faint:#dde2e9;
+  --wf-bg:#f5f5f5; --wf-box:#e0e0e0; --wf-lock:#c9d6f5; --wf-stroke:#2b2b2b; --wf-text:#1a1a1a; --wf-muted:#5c5c5c; --anno:#2448e8;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1620; --surface:#17212d; --ink:#e6ebf1; --muted:#a0acbc; --line:#2d3b4c;
+  --accent:#74b4f3; --accent-tint:#173452;
+  --ok:#74d491; --ok-tint:#173d25; --warn:#f0c264; --warn-tint:#3e3011;
+  --danger:#ff9191; --danger-tint:#461b1d;
+  --wf-bg:#1e2228; --wf-box:#2d323a; --wf-lock:#24365e; --wf-stroke:#c4c8cf; --wf-text:#eceef1; --wf-muted:#a3a9b2; --anno:#8aa2ff;
+  --sk-frame:#1b2633; --sk-ink:#cbd5e1; --sk-soft:#64748a; --sk-faint:#334050;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1620; --surface:#17212d; --ink:#e6ebf1; --muted:#a0acbc; --line:#2d3b4c;
+  --accent:#74b4f3; --accent-tint:#173452;
+  --ok:#74d491; --ok-tint:#173d25; --warn:#f0c264; --warn-tint:#3e3011;
+  --danger:#ff9191; --danger-tint:#461b1d;
+  --wf-bg:#1e2228; --wf-box:#2d323a; --wf-lock:#24365e; --wf-stroke:#c4c8cf; --wf-text:#eceef1; --wf-muted:#a3a9b2; --anno:#8aa2ff;
+  --sk-frame:#1b2633; --sk-ink:#cbd5e1; --sk-soft:#64748a; --sk-faint:#334050;
+  color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.6}
+.wrap{max-width:880px;margin:0 auto;padding-block:40px 80px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{line-height:1.2;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,5vw,2.75rem);font-weight:700}
+h2{font-size:1.6rem;font-weight:700}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0;max-width:65ch}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:65ch}
+a{color:var(--accent)}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:2px}
+.eyebrow{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lead{font-size:1.2rem;color:var(--ink)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.draft{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  background:var(--warn-tint);color:var(--warn);padding:2px 8px;border-radius:4px;vertical-align:middle}
+
+/* Beslutningshjelp */
+.choose{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.choose{grid-template-columns:1fr}}
+.choose a{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--bg)}
+.choose a:hover{border-color:var(--accent)}
+.choose .q{font-size:.92rem;color:var(--muted)}
+.choose .a{font-weight:600;font-size:1.05rem;color:var(--accent)}
+
+/* Seksjon per brukeroppgave */
+section.case{display:flex;flex-direction:column;gap:20px;padding-top:32px;border-top:1px solid var(--line)}
+.task{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.task .n{font-size:.85rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+
+figure{margin:0;background:var(--surface);border-radius:12px;padding:20px;
+  display:grid;grid-template-columns:minmax(0,1.6fr) auto minmax(0,1fr);gap:16px;align-items:center}
+figure.two-phones{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+figure.single{grid-template-columns:minmax(0,1fr)}
+@media (max-width:640px){figure,figure.two-phones{grid-template-columns:minmax(0,1fr)} .arrow{transform:rotate(90deg);justify-self:center}}
+.cell{display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0}
+.cell svg{width:100%;height:auto;display:block}
+.cell.phone svg{max-width:180px}
+.cell .cap{font-size:.8rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.arrow{color:var(--muted);font-size:1.6rem;line-height:1}
+figcaption{grid-column:1/-1;font-size:.92rem;color:var(--muted)}
+
+.dodont{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+@media (max-width:640px){.dodont{grid-template-columns:1fr}}
+.dodont h3{display:flex;gap:8px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.dot.do{background:var(--ok)} .dot.dont{background:var(--danger)}
+
+/* Anatomi */
+.anatomy{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:640px){.anatomy{grid-template-columns:1fr}}
+.mock{background:var(--sk-frame);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:.9rem}
+.mock ul{list-style:none;padding:0;gap:0;max-width:none}
+.mock li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.mock li:last-child{border-bottom:0}
+.mock .p1{font-weight:600;color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.mock .p2{color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.mock .p4{color:var(--muted);font-size:.82rem}
+.mock .p3{justify-self:end;font-size:.78rem;font-weight:600;padding:1px 8px;border-radius:4px;white-space:nowrap}
+.st-ok{background:var(--ok-tint);color:var(--ok)} .st-warn{background:var(--warn-tint);color:var(--warn)} .st-info{background:var(--accent-tint);color:var(--accent)}
+.mock .tag{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:.7rem;font-weight:700;margin-right:6px;vertical-align:1px;text-decoration:none}
+.slots{list-style:none;padding:0;gap:12px}
+.slots li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px}
+.slots .num{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:.8rem;font-weight:700}
+
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 32px}
+@media (max-width:640px){.rules{grid-template-columns:1fr}}
+.rules div{display:flex;flex-direction:column;gap:4px}
+.rules p{color:var(--muted);font-size:.95rem}
+.rules h3{font-size:1rem}
+
+.sources{font-size:.92rem;color:var(--muted)}
+.sources ul{gap:8px}
+
+/* Skisser: grå wireframes med plassholdertekst og blå kommentarer, som i arbeidsgruppens innspill */
+.wf-bg{fill:var(--wf-bg);stroke:var(--wf-stroke);stroke-width:1.2}
+.wf-box{fill:var(--wf-box);stroke:var(--wf-stroke);stroke-width:1}
+.wf-field{fill:var(--wf-bg);stroke:var(--wf-stroke);stroke-width:1}
+.wf-lock{fill:var(--wf-lock);stroke:var(--wf-stroke);stroke-width:1}
+.wf-err{fill:var(--danger-tint);stroke:var(--danger);stroke-width:1.4}
+.wf-line{stroke:var(--wf-stroke);stroke-width:1}
+.wf-btn{fill:var(--wf-bg);stroke:var(--wf-stroke);stroke-width:1}
+.wf-btn-p{fill:var(--wf-stroke)}
+.wf-pill{fill:var(--wf-bg);stroke:var(--wf-stroke);stroke-width:.8}
+.wf-chev{fill:none;stroke:var(--wf-text);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.wf-anno-stroke{fill:none;stroke:var(--anno);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.wf-x{fill:none;stroke:var(--danger);stroke-width:2.5;stroke-linecap:round}
+.wf-fade-a{stop-color:var(--wf-bg);stop-opacity:0}
+.wf-fade-b{stop-color:var(--wf-bg);stop-opacity:1}
+svg text{font-family:"IBM Plex Sans",var(--font);fill:var(--wf-text)}
+svg text.m{fill:var(--wf-muted)}
+svg text.b{font-weight:600}
+svg text.u{text-decoration:underline}
+svg text.inv{fill:var(--wf-bg);font-weight:600}
+svg text.err{fill:var(--danger);font-weight:600}
+svg text.anno{fill:var(--anno);font-weight:600}
+figcaption{color:var(--anno)!important;font-family:"IBM Plex Sans",var(--font);font-weight:600;font-size:.98rem!important}
+.illu{display:flex;gap:10px;align-items:flex-start;border:1.5px dashed var(--anno);border-radius:8px;padding:10px 14px;font-size:.92rem;max-width:65ch}
+.illu b{color:var(--anno);white-space:nowrap}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+@media (max-width:640px){.cols{grid-template-columns:1fr}}
+.markup{font-size:.92rem;color:var(--muted)}
+.trunc{display:flex;flex-direction:column;gap:8px;font-family:"IBM Plex Sans",var(--font);font-size:.92rem}
+.trunc div{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr);gap:12px;align-items:baseline}
+.trunc span:first-child{color:var(--muted);font-size:.82rem}
+.trunc code{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:2px 8px;overflow-wrap:anywhere}
+.choose{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))!important}
+.later{font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;background:var(--surface);color:var(--muted);border:1px solid var(--line);padding:1px 8px;border-radius:4px}
+</style>
+
+<main class="wrap">
+
+  <header class="stack">
+    <span class="eyebrow">Mønster: Strukturert informasjon · <span class="draft">Utkast</span></span>
+    <h1>Tabeller på små skjermer</h1>
+    <p class="lead">En tabell som fungerer på en stor skjerm, kan ikke bare krympes for å passe på mobil. Velg løsning ut fra hva brukeren skal gjøre med innholdet, ikke ut fra hvilken komponent du startet med.</p>
+    <p><strong>Strukturerte data</strong> er informasjon som følger en definert og gjentakende struktur. Det kan for eksempel være saker med saksnummer, dato og status, eller målinger fra flere tidspunkter. Dataene kan vises som tabell, liste eller andre organiserte visninger. Se også begrepet i Felles datakatalog.</p>
+    <p>Tabeller har mange utfordringer på små skjermer. Går du inn i brukerens oppgave, finner du ofte et bedre alternativ. Du kan alltid vise dataene forenklet først, og la brukeren åpne hele tabellen etterpå. Skissene viser prinsippet, ikke ferdig design.</p>
+  </header>
+
+  <section class="stack" aria-labelledby="velg">
+    <h2 id="velg">Hva skal brukeren gjøre?</h2>
+    <nav class="choose" aria-label="Velg brukeroppgave">
+      <a href="#finne"><span class="q">Finne ett element i en oversikt</span><span class="a">Stablet liste</span></a>
+      <a href="#sammenligne-fa"><span class="q">Velge mellom få alternativer</span><span class="a">Snu tabellen</span></a>
+      <a href="#historisk"><span class="q">Se en utvikling over tid</span><span class="a">Tall og kurve</span></a>
+      <a href="#storrelser"><span class="q">Sammenligne størrelser</span><span class="a">Stolper eller nøkkeltall</span></a>
+      <a href="#avvik"><span class="q">Finne et avvik</span><span class="a">La systemet peke det ut</span></a>
+      <a href="#sammenligne-mange"><span class="q">Sammenligne mange datapunkter</span><span class="a">Behold tabellen</span></a>
+      <a href="#mange-mater"><span class="q">Dataene brukes på mange måter</span><span class="a">Forenkle og la brukeren styre</span></a>
+      <a href="#plikt"><span class="q">Dele data med ukjent bruk</span><span class="a">Foreslå visninger</span></a>
+      <a href="#handling"><span class="q">Gjøre noe med én rad</span><span class="a">Kort med handlinger</span></a>
+    </nav>
+  </section>
+
+
+  <section class="case" id="finne" aria-labelledby="h-finne">
+    <div class="task"><span class="n">Brukeroppgave 1</span></div>
+    <h2 id="h-finne">Finne ett element: bruk stablet liste</h2>
+    <p>Brukeren leter etter én sak, én melding eller ett dokument, og trenger ikke sammenligne verdier på tvers. Da er tabellen bare en måte å liste opp på. På små skjermer blir hver rad et element i en liste, der plasseringen viser hva som er viktigst.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-cases"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-stacked"></div></div>
+      <figcaption>Fem kolonner blir to linjer per rad. Kolonneoverskriftene faller bort fordi plassering og utforming forteller hva verdiene er.</figcaption>
+    </figure>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>Samme rad vist som tabellrad og som listeoppføring, med linjer som viser hvor hver celle havner i de fire plassene.</span></div>
+
+    <h3>Fire faste plasser per rad</h3>
+    <div class="anatomy">
+      <div class="mock" aria-label="Eksempel på stablet liste">
+        <ul>
+          <li><a class="p1" href="#finne"><span class="tag" aria-hidden="true">1</span>Byggesøknad, Storgata 12</a><span class="p2"><span class="tag" aria-hidden="true">2</span>3. nov.</span>
+              <span class="p4"><span class="tag" aria-hidden="true">4</span>Sak 24/1832 · Mottatt 12. okt.</span><span class="p3 st-warn"><span class="tag" aria-hidden="true">3</span>Under behandling</span></li>
+          <li><a class="p1" href="#finne">Søknad om parkeringstillatelse</a><span class="p2">28. okt.</span>
+              <span class="p4">Sak 24/1790 · Mottatt 2. okt.</span><span class="p3 st-ok">Godkjent</span></li>
+          <li><a class="p1" href="#finne">Klage på eiendomsskatt</a><span class="p2">14. okt.</span>
+              <span class="p4">Sak 24/1655 · Mottatt 20. sep.</span><span class="p3 st-info">Mottatt</span></li>
+        </ul>
+      </div>
+      <ul class="slots">
+        <li><span class="num">1</span><span><strong>Øverst til venstre:</strong> det brukeren kjenner igjen elementet på, som saksnavn eller avsender. Uthevet, og som lenke hvis raden kan åpnes.</span></li>
+        <li><span class="num">2</span><span><strong>Øverst til høyre:</strong> det nest viktigste, ofte dato eller beløp.</span></li>
+        <li><span class="num">3</span><span><strong>Nederst til høyre:</strong> status, med tekst og ikke bare farge.</span></li>
+        <li><span class="num">4</span><span><strong>Nederst til venstre:</strong> resten, i dempet tekst og skilt med prikk. Sett et ord foran verdier som ikke forklarer seg selv, som «Sak» eller «Mottatt».</span></li>
+      </ul>
+    </div>
+
+    <h3>Når verdiene trenger etikett: kort med etikett og verdi</h3>
+    <p>Forklarer ikke verdiene seg selv, for eksempel fødselsnummer, rolle eller flere datoer, setter du etiketten foran hver verdi. Har kortet god plass, kan etikett og verdi stå i to kolonner.</p>
+    <figure class="two-phones">
+      <div class="cell phone"><span class="cap">Etikett og verdi</span><div data-sketch="phone-keyvalue"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Mer kompakt</span><div data-sketch="phone-keyvalue-compact"></div></div>
+      <figcaption>Objektnavnet er en lenke. Da trenger kortet ingen pil for å vise at det kan åpnes.</figcaption>
+    </figure>
+
+    <h3>Flere enn fem kolonner: vis resten på en egen side</h3>
+    <p>Får ikke alle opplysningene plass i de fire plassene, viser du resten når brukeren åpner elementet. På detaljsiden står etikett og verdi ved siden av hverandre, og handlingene ligger der.</p>
+    <figure class="two-phones">
+      <div class="cell phone"><span class="cap">Listen</span><div data-sketch="phone-stacked-tap"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Detaljsiden</span><div data-sketch="phone-detail"></div></div>
+      <figcaption>Ekspanderbare rader er et alternativ når brukeren bare trenger litt mer for å finne riktig element. Åpne rader skyver de andre ut av syne, så bruk det bare for kort innhold. Arbeidsgruppen har ikke landet dette ennå.</figcaption>
+    </figure>
+  </section>
+
+  <section class="case" id="sammenligne-fa" aria-labelledby="h-fa">
+    <div class="task"><span class="n">Brukeroppgave 2</span></div>
+    <h2 id="h-fa">Velge mellom få alternativer: snu tabellen</h2>
+    <p>Når brukeren skal velge mellom to til fire alternativer med mange egenskaper, som førerkortklasser eller avtaler, bytter du om radene og kolonnene. Egenskapene går nedover, og alternativene står side om side i smale kolonner. Det passer ikke når brukeren i praksis bare vurderer én egenskap.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-compare"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-transposed"></div></div>
+      <figcaption>Brukeren leser fra venstre mot høyre per egenskap, uten å rulle sideveis. Er det flere alternativer enn det er plass til, velger brukeren hvilke som skal stå i hver kolonne.</figcaption>
+    </figure>
+    <ul><li>Bytt om radene og kolonnene, så egenskapene går nedover.</li><li>Sett de 2 til 3 alternativene side om side i smale kolonner.</li><li>Er det flere alternativer, la brukeren velge hvilke som skal stå i hver kolonne.</li><li>Fremhev egenskapene som skiller alternativene.</li></ul>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>Samme tabell før og etter at radene og kolonnene er byttet om, med piler som viser at alternativene går fra rader til kolonner.</span></div>
+  </section>
+
+  <section class="case" id="historisk" aria-labelledby="h-historisk">
+    <div class="task"><span class="n">Brukeroppgave 3</span><span class="later">Under arbeid</span></div>
+    <h2 id="h-historisk">Se en historisk utvikling: vis tall og kurve</h2>
+    <p>Brukeren vil se hvordan noe har endret seg over tid, for eksempel antall saker eller temperatur og vannstand. En tabell med mange år er vanskelig å lese på mobil. Vis heller hovedtallet og retningen, og la brukeren gå videre til hele tabellen.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-stats"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-trend"></div></div>
+      <figcaption>Hvert nøkkeltall får et kort med tallet, endringen med pil og tekst, og en liten kurve for utviklingen.</figcaption>
+    </figure>
+    <ul><li>Bruk kort med tall og en liten kurve (sparkline).</li><li>Bruk linjediagram for trender, og stolpediagram når nøyaktige størrelser er viktige.</li><li>La brukeren velge tidsperiode.</li><li>Pass på at siste endring ikke overdriver inntrykket. Folk legger mest vekt på det som skjedde sist.</li></ul>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>Samme tidsserie som tabell og som kort med tall og kurve. Vis at pilen også har tekst («▲ 4,2 %»).</span></div>
+  </section>
+
+  <section class="case" id="storrelser" aria-labelledby="h-storrelser">
+    <div class="task"><span class="n">Brukeroppgave 4</span><span class="later">Under arbeid</span></div>
+    <h2 id="h-storrelser">Sammenligne størrelser: bruk stolper eller nøkkeltall</h2>
+    <p>Brukeren skal se hvor mye eller hvor mange, og hvordan det forholder seg til resten. Et liggende stolpediagram får plass på mobil og viser forskjellene raskere enn en kolonne med tall.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-stats"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-bars"></div></div>
+      <figcaption>Liggende stolper får plass i bredden, og tallet står ved hver stolpe.</figcaption>
+    </figure>
+    <ul><li>Bruk stolpediagram, eller vis nøkkeltall på noen få kort.</li><li>Vis tallet ved hver stolpe, ikke bare på aksen.</li><li>Visualisering skal ha et likeverdig alternativ i tekst.</li></ul>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>En kolonne med tall som blir til liggende stolper, med tallene ved stolpene.</span></div>
+  </section>
+
+  <section class="case" id="avvik" aria-labelledby="h-avvik">
+    <div class="task"><span class="n">Brukeroppgave 5</span><span class="later">Under arbeid</span></div>
+    <h2 id="h-avvik">Finne et avvik: la systemet peke det ut</h2>
+    <p>Brukeren skal finne de radene som skiller seg ut, ikke lese alle. På mobil er det lettere når systemet plukker ut avvikene og viser hvor store de er.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-stats"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-deviation"></div></div>
+      <figcaption>Avvikene står øverst som en oppsummering, og hver rad med avvik viser differansen med tekst og symbol.</figcaption>
+    </figure>
+    <ul><li>La systemet plukke ut avvikene.</li><li>Vis differansen, ikke bare verdien.</li><li>Merk avvik med tekst og symbol, ikke bare farge.</li></ul>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>En lang tabell der bare tre rader er markert, og en oppsummering som sier hvor mange avvik det er.</span></div>
+  </section>
+
+  <section class="case" id="sammenligne-mange" aria-labelledby="h-mange">
+    <div class="task"><span class="n">Brukeroppgave 6</span></div>
+    <h2 id="h-mange">Sammenligne mange datapunkter: behold tabellen</h2>
+    <p>Statistikk, måledata og prismatriser gir mening bare når brukeren ser rader og kolonner sammen. Her er tabellen riktig også på mobil, selv om den må rulle sideveis. WCAG 1.4.10 tillater horisontal rulling for datatabeller.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-stats"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-scroll"></div></div>
+      <figcaption>Første kolonne og overskriftsraden står fast (blå). Resten ruller, og en skygge i kanten viser at det er mer innhold.</figcaption>
+    </figure>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>En tabell på mobil der første kolonne og overskriftsraden er markert som faste, med en tydelig kant eller skygge som viser at det er mer innhold til høyre.</span></div>
+    <ul>
+      <li>Lås første kolonne, så brukeren alltid ser hvilken rad verdiene hører til.</li>
+      <li>Lås kolonneoverskriftene når tabellen er lang.</li>
+      <li>Vis tydelig at tabellen kan rulles, for eksempel med skygge eller en avkuttet kolonne i kanten.</li>
+      <li>La bare tabellen rulle sideveis, aldri hele siden.</li>
+    </ul>
+  </section>
+
+  <section class="case" id="mange-mater" aria-labelledby="h-mange-mater">
+    <div class="task"><span class="n">Brukeroppgave 7</span><span class="later">Under arbeid</span></div>
+    <h2 id="h-mange-mater">Dataene brukes på mange måter: forenkle og la brukeren styre</h2>
+    <p>Noen data, som værvarsel, brukes til så mye forskjellig at du ikke kan lage én visning for én oppgave. Gjør tabellen mindre og datapunktene lettere å lese, og gi brukeren verktøy for å finne det de trenger.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-weather"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-weather"></div></div>
+      <figcaption>Været vises som symbol i stedet for tekst, og bare de viktigste kolonnene er med. Resten får brukeren ved å åpne timen.</figcaption>
+    </figure>
+    <ul><li>Gjør tabellen mindre: færre kolonner, og resten ved behov.</li><li>Gjør datapunktene lettere å lese, for eksempel sol som symbol for fint vær, med tekstalternativ.</li><li>Gi søk, filtrering, sortering, gruppering og oppdeling i sider når det er mye data.</li><li>Vis et relevant utvalg først.</li><li>Finn ut hva brukerne egentlig trenger, for eksempel ved å spørre dem i grensesnittet.</li></ul>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>Værtabell med fem tekstkolonner ved siden av samme varsel med symboler og færre kolonner.</span></div>
+  </section>
+
+  <section class="case" id="plikt" aria-labelledby="h-plikt">
+    <div class="task"><span class="n">Brukeroppgave 8</span><span class="later">Under arbeid</span></div>
+    <h2 id="h-plikt">Pliktig å dele data med ukjent bruk: foreslå visninger</h2>
+    <p>Organisasjonen er pliktig til å dele dataene, men vet ikke hvordan de vil bli brukt. Rådata i en bred tabell fungerer dårlig på mobil. Tilby noen ferdige visninger for vanlige spørsmål, og gi tilgang til alle dataene ved siden av.</p>
+    <figure class="two-phones">
+      <div class="cell phone"><span class="cap">Forslag til visninger</span><div data-sketch="phone-raw"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Rådata</span><div data-sketch="phone-filter"></div></div>
+      <figcaption>Brukeren velger en ferdig visning, eller åpner rådataene med filtrering, sortering og kolonnevalg.</figcaption>
+    </figure>
+    <ul><li>Lag noen forslag til visninger, for eksempel «Utvikling i drivstoffpriser i Troms i 2026».</li><li>Gi en knapp for å se rådataene i nettleseren eller laste dem ned.</li><li>Tilby filtrering, sortering og valg av kolonner for rådataene.</li></ul>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>En side med tre forslag til visninger og to knapper for rådata, og hvor hver av dem leder.</span></div>
+  </section>
+
+  <section class="case" id="handling" aria-labelledby="h-handling">
+    <div class="task"><span class="n">Brukeroppgave 9</span><span class="draft">Ikke med i teksten ennå</span></div>
+    <h2 id="h-handling">Gjøre noe med én rad: bruk kort med handlinger</h2>
+    <p>Brukeren skal åpne, endre eller slette en rad, ofte rader de har lagt inn selv i et skjema. Hver rad blir et kort, og handlingene får en egen rad nederst i kortet med knapper som er store nok å treffe.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-costs"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-cards"></div></div>
+      <figcaption>Feil vises inne i kortet de gjelder, med tekst og ikke bare rød farge.</figcaption>
+    </figure>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>Ett kort med handlingsrad ved siden av samme oppføring som tabellrad. Vis gjerne ett kort med feil.</span></div>
+  </section>
+
+
+  <section class="case" id="sprak" aria-labelledby="h-sprak">
+    <h2 id="h-sprak">Språk</h2>
+    <div class="cols">
+      <div class="stack">
+        <h3>Forkortelser</h3>
+        <p>Plassmangel gjør det fristende å forkorte ord og ledetekster. Unngå forkortelser som svekker lesbarheten.</p>
+        <ul><li>Bruk bare allment kjente forkortelser, som org.nr., tlf. og kr.</li><li>Unngå interne fagbegreper og sjargong, som s-beh. eller jfr.</li><li>Velg heller et kortere ord: «Dato» i stedet for «Reg.dato».</li><li>Trenger du en ukjent forkortelse, forklar den, for eksempel med en stjerne og forklaring under tabellen.</li></ul>
+      </div>
+      <div class="stack">
+        <h3>Avkorting av tekst</h3>
+        <p>Avkorting skjuler innhold og er en nødløsning. Bryt heller linjen. Avkorter du, må brukeren kunne lese hele teksten med en bevisst handling, og skjermlesere må alltid få hele teksten.</p>
+        <div class="trunc" aria-label="Eksempler på avkorting">
+          <div><span>Hovedregel: i slutten</span><code>Søknad om tilskudd til ombygging av…</code></div>
+          <div><span>Like oppføringer: i midten</span><code>Vedtak i sak 24/1832 … Storgata 12</code></div>
+          <div><span>Filnavn: i midten</span><code>vedtak_2026_…_endelig.pdf</code></div>
+        </div>
+      </div>
+    </div>
+    <div class="illu"><b>Forslag til illustrasjon</b><span>De tre avkortingsmåtene side om side, der det som blir synlig er markert.</span></div>
+  </section>
+
+  <!-- Unngå -->
+  <section class="case" id="unnga" aria-labelledby="h-unnga">
+    <h2 id="h-unnga">Gjelder alle løsningene</h2>
+    <div class="dodont">
+      <div class="stack">
+        <h3><span class="dot dont" aria-hidden="true"></span>Unngå</h3>
+        <figure class="single" style="padding:16px"><div class="cell phone"><div data-sketch="phone-shrunk"></div></div>
+          <figcaption>Tabellen er krympet for å få plass. Teksten blir for liten til å lese og cellene for små til å treffe.</figcaption></figure>
+        <ul>
+          <li>Å krympe tabellen eller skriften.</li>
+          <li>At hele siden ruller sideveis.</li>
+          <li>Å gjøre tabellcellene om til blokker med CSS. Da mister tabellen rollen sin for skjermlesere.</li>
+          <li>Å fjerne opplysninger brukeren trenger, bare fordi det er lite plass.</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h3><span class="dot do" aria-hidden="true"></span>Gjør dette</h3>
+        <ul>
+          <li><strong>Bytt komponent når oppgaven er en annen.</strong> En liste skal være en liste i koden (<code>ul</code>), og en tabell en tabell (<code>table</code>). Riktig struktur gjør sammenhengen lesbar for skjermlesere, søkemotorer og KI-agenter.</li>
+          <li><strong>Behold sammenhengen.</strong> Brukeren skal aldri lure på hva en verdi beskriver, eller hvilken rad den hører til.</li>
+          <li><strong>Bruk de samme ordene og symbolene</strong> på stor og liten skjerm.</li>
+          <li><strong>Merk det som kan åpnes, som lenke.</strong> Gjør objektnavnet til en lenke i stedet for å sette en pil på hele raden.</li>
+          <li><strong>Vurder innholdet på alle skjermstørrelser.</strong> Trenger brukeren ikke en opplysning på mobil, trenger de den kanskje ikke på stor skjerm heller.</li>
+          <li><strong>Del heller opp enn å skjule.</strong> Det som ikke får plass, kan ligge på en detaljside eller bak en tydelig knapp.</li>
+          <li><strong>Bryt linjen i stedet for å kutte teksten.</strong> Må du kutte, skal hele teksten være tilgjengelig med en handling, ikke bare ved hover.</li>
+          <li><strong>Skriv ut ordene.</strong> Bruk bare kjente forkortelser som org.nr. og kr.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="case sources" aria-labelledby="h-kilder">
+    <h2 id="h-kilder" style="font-size:1.1rem;color:var(--ink)">Grunnlag</h2>
+    <ul>
+      <li>Uutilsynet: Tabeller.</li>
+      <li>WCAG 1.3.1 Informasjon og relasjoner (nivå A), med veiledning fra Uutilsynet.</li>
+      <li>Workshop i arbeidsgruppen for mønsteret, høsten 2026, og <a href="https://github.com/digdir/designsystemet/discussions/3703">GitHub-diskusjon #3703</a>.</li>
+      <li>UX Movement: «Stacked List: The Best Way to Fit Tables on Mobile Screens». Grunnlaget for de fire plassene og detaljsiden.</li>
+      <li>Litsa Babalis: «How to make tables fit on small screens (spoiler: you probably can’t and maybe you shouldn’t)». Grunnlaget for å bytte komponent i stedet for å stable tabellceller med CSS.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(() => {
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const r = (x,y,w,h,c,rx=0) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" class="${c}"/>`;
+  const t = (x,y,s,c='',size=8,anchor='start') => `<text x="${x}" y="${y}" font-size="${size}" text-anchor="${anchor}" class="${c}">${esc(s)}</text>`;
+  const ln = (x1,y1,x2,y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="wf-line"/>`;
+  const svg = (w,h,inner,label) => `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">${inner}</svg>`;
+  const chevDown = (x,y) => `<polyline points="${x},${y} ${x+3},${y+3} ${x+6},${y}" class="wf-chev"/>`;
+
+  // Stor skjerm: side med søk og tabell
+  function desk({heads, rows, rowH=26, title='[Objekttype]', search=true, cell, rowClass, label}) {
+    const W=340, x0=14, tw=W-28, cw=tw/heads.length;
+    let y = 22, s = '';
+    s += t(x0,y,title,'b',12); y += 10;
+    if (search){ s += t(x0,y+6,'Søk','',6) + r(x0,y+9,110,16,'wf-field'); y += 32; }
+    heads.forEach((h,c)=> s += t(x0+6+c*cw, y+8, h, 'b', 7));
+    y += 13;
+    s += r(x0,y,tw,rowH*rows,'wf-box');
+    for (let i=0;i<rows;i++){
+      const yy = y+i*rowH;
+      if (rowClass && rowClass(i)) s += r(x0,yy,tw,rowH,rowClass(i));
+      heads.forEach((h,c)=> s += cell(i,c,x0+6+c*cw,yy+rowH/2+3,cw));
+      if (i) s += ln(x0,yy,x0+tw,yy);
+    }
+    const H = y+rowH*rows+14;
+    return svg(W,H, r(1,1,W-2,H-2,'wf-bg') + s, label);
+  }
+  const genericCell = (i,c,x,y) => i===0
+    ? t(x,y, c===0?'[Objektnavn]':['','Bittelitt meta','Mer meta','Enda mer meta','Og mer!'][c], c===0?'u':'', 7)
+    : (c===0 ? t(x,y,'[Objektnavn]','u',7) : '');
+
+  // Telefon
+  function phone(inner, label, defs='') {
+    const id = 'c'+Math.random().toString(36).slice(2,8);
+    return svg(160,290,
+      `<defs><clipPath id="${id}"><rect x="2" y="2" width="156" height="286"/></clipPath>${defs}</defs>`
+      + r(1,1,158,288,'wf-bg') + `<g clip-path="url(#${id})">${inner}</g>`, label);
+  }
+  const pageHead = (title='[Objekttype]', search=true) => {
+    let s = t(10,22,title,'b',11);
+    if (search) s += t(10,36,'Søk','',6) + r(10,39,140,16,'wf-field');
+    return s;
+  };
+
+  function stacked(n, tap=-1) {
+    let s = pageHead();
+    const y0 = 64;
+    s += r(10,y0,140,n*38,'wf-box');
+    for (let i=0;i<n;i++){
+      const y = y0+i*38;
+      if (i===tap) s += r(10,y,140,38,'wf-lock');
+      s += t(16,y+15,'[Objektnavn]','u b',8.5) + t(144,y+15,'Meta 1','',7,'end');
+      s += t(16,y+29,'Meta 2 · Meta 3','m',6.5);
+      s += r(114,y+21,30,11,'wf-pill',5.5) + t(129,y+29,'Status','',6,'middle');
+      if (i) s += ln(10,y,150,y);
+      if (i===tap) s += `<circle cx="96" cy="${y+19}" r="9" fill="var(--anno)" opacity=".25"/><circle cx="96" cy="${y+19}" r="3.5" fill="var(--anno)"/>`;
+    }
+    return s;
+  }
+
+  const sketches = {
+    'desk-cases': () => desk({heads:['Navn','Meta 1','Meta 2','Meta 3','Status'], rows:5, cell:(i,c,x,y)=> c===4 ? r(x,y-8,28,11,'wf-pill',5.5)+t(x+14,y,'Status','',6,'middle') : genericCell(i,c,x,y), label:'Oversiktsside med søk og tabell med fem kolonner'}),
+    'phone-stacked': () => phone(stacked(5), 'Stablet liste på mobil: objektnavn og meta 1 øverst, meta 2 og 3 og status nederst'),
+    'phone-stacked-tap': () => phone(stacked(5,1), 'Brukeren trykker på objektnavnet i listen'),
+    'phone-detail': () => {
+      let s = t(10,20,'← [Objekttype]','u',7) + t(10,44,'[Objektnavn]','b',15);
+      s += r(10,56,64,12,'wf-pill',6) + t(42,64.5,'Status','',6.5,'middle');
+      [[78,4],[166,3]].forEach(([y,n])=>{
+        s += r(10,y,140,n*20,'wf-box',8);
+        for (let i=0;i<n;i++){ const yy=y+i*20; s += t(18,yy+13,'Label','m',7.5) + t(142,yy+13,'Verdi','b',7.5,'end'); if(i) s += ln(10,yy,150,yy); }
+      });
+      s += r(10,238,66,18,'wf-btn-p',3) + t(43,250,'Endre','inv',7,'middle') + r(82,238,68,18,'wf-btn',3) + t(116,250,'Slett','',7,'middle');
+      return phone(s,'Detaljside: objektnavn, status, etikett og verdi i grupper, knapper nederst');
+    },
+    'phone-keyvalue': () => {
+      let s = pageHead('[Objekttype]', false);
+      [34,138].forEach(y=>{
+        s += r(10,y,140,96,'wf-box',8) + t(18,y+15,'[Objektnavn]','u b',8.5) + ln(10,y+22,150,y+22);
+        ['Meta 1','Meta 2','Meta 3','Meta 4'].forEach((m,i)=>{ const yy=y+22+i*18.5; s += t(18,yy+12.5,m,'m',7.5) + t(142,yy+12.5,['Bittelitt meta','Mer meta','Enda mer meta','Og mer!'][i],'b',7.5,'end'); if(i) s += ln(10,yy,150,yy); });
+      });
+      return phone(s,'Kort med objektnavn øverst og fire rader med etikett og verdi');
+    },
+    'phone-keyvalue-compact': () => {
+      let s = pageHead('[Objekttype]', false);
+      [34,104,174].forEach(y=>{
+        s += r(10,y,140,62,'wf-box',8) + t(18,y+15,'[Objektnavn]','u b',8.5) + ln(10,y+22,150,y+22);
+        s += t(18,y+34,'Meta 1','m',6) + t(18,y+42,'Bittelitt meta','b',7) + t(84,y+34,'Meta 2','m',6) + t(84,y+42,'Mer meta','b',7);
+        s += t(18,y+52,'Meta 3: Enda mer meta','',6.5);
+      });
+      return phone(s,'Mer kompakte kort der etikett og verdi står i to kolonner');
+    },
+    'desk-stats': () => desk({heads:['Fylke','2019','2020','2021','2022','2023','2024'], rows:6, rowH:20, title:'[Statistikk]', search:false,
+      cell:(i,c,x,y)=> t(x,y, c===0?'[Rad '+(i+1)+']':String(1000+((i*37+c*91)%900)), c===0?'b':'', 7), label:'Statistikktabell med sju kolonner på stor skjerm'}),
+    'phone-scroll': () => {
+      const defs = `<linearGradient id="wffade" x1="0" x2="1"><stop offset="0" class="wf-fade-a"/><stop offset="1" class="wf-fade-b"/></linearGradient>`;
+      let s = pageHead('[Statistikk]', false);
+      const y0=34, rh=20, c0=46, cw=34, rows=9, H=20+rows*rh;
+      s += r(10,y0,170,H,'wf-box') + r(10,y0,170,20,'wf-lock') + r(10,y0,c0,H,'wf-lock');
+      s += t(16,y0+13,'Fylke','b',7);
+      ['2019','2020','2021','2022'].forEach((h,c)=> s += t(10+c0+6+c*cw,y0+13,h,'b',7));
+      for (let i=0;i<rows;i++){ const y=y0+20+i*rh;
+        s += t(16,y+13,'[Rad '+(i+1)+']','b',6.5);
+        for (let c=0;c<4;c++) s += t(10+c0+6+c*cw,y+13,String(1000+((i*37+c*91)%900)),'',7);
+        s += ln(10,y,180,y);
+      }
+      s += `<line x1="${10+c0}" y1="${y0}" x2="${10+c0}" y2="${y0+H}" class="wf-line" style="stroke-width:2"/>`;
+      s += `<rect x="118" y="${y0}" width="40" height="${H}" fill="url(#wffade)"/>`;
+      s += `<path d="M120 ${y0+H+18} h28 m-6 -5 l6 5 l-6 5" class="wf-anno-stroke"/>` + t(116,y0+H+21,'ruller','anno',7,'end');
+      return phone(s,'Tabell på mobil med fast første kolonne og overskriftsrad. Resten ruller sideveis', defs);
+    },
+    'desk-compare': () => desk({heads:['Alternativ','Egensk. 1','Egensk. 2','Egensk. 3','Egensk. 4','Egensk. 5'], rows:3, rowH:28, title:'[Sammenligning]', search:false,
+      cell:(i,c,x,y)=> t(x,y, c===0?'[Alternativ '+'ABC'[i]+']':'Verdi', c===0?'b':'', 7), label:'Tre alternativer som rader og mange egenskaper som kolonner'}),
+    'phone-transposed': () => {
+      let s = pageHead('[Sammenligning]', false);
+      const y0=34;
+      [[62,'Alt. A'],[106,'Alt. B']].forEach(([x,l])=>{ s += r(x,y0,42,16,'wf-field',2) + t(x+4,y0+11,l,'b',7) + chevDown(x+33,y0+6); });
+      s += r(10,y0+22,140,9*21,'wf-box');
+      for (let i=0;i<9;i++){ const y=y0+22+i*21;
+        s += t(16,y+14,'Egenskap '+(i+1),'m',6.5) + t(66,y+14,'Verdi','b',7) + t(110,y+14,'Verdi','b',7);
+        if (i) s += ln(10,y,150,y);
+      }
+      s += `<line x1="58" y1="${y0+22}" x2="58" y2="${y0+22+9*21}" class="wf-line"/><line x1="104" y1="${y0+22}" x2="104" y2="${y0+22+9*21}" class="wf-line"/>`;
+      return phone(s,'Snudd tabell: egenskaper nedover, to alternativer side om side med en velger øverst i hver kolonne');
+    },
+    'desk-costs': () => desk({heads:['Kostnad','Kategori','Beløp','',''], rows:4, title:'[Søknad, steg 2]', search:false,
+      rowClass:i=> i===1 ? 'wf-err' : '',
+      cell:(i,c,x,y)=> c===0 ? t(x,y,'[Kostnad '+(i+1)+']','b',7) : c===1 ? t(x,y,'Meta','',7) : c===2 ? t(x,y, i===1?'Mangler':'kr 0 000', i===1?'err':'',7) : c===3 ? r(x,y-9,38,13,'wf-btn',2)+t(x+19,y,'Endre','',6.5,'middle') : r(x-20,y-9,34,13,'wf-btn',2)+t(x-3,y,'Slett','',6.5,'middle'),
+      label:'Tabell med kostnader og knapper for å endre og slette på hver rad. Én rad har feil'}),
+    'phone-cards': () => {
+      let s = pageHead('[Søknad, steg 2]', false);
+      [[32,false],[100,true],[178,false]].forEach(([y,err],k)=>{
+        const h = err ? 72 : 62;
+        s += r(10,y,140,h, err?'wf-err':'wf-box',6);
+        s += t(18,y+15,'[Kostnad '+(k+1)+']','b',8.5) + t(142,y+15, err?'':'kr 0 000','b',8,'end');
+        s += t(18,y+27,'Meta','m',6.5);
+        let yb = y+34;
+        if (err){ s += t(18,y+40,'⚠ Fyll inn beløp','err',7); yb = y+44; }
+        s += `<line x1="10" y1="${yb}" x2="150" y2="${yb}" class="wf-line"/>`;
+        s += r(18,yb+6,56,16,'wf-btn',3) + t(46,yb+17,'Endre','',7,'middle') + r(80,yb+6,56,16,'wf-btn',3) + t(108,yb+17,'Slett','',7,'middle');
+      });
+      s += r(10,252,140,20,'wf-btn-p',3) + t(80,265,'Neste steg','inv',8,'middle');
+      return phone(s,'Kort med Endre og Slett nederst i hvert kort. Ett kort er rødt og har en feiltekst');
+    },
+    'phone-shrunk': () => {
+      let s = t(10,22,'[Objekttype]','b',11);
+      const cols=8, rows=20, cw=140/cols;
+      s += r(10,30,140,8+rows*9,'wf-box');
+      for (let c=0;c<cols;c++) s += t(12+c*cw,36,'Kolonne','b',3);
+      for (let i=0;i<rows;i++){ const y=38+i*9;
+        for (let c=0;c<cols;c++) s += t(12+c*cw,y+6, c===0?'[Objektnavn]':'Verdi', '', 3);
+        s += ln(10,y,150,y);
+      }
+      s += `<path d="M112 230 l22 22 M134 230 l-22 22" class="wf-x"/>`;
+      return phone(s,'Feil: en tabell med åtte kolonner krympet til mobilbredde, med uleselig liten tekst');
+    },
+    'phone-trend': () => {
+      let s = pageHead('[Statistikk]', false);
+      [[32,'Nøkkeltall 1','12 480','▲ 4,2 %',[50,46,48,40,42,34,30,26]],[110,'Nøkkeltall 2','3 915','▼ 1,8 %',[30,34,32,38,36,42,44,48]],[188,'Nøkkeltall 3','78 %','▲ 0,6 %',[44,42,40,41,38,37,36,33]]].forEach(([y,l,v,d,pts])=>{
+        s += r(10,y,140,70,'wf-box',6) + t(18,y+14,l,'m',7) + t(18,y+38,v,'b',16) + t(18,y+54,d,'b',7.5) + t(18,y+64,'siste 12 mnd.','m',5.5);
+        const p = pts.map((py,i)=>`${88+i*7.5},${y+py-12}`).join(' ');
+        s += `<polyline points="${p}" class="wf-chev"/>`;
+        const last = pts.length-1; s += `<circle cx="${88+last*7.5}" cy="${y+pts[last]-12}" r="2.5" fill="var(--wf-text)"/>`;
+      });
+      return phone(s,'Kort med nøkkeltall, endring med pil og tekst, og en liten kurve som viser utviklingen');
+    },
+    'phone-bars': () => {
+      let s = pageHead('[Statistikk]', false);
+      s += t(10,40,'Antall per fylke, 2025','m',7);
+      [118,96,84,70,61,48,40,31,22,14].forEach((w,i)=>{ const y=50+i*21;
+        s += t(10,y+12,'[Fylke '+(i+1)+']','',6.5) + r(56,y+4,w*0.7,11,'wf-btn-p',1) + t(60+w*0.7,y+12.5,String(w*41),'b',6.5);
+      });
+      return phone(s,'Liggende stolpediagram der hvert fylke har en stolpe med tallet ved siden av');
+    },
+    'phone-deviation': () => {
+      let s = pageHead('[Målinger]', false);
+      s += r(10,32,140,30,'wf-err',6) + t(18,45,'⚠ 3 avvik siden i går','err',7.5) + t(18,56,'Vis bare avvik','u',7);
+      const dev = {1:'+18 %',4:'−22 %',6:'+31 %'};
+      s += r(10,70,140,9*21,'wf-box');
+      for (let i=0;i<9;i++){ const y=70+i*21;
+        if (dev[i]) s += r(10,y,140,21,'wf-err');
+        s += t(16,y+14,'[Målepunkt '+(i+1)+']', dev[i]?'b':'',7) + t(144,y+14, dev[i] ? '⚠ '+dev[i] : '±0 %', dev[i]?'err':'m', 7,'end');
+        if (i) s += ln(10,y,150,y);
+      }
+      return phone(s,'Liste over målepunkter der systemet har merket tre avvik med farge, symbol og differanse');
+    },
+    'desk-weather': () => desk({heads:['Tid','Vær','Temp.','Nedbør','Vind'], rows:6, rowH:20, title:'[Sted]', search:false,
+      cell:(i,c,x,y)=> t(x,y,[['kl. '+(13+i)],['Lettskyet','Delvis skyet','Skyet','Regn','Regn','Skyet'][i],[(14-i)+'°'],[['0','0','0','0,4 mm','1,2 mm','0,2 mm'][i]],[(3+i%3)+' m/s']][c][0] ?? '', c===0?'b':'',7),
+      label:'Værtabell med tid, vær, temperatur, nedbør og vind for hver time'}),
+    'phone-weather': () => {
+      let s = pageHead('[Sted]', false);
+      const w = ['sun','sun','cloud','rain','rain','cloud','sun','sun','cloud','cloud'];
+      for (let i=0;i<10;i++){ const y=32+i*23;
+        s += t(10,y+14,'kl. '+(13+i),'b',7.5);
+        const cx=58, cy=y+11;
+        if (w[i]==='sun') s += `<circle cx="${cx}" cy="${cy}" r="6" fill="var(--warn)"/>`;
+        else s += `<ellipse cx="${cx}" cy="${cy}" rx="9" ry="5.5" class="wf-box"/>` + (w[i]==='rain' ? `<path d="M${cx-4} ${cy+7} l-1.5 4 M${cx+1} ${cy+7} l-1.5 4 M${cx+6} ${cy+7} l-1.5 4" class="wf-chev"/>` : '');
+        s += t(82,y+14,(14-i%6)+'°','b',8.5) + t(146,y+14, w[i]==='rain' ? '0,8 mm' : '', 'm',7,'end');
+        s += ln(10,y+22,150,y+22);
+      }
+      return phone(s,'Værvarsel per time der været vises som symbol for sol, sky og regn i stedet for tekst');
+    },
+    'phone-raw': () => {
+      let s = pageHead('[Datasett]', false);
+      s += t(10,42,'Hva vil du se?','b',9);
+      [['Utvikling i 2026','Linjediagram'],['Sammenlign fylkene','Stolpediagram'],['Siste måned','Nøkkeltall']].forEach(([a,b],i)=>{ const y=52+i*42;
+        s += r(10,y,140,34,'wf-box',6) + t(18,y+15,a,'u b',8) + t(18,y+27,b,'m',6.5);
+      });
+      s += t(10,192,'Eller se alle dataene','m',7);
+      s += r(10,200,140,20,'wf-btn-p',3) + t(80,213,'Vis rådata','inv',7.5,'middle');
+      s += r(10,226,140,20,'wf-btn',3) + t(80,239,'Last ned (CSV)','',7.5,'middle');
+      return phone(s,'Forslag til tre ferdige visninger av dataene, med knapper for å vise eller laste ned rådata');
+    },
+    'phone-filter': () => {
+      let s = pageHead('[Datasett]', true);
+      [['Fylke',10],['År',52],['Kolonner',86]].forEach(([l,x])=>{ const w=l.length*4.2+18; s += r(x,62,w,14,'wf-pill',7) + t(x+7,72,l,'',6.5) + chevDown(x+w-10,67); });
+      s += t(10,90,'214 rader','m',6.5) + t(150,90,'Sortert: nyeste','m',6.5,'end');
+      s += r(10,96,140,6*26,'wf-box');
+      for (let i=0;i<6;i++){ const y=96+i*26; s += t(16,y+11,'[Rad '+(i+1)+']','b',7) + t(144,y+11,'Verdi','',7,'end') + t(16,y+21,'Meta · Meta','m',6); if(i) s += ln(10,y,150,y); }
+      s += t(80,268,'Vis neste 20','u',7.5,'middle');
+      return phone(s,'Rådata med søk, filtre for fylke, år og kolonner, antall rader og oppdeling i sider');
+    },
+  };
+
+  document.querySelectorAll('[data-sketch]').forEach(el => {
+    const f = sketches[el.dataset.sketch];
+    if (f) el.innerHTML = f();
+  });
+})();
+</script>

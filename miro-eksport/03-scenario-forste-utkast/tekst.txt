@@ -1,0 +1,106 @@
+Scenariovinkling, første utkast (strekskisser)
+
+MØNSTER: STRUKTURERT INFORMASJON · UTKAST
+Tabeller på små skjermer
+
+En tabell som fungerer på en stor skjerm, kan ikke bare krympes for å passe på mobil. Velg løsning ut fra hva brukeren skal gjøre med innholdet, ikke ut fra hvilken komponent du startet med.
+
+Arbeidsgruppen har funnet fire typiske brukeroppgaver. Hver av dem har sin anbefalte løsning. Skissene viser prinsippet, ikke ferdig design.
+
+Hva skal brukeren gjøre?
+Finne ett element i en oversikt
+Gjør radene om til en stablet liste
+Sammenligne mange datapunkter
+Behold tabellen og la den rulle sideveis
+Velge mellom noen få alternativer
+Snu tabellen så egenskapene står nedover
+Gjøre noe med én rad
+Bruk kort med handlingene nederst
+Brukeroppgave 1
+Finne ett element: bruk stablet liste
+
+Brukeren leter etter én sak, én melding eller ett dokument, og trenger ikke sammenligne verdier på tvers. Da er tabellen bare en måte å liste opp på. På små skjermer blir hver rad et element i en liste, der plasseringen viser hva som er viktigst.
+
+STOR SKJERM
+→
+LITEN SKJERM
+Fem kolonner blir to linjer per rad. Kolonneoverskriftene faller bort fordi plassering og utforming forteller hva verdiene er.
+Fire faste plasser per rad
+1Byggesøknad, Storgata 12
+23. nov.
+4Sak 24/1832 · Mottatt 12. okt.
+3Under behandling
+Søknad om parkeringstillatelse
+28. okt.
+Sak 24/1790 · Mottatt 2. okt.
+Godkjent
+Klage på eiendomsskatt
+14. okt.
+Sak 24/1655 · Mottatt 20. sep.
+Mottatt
+1
+Øverst til venstre: det brukeren kjenner igjen elementet på, som saksnavn eller avsender. Uthevet, og som lenke hvis raden kan åpnes.
+2
+Øverst til høyre: det nest viktigste, ofte dato eller beløp.
+3
+Nederst til høyre: status, med tekst og ikke bare farge.
+4
+Nederst til venstre: resten, i dempet tekst og skilt med prikk. Sett et ord foran verdier som ikke forklarer seg selv, som «Sak» eller «Mottatt».
+Flere enn fem kolonner: vis resten på en egen side
+
+Får ikke alle opplysningene plass i de fire plassene, viser du resten når brukeren åpner elementet. På detaljsiden står etikett og verdi ved siden av hverandre, og handlingene ligger der.
+
+LISTEN
+→
+DETALJSIDEN
+Ekspanderbare rader er et alternativ når brukeren bare trenger litt mer for å finne riktig element. Åpne rader skyver de andre ut av syne, så bruk det bare for kort innhold. Arbeidsgruppen har ikke landet dette ennå.
+Brukeroppgave 2
+Sammenligne mange datapunkter: behold tabellen
+
+Statistikk, måledata og prismatriser gir mening bare når brukeren ser rader og kolonner sammen. Her er tabellen riktig også på mobil, selv om den må rulle sideveis. WCAG 1.4.10 tillater horisontal rulling for datatabeller.
+
+STOR SKJERM
+→
+LITEN SKJERM
+Første kolonne og overskriftsraden står fast (blå). Resten ruller, og en skygge i kanten viser at det er mer innhold.
+Lås første kolonne, så brukeren alltid ser hvilken rad verdiene hører til.
+Lås kolonneoverskriftene når tabellen er lang.
+Vis tydelig at tabellen kan rulles, for eksempel med skygge eller en avkuttet kolonne i kanten.
+La bare tabellen rulle sideveis, aldri hele siden.
+Brukeroppgave 3
+Velge mellom få alternativer: snu tabellen
+
+Når brukeren skal velge mellom to til fire alternativer med mange egenskaper, som førerkortklasser eller avtaler, bytter du om radene og kolonnene. Egenskapene går nedover, og alternativene står side om side i smale kolonner.
+
+STOR SKJERM
+→
+LITEN SKJERM
+Brukeren leser fra venstre mot høyre per egenskap, uten å rulle sideveis. Er det flere alternativer enn det er plass til, velger brukeren hvilke som skal stå i hver kolonne.
+Brukeroppgave 4
+IKKE AVKLART
+Gjøre noe med én rad: bruk kort med handlinger
+
+Brukeren skal åpne, endre eller slette en rad, ofte rader de har lagt inn selv i et skjema. Hver rad blir et kort, og handlingene får en egen rad nederst i kortet med knapper som er store nok å treffe.
+
+STOR SKJERM
+→
+LITEN SKJERM
+Feil vises inne i kortet de gjelder, med tekst og ikke bare rød farge.
+Gjelder alle løsningene
+Unngå
+Tabellen er krympet for å få plass. Teksten blir for liten til å lese og cellene for små til å treffe.
+Å krympe tabellen eller skriften.
+At hele siden ruller sideveis.
+Å gjøre tabellcellene om til blokker med CSS. Da mister tabellen rollen sin for skjermlesere.
+Å fjerne opplysninger brukeren trenger, bare fordi det er lite plass.
+Gjør dette
+Bytt komponent når oppgaven er en annen. En liste skal være en liste i koden (ul), og en tabell en tabell (table). Riktig struktur gjør sammenhengen lesbar for skjermlesere, søkemotorer og KI-agenter.
+Behold sammenhengen. Brukeren skal aldri lure på hva en verdi beskriver, eller hvilken rad den hører til.
+Bruk de samme ordene og symbolene på stor og liten skjerm.
+Del heller opp enn å skjule. Det som ikke får plass, kan ligge på en detaljside eller bak en tydelig knapp.
+Bryt linjen i stedet for å kutte teksten. Må du kutte, skal hele teksten være tilgjengelig med en handling, ikke bare ved hover.
+Skriv ut ordene. Bruk bare kjente forkortelser som org.nr. og kr.
+Grunnlag
+Workshop i arbeidsgruppen for mønsteret, høsten 2026, og GitHub-diskusjon #3703.
+UX Movement: «Stacked List: The Best Way to Fit Tables on Mobile Screens». Grunnlaget for de fire plassene og detaljsiden.
+Litsa Babalis: «How to make tables fit on small screens (spoiler: you probably can’t and maybe you shouldn’t)». Grunnlaget for å bytte komponent i stedet for å stable tabellceller med CSS.

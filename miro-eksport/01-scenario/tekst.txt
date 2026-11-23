@@ -1,0 +1,1031 @@
+Scenariovinkling (wireframe-skisser)
+
+MØNSTER: STRUKTURERT INFORMASJON · UTKAST
+Tabeller på små skjermer
+
+En tabell som fungerer på en stor skjerm, kan ikke bare krympes for å passe på mobil. Velg løsning ut fra hva brukeren skal gjøre med innholdet, ikke ut fra hvilken komponent du startet med.
+
+Strukturerte data er informasjon som følger en definert og gjentakende struktur. Det kan for eksempel være saker med saksnummer, dato og status, eller målinger fra flere tidspunkter. Dataene kan vises som tabell, liste eller andre organiserte visninger. Se også begrepet i Felles datakatalog.
+
+Tabeller har mange utfordringer på små skjermer. Går du inn i brukerens oppgave, finner du ofte et bedre alternativ. Du kan alltid vise dataene forenklet først, og la brukeren åpne hele tabellen etterpå. Skissene viser prinsippet, ikke ferdig design.
+
+Hva skal brukeren gjøre?
+Finne ett element i en oversikt
+Stablet liste
+Velge mellom få alternativer
+Snu tabellen
+Se en utvikling over tid
+Tall og kurve
+Sammenligne størrelser
+Stolper eller nøkkeltall
+Finne et avvik
+La systemet peke det ut
+Sammenligne mange datapunkter
+Behold tabellen
+Dataene brukes på mange måter
+Forenkle og la brukeren styre
+Dele data med ukjent bruk
+Foreslå visninger
+Gjøre noe med én rad
+Kort med handlinger
+Brukeroppgave 1
+Finne ett element: bruk stablet liste
+
+Brukeren leter etter én sak, én melding eller ett dokument, og trenger ikke sammenligne verdier på tvers. Da er tabellen bare en måte å liste opp på. På små skjermer blir hver rad et element i en liste, der plasseringen viser hva som er viktigst.
+
+STOR SKJERM
+[Objekttype]
+Søk
+Navn
+Meta 1
+Meta 2
+Meta 3
+Status
+[Objektnavn]
+Bittelitt meta
+Mer meta
+Enda mer meta
+Status
+[Objektnavn]
+Status
+[Objektnavn]
+Status
+[Objektnavn]
+Status
+[Objektnavn]
+Status
+→
+LITEN SKJERM
+[Objekttype]
+Søk
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+Fem kolonner blir to linjer per rad. Kolonneoverskriftene faller bort fordi plassering og utforming forteller hva verdiene er.
+Forslag til illustrasjon
+Samme rad vist som tabellrad og som listeoppføring, med linjer som viser hvor hver celle havner i de fire plassene.
+Fire faste plasser per rad
+1Byggesøknad, Storgata 12
+23. nov.
+4Sak 24/1832 · Mottatt 12. okt.
+3Under behandling
+Søknad om parkeringstillatelse
+28. okt.
+Sak 24/1790 · Mottatt 2. okt.
+Godkjent
+Klage på eiendomsskatt
+14. okt.
+Sak 24/1655 · Mottatt 20. sep.
+Mottatt
+1
+Øverst til venstre: det brukeren kjenner igjen elementet på, som saksnavn eller avsender. Uthevet, og som lenke hvis raden kan åpnes.
+2
+Øverst til høyre: det nest viktigste, ofte dato eller beløp.
+3
+Nederst til høyre: status, med tekst og ikke bare farge.
+4
+Nederst til venstre: resten, i dempet tekst og skilt med prikk. Sett et ord foran verdier som ikke forklarer seg selv, som «Sak» eller «Mottatt».
+Når verdiene trenger etikett: kort med etikett og verdi
+
+Forklarer ikke verdiene seg selv, for eksempel fødselsnummer, rolle eller flere datoer, setter du etiketten foran hver verdi. Har kortet god plass, kan etikett og verdi stå i to kolonner.
+
+ETIKETT OG VERDI
+[Objekttype]
+[Objektnavn]
+Meta 1
+Bittelitt meta
+Meta 2
+Mer meta
+Meta 3
+Enda mer meta
+Meta 4
+Og mer!
+[Objektnavn]
+Meta 1
+Bittelitt meta
+Meta 2
+Mer meta
+Meta 3
+Enda mer meta
+Meta 4
+Og mer!
+→
+MER KOMPAKT
+[Objekttype]
+[Objektnavn]
+Meta 1
+Bittelitt meta
+Meta 2
+Mer meta
+Meta 3: Enda mer meta
+[Objektnavn]
+Meta 1
+Bittelitt meta
+Meta 2
+Mer meta
+Meta 3: Enda mer meta
+[Objektnavn]
+Meta 1
+Bittelitt meta
+Meta 2
+Mer meta
+Meta 3: Enda mer meta
+Objektnavnet er en lenke. Da trenger kortet ingen pil for å vise at det kan åpnes.
+Flere enn fem kolonner: vis resten på en egen side
+
+Får ikke alle opplysningene plass i de fire plassene, viser du resten når brukeren åpner elementet. På detaljsiden står etikett og verdi ved siden av hverandre, og handlingene ligger der.
+
+LISTEN
+[Objekttype]
+Søk
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+[Objektnavn]
+Meta 1
+Meta 2 · Meta 3
+Status
+→
+DETALJSIDEN
+← [Objekttype]
+[Objektnavn]
+Status
+Label
+Verdi
+Label
+Verdi
+Label
+Verdi
+Label
+Verdi
+Label
+Verdi
+Label
+Verdi
+Label
+Verdi
+Endre
+Slett
+Ekspanderbare rader er et alternativ når brukeren bare trenger litt mer for å finne riktig element. Åpne rader skyver de andre ut av syne, så bruk det bare for kort innhold. Arbeidsgruppen har ikke landet dette ennå.
+Brukeroppgave 2
+Velge mellom få alternativer: snu tabellen
+
+Når brukeren skal velge mellom to til fire alternativer med mange egenskaper, som førerkortklasser eller avtaler, bytter du om radene og kolonnene. Egenskapene går nedover, og alternativene står side om side i smale kolonner. Det passer ikke når brukeren i praksis bare vurderer én egenskap.
+
+STOR SKJERM
+[Sammenligning]
+Alternativ
+Egensk. 1
+Egensk. 2
+Egensk. 3
+Egensk. 4
+Egensk. 5
+[Alternativ A]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Alternativ B]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Alternativ C]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+→
+LITEN SKJERM
+[Sammenligning]
+Alt. A
+Alt. B
+Egenskap 1
+Verdi
+Verdi
+Egenskap 2
+Verdi
+Verdi
+Egenskap 3
+Verdi
+Verdi
+Egenskap 4
+Verdi
+Verdi
+Egenskap 5
+Verdi
+Verdi
+Egenskap 6
+Verdi
+Verdi
+Egenskap 7
+Verdi
+Verdi
+Egenskap 8
+Verdi
+Verdi
+Egenskap 9
+Verdi
+Verdi
+Brukeren leser fra venstre mot høyre per egenskap, uten å rulle sideveis. Er det flere alternativer enn det er plass til, velger brukeren hvilke som skal stå i hver kolonne.
+Bytt om radene og kolonnene, så egenskapene går nedover.
+Sett de 2 til 3 alternativene side om side i smale kolonner.
+Er det flere alternativer, la brukeren velge hvilke som skal stå i hver kolonne.
+Fremhev egenskapene som skiller alternativene.
+Forslag til illustrasjon
+Samme tabell før og etter at radene og kolonnene er byttet om, med piler som viser at alternativene går fra rader til kolonner.
+Brukeroppgave 3
+UNDER ARBEID
+Se en historisk utvikling: vis tall og kurve
+
+Brukeren vil se hvordan noe har endret seg over tid, for eksempel antall saker eller temperatur og vannstand. En tabell med mange år er vanskelig å lese på mobil. Vis heller hovedtallet og retningen, og la brukeren gå videre til hele tabellen.
+
+STOR SKJERM
+[Statistikk]
+Fylke
+2019
+2020
+2021
+2022
+2023
+2024
+[Rad 1]
+1091
+1182
+1273
+1364
+1455
+1546
+[Rad 2]
+1128
+1219
+1310
+1401
+1492
+1583
+[Rad 3]
+1165
+1256
+1347
+1438
+1529
+1620
+[Rad 4]
+1202
+1293
+1384
+1475
+1566
+1657
+[Rad 5]
+1239
+1330
+1421
+1512
+1603
+1694
+[Rad 6]
+1276
+1367
+1458
+1549
+1640
+1731
+→
+LITEN SKJERM
+[Statistikk]
+Nøkkeltall 1
+12 480
+▲ 4,2 %
+siste 12 mnd.
+Nøkkeltall 2
+3 915
+▼ 1,8 %
+siste 12 mnd.
+Nøkkeltall 3
+78 %
+▲ 0,6 %
+siste 12 mnd.
+Hvert nøkkeltall får et kort med tallet, endringen med pil og tekst, og en liten kurve for utviklingen.
+Bruk kort med tall og en liten kurve (sparkline).
+Bruk linjediagram for trender, og stolpediagram når nøyaktige størrelser er viktige.
+La brukeren velge tidsperiode.
+Pass på at siste endring ikke overdriver inntrykket. Folk legger mest vekt på det som skjedde sist.
+Forslag til illustrasjon
+Samme tidsserie som tabell og som kort med tall og kurve. Vis at pilen også har tekst («▲ 4,2 %»).
+Brukeroppgave 4
+UNDER ARBEID
+Sammenligne størrelser: bruk stolper eller nøkkeltall
+
+Brukeren skal se hvor mye eller hvor mange, og hvordan det forholder seg til resten. Et liggende stolpediagram får plass på mobil og viser forskjellene raskere enn en kolonne med tall.
+
+STOR SKJERM
+[Statistikk]
+Fylke
+2019
+2020
+2021
+2022
+2023
+2024
+[Rad 1]
+1091
+1182
+1273
+1364
+1455
+1546
+[Rad 2]
+1128
+1219
+1310
+1401
+1492
+1583
+[Rad 3]
+1165
+1256
+1347
+1438
+1529
+1620
+[Rad 4]
+1202
+1293
+1384
+1475
+1566
+1657
+[Rad 5]
+1239
+1330
+1421
+1512
+1603
+1694
+[Rad 6]
+1276
+1367
+1458
+1549
+1640
+1731
+→
+LITEN SKJERM
+[Statistikk]
+Antall per fylke, 2025
+[Fylke 1]
+4838
+[Fylke 2]
+3936
+[Fylke 3]
+3444
+[Fylke 4]
+2870
+[Fylke 5]
+2501
+[Fylke 6]
+1968
+[Fylke 7]
+1640
+[Fylke 8]
+1271
+[Fylke 9]
+902
+[Fylke 10]
+574
+Liggende stolper får plass i bredden, og tallet står ved hver stolpe.
+Bruk stolpediagram, eller vis nøkkeltall på noen få kort.
+Vis tallet ved hver stolpe, ikke bare på aksen.
+Visualisering skal ha et likeverdig alternativ i tekst.
+Forslag til illustrasjon
+En kolonne med tall som blir til liggende stolper, med tallene ved stolpene.
+Brukeroppgave 5
+UNDER ARBEID
+Finne et avvik: la systemet peke det ut
+
+Brukeren skal finne de radene som skiller seg ut, ikke lese alle. På mobil er det lettere når systemet plukker ut avvikene og viser hvor store de er.
+
+STOR SKJERM
+[Statistikk]
+Fylke
+2019
+2020
+2021
+2022
+2023
+2024
+[Rad 1]
+1091
+1182
+1273
+1364
+1455
+1546
+[Rad 2]
+1128
+1219
+1310
+1401
+1492
+1583
+[Rad 3]
+1165
+1256
+1347
+1438
+1529
+1620
+[Rad 4]
+1202
+1293
+1384
+1475
+1566
+1657
+[Rad 5]
+1239
+1330
+1421
+1512
+1603
+1694
+[Rad 6]
+1276
+1367
+1458
+1549
+1640
+1731
+→
+LITEN SKJERM
+[Målinger]
+⚠ 3 avvik siden i går
+Vis bare avvik
+[Målepunkt 1]
+±0 %
+[Målepunkt 2]
+⚠ +18 %
+[Målepunkt 3]
+±0 %
+[Målepunkt 4]
+±0 %
+[Målepunkt 5]
+⚠ −22 %
+[Målepunkt 6]
+±0 %
+[Målepunkt 7]
+⚠ +31 %
+[Målepunkt 8]
+±0 %
+[Målepunkt 9]
+±0 %
+Avvikene står øverst som en oppsummering, og hver rad med avvik viser differansen med tekst og symbol.
+La systemet plukke ut avvikene.
+Vis differansen, ikke bare verdien.
+Merk avvik med tekst og symbol, ikke bare farge.
+Forslag til illustrasjon
+En lang tabell der bare tre rader er markert, og en oppsummering som sier hvor mange avvik det er.
+Brukeroppgave 6
+Sammenligne mange datapunkter: behold tabellen
+
+Statistikk, måledata og prismatriser gir mening bare når brukeren ser rader og kolonner sammen. Her er tabellen riktig også på mobil, selv om den må rulle sideveis. WCAG 1.4.10 tillater horisontal rulling for datatabeller.
+
+STOR SKJERM
+[Statistikk]
+Fylke
+2019
+2020
+2021
+2022
+2023
+2024
+[Rad 1]
+1091
+1182
+1273
+1364
+1455
+1546
+[Rad 2]
+1128
+1219
+1310
+1401
+1492
+1583
+[Rad 3]
+1165
+1256
+1347
+1438
+1529
+1620
+[Rad 4]
+1202
+1293
+1384
+1475
+1566
+1657
+[Rad 5]
+1239
+1330
+1421
+1512
+1603
+1694
+[Rad 6]
+1276
+1367
+1458
+1549
+1640
+1731
+→
+LITEN SKJERM
+[Statistikk]
+Fylke
+2019
+2020
+2021
+2022
+[Rad 1]
+1000
+1091
+1182
+1273
+[Rad 2]
+1037
+1128
+1219
+1310
+[Rad 3]
+1074
+1165
+1256
+1347
+[Rad 4]
+1111
+1202
+1293
+1384
+[Rad 5]
+1148
+1239
+1330
+1421
+[Rad 6]
+1185
+1276
+1367
+1458
+[Rad 7]
+1222
+1313
+1404
+1495
+[Rad 8]
+1259
+1350
+1441
+1532
+[Rad 9]
+1296
+1387
+1478
+1569
+ruller
+Første kolonne og overskriftsraden står fast (blå). Resten ruller, og en skygge i kanten viser at det er mer innhold.
+Forslag til illustrasjon
+En tabell på mobil der første kolonne og overskriftsraden er markert som faste, med en tydelig kant eller skygge som viser at det er mer innhold til høyre.
+Lås første kolonne, så brukeren alltid ser hvilken rad verdiene hører til.
+Lås kolonneoverskriftene når tabellen er lang.
+Vis tydelig at tabellen kan rulles, for eksempel med skygge eller en avkuttet kolonne i kanten.
+La bare tabellen rulle sideveis, aldri hele siden.
+Brukeroppgave 7
+UNDER ARBEID
+Dataene brukes på mange måter: forenkle og la brukeren styre
+
+Noen data, som værvarsel, brukes til så mye forskjellig at du ikke kan lage én visning for én oppgave. Gjør tabellen mindre og datapunktene lettere å lese, og gi brukeren verktøy for å finne det de trenger.
+
+STOR SKJERM
+[Sted]
+Tid
+Vær
+Temp.
+Nedbør
+Vind
+kl. 13
+L
+14°
+0
+3 m/s
+kl. 14
+D
+13°
+0
+4 m/s
+kl. 15
+S
+12°
+0
+5 m/s
+kl. 16
+R
+11°
+0,4 mm
+3 m/s
+kl. 17
+R
+10°
+1,2 mm
+4 m/s
+kl. 18
+S
+9°
+0,2 mm
+5 m/s
+→
+LITEN SKJERM
+[Sted]
+kl. 13
+14°
+kl. 14
+13°
+kl. 15
+12°
+kl. 16
+11°
+0,8 mm
+kl. 17
+10°
+0,8 mm
+kl. 18
+9°
+kl. 19
+14°
+kl. 20
+13°
+kl. 21
+12°
+kl. 22
+11°
+Været vises som symbol i stedet for tekst, og bare de viktigste kolonnene er med. Resten får brukeren ved å åpne timen.
+Gjør tabellen mindre: færre kolonner, og resten ved behov.
+Gjør datapunktene lettere å lese, for eksempel sol som symbol for fint vær, med tekstalternativ.
+Gi søk, filtrering, sortering, gruppering og oppdeling i sider når det er mye data.
+Vis et relevant utvalg først.
+Finn ut hva brukerne egentlig trenger, for eksempel ved å spørre dem i grensesnittet.
+Forslag til illustrasjon
+Værtabell med fem tekstkolonner ved siden av samme varsel med symboler og færre kolonner.
+Brukeroppgave 8
+UNDER ARBEID
+Pliktig å dele data med ukjent bruk: foreslå visninger
+
+Organisasjonen er pliktig til å dele dataene, men vet ikke hvordan de vil bli brukt. Rådata i en bred tabell fungerer dårlig på mobil. Tilby noen ferdige visninger for vanlige spørsmål, og gi tilgang til alle dataene ved siden av.
+
+FORSLAG TIL VISNINGER
+[Datasett]
+Hva vil du se?
+Utvikling i 2026
+Linjediagram
+Sammenlign fylkene
+Stolpediagram
+Siste måned
+Nøkkeltall
+Eller se alle dataene
+Vis rådata
+Last ned (CSV)
+→
+RÅDATA
+[Datasett]
+Søk
+Fylke
+År
+Kolonner
+214 rader
+Sortert: nyeste
+[Rad 1]
+Verdi
+Meta · Meta
+[Rad 2]
+Verdi
+Meta · Meta
+[Rad 3]
+Verdi
+Meta · Meta
+[Rad 4]
+Verdi
+Meta · Meta
+[Rad 5]
+Verdi
+Meta · Meta
+[Rad 6]
+Verdi
+Meta · Meta
+Vis neste 20
+Brukeren velger en ferdig visning, eller åpner rådataene med filtrering, sortering og kolonnevalg.
+Lag noen forslag til visninger, for eksempel «Utvikling i drivstoffpriser i Troms i 2026».
+Gi en knapp for å se rådataene i nettleseren eller laste dem ned.
+Tilby filtrering, sortering og valg av kolonner for rådataene.
+Forslag til illustrasjon
+En side med tre forslag til visninger og to knapper for rådata, og hvor hver av dem leder.
+Brukeroppgave 9
+IKKE MED I TEKSTEN ENNÅ
+Gjøre noe med én rad: bruk kort med handlinger
+
+Brukeren skal åpne, endre eller slette en rad, ofte rader de har lagt inn selv i et skjema. Hver rad blir et kort, og handlingene får en egen rad nederst i kortet med knapper som er store nok å treffe.
+
+STOR SKJERM
+[Søknad, steg 2]
+Kostnad
+Kategori
+Beløp
+[Kostnad 1]
+Meta
+kr 0 000
+Endre
+Slett
+[Kostnad 2]
+Meta
+Mangler
+Endre
+Slett
+[Kostnad 3]
+Meta
+kr 0 000
+Endre
+Slett
+[Kostnad 4]
+Meta
+kr 0 000
+Endre
+Slett
+→
+LITEN SKJERM
+[Søknad, steg 2]
+[Kostnad 1]
+kr 0 000
+Meta
+Endre
+Slett
+[Kostnad 2]
+Meta
+⚠ Fyll inn beløp
+Endre
+Slett
+[Kostnad 3]
+kr 0 000
+Meta
+Endre
+Slett
+Neste steg
+Feil vises inne i kortet de gjelder, med tekst og ikke bare rød farge.
+Forslag til illustrasjon
+Ett kort med handlingsrad ved siden av samme oppføring som tabellrad. Vis gjerne ett kort med feil.
+Språk
+Forkortelser
+
+Plassmangel gjør det fristende å forkorte ord og ledetekster. Unngå forkortelser som svekker lesbarheten.
+
+Bruk bare allment kjente forkortelser, som org.nr., tlf. og kr.
+Unngå interne fagbegreper og sjargong, som s-beh. eller jfr.
+Velg heller et kortere ord: «Dato» i stedet for «Reg.dato».
+Trenger du en ukjent forkortelse, forklar den, for eksempel med en stjerne og forklaring under tabellen.
+Avkorting av tekst
+
+Avkorting skjuler innhold og er en nødløsning. Bryt heller linjen. Avkorter du, må brukeren kunne lese hele teksten med en bevisst handling, og skjermlesere må alltid få hele teksten.
+
+Hovedregel: i slutten
+Søknad om tilskudd til ombygging av…
+Like oppføringer: i midten
+Vedtak i sak 24/1832 … Storgata 12
+Filnavn: i midten
+vedtak_2026_…_endelig.pdf
+Forslag til illustrasjon
+De tre avkortingsmåtene side om side, der det som blir synlig er markert.
+Gjelder alle løsningene
+Unngå
+[Objekttype]
+Kolonne
+Kolonne
+Kolonne
+Kolonne
+Kolonne
+Kolonne
+Kolonne
+Kolonne
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+[Objektnavn]
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Verdi
+Tabellen er krympet for å få plass. Teksten blir for liten til å lese og cellene for små til å treffe.
+Å krympe tabellen eller skriften.
+At hele siden ruller sideveis.
+Å gjøre tabellcellene om til blokker med CSS. Da mister tabellen rollen sin for skjermlesere.
+Å fjerne opplysninger brukeren trenger, bare fordi det er lite plass.
+Gjør dette
+Bytt komponent når oppgaven er en annen. En liste skal være en liste i koden (ul), og en tabell en tabell (table). Riktig struktur gjør sammenhengen lesbar for skjermlesere, søkemotorer og KI-agenter.
+Behold sammenhengen. Brukeren skal aldri lure på hva en verdi beskriver, eller hvilken rad den hører til.
+Bruk de samme ordene og symbolene på stor og liten skjerm.
+Merk det som kan åpnes, som lenke. Gjør objektnavnet til en lenke i stedet for å sette en pil på hele raden.
+Vurder innholdet på alle skjermstørrelser. Trenger brukeren ikke en opplysning på mobil, trenger de den kanskje ikke på stor skjerm heller.
+Del heller opp enn å skjule. Det som ikke får plass, kan ligge på en detaljside eller bak en tydelig knapp.
+Bryt linjen i stedet for å kutte teksten. Må du kutte, skal hele teksten være tilgjengelig med en handling, ikke bare ved hover.
+Skriv ut ordene. Bruk bare kjente forkortelser som org.nr. og kr.
+Grunnlag
+Uutilsynet: Tabeller.
+WCAG 1.3.1 Informasjon og relasjoner (nivå A), med veiledning fra Uutilsynet.
+Workshop i arbeidsgruppen for mønsteret, høsten 2026, og GitHub-diskusjon #3703.
+UX Movement: «Stacked List: The Best Way to Fit Tables on Mobile Screens». Grunnlaget for de fire plassene og detaljsiden.
+Litsa Babalis: «How to make tables fit on small screens (spoiler: you probably can’t and maybe you shouldn’t)». Grunnlaget for å bytte komponent i stedet for å stable tabellceller med CSS.

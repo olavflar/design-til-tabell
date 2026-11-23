@@ -1,0 +1,55 @@
+/* Hi-fi kort: bare oppsett som Designsystemet ikke dekker direkte */
+.hifi { display: flex; flex-direction: column; gap: var(--ds-size-3); padding-top: var(--ds-size-4); }
+.hifi > * { margin: 0; }
+.meta { color: var(--ds-color-neutral-text-subtle); display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-size-2); margin: 0; }
+.subtle { color: var(--ds-color-neutral-text-subtle); font-weight: 400; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.art > header { display: flex; flex-direction: column; gap: var(--ds-size-3); }
+.stack-1 { display: flex; flex-direction: column; gap: var(--ds-size-1); }
+.stack-1 > * { margin: 0; }
+.case-table { width: 100%; }
+.case-table th[scope="row"] { font-weight: 400; }
+
+/* Kortlister */
+.cards { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--ds-size-3); }
+.cards > li { margin: 0; }
+.cards--grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); }
+.cards .ds-card > * { margin: 0; }
+
+/* Etikett og verdi */
+.kv { width: 100%; }
+.kv th { width: 45%; font-weight: 400; color: var(--ds-color-neutral-text-subtle); }
+.kv td { font-weight: 500; }
+
+/* Kompakt: to verdier side om side, etiketten over */
+.compact { display: flex; flex-direction: column; gap: var(--ds-size-2); }
+.pair {
+  --dsc-table-background: transparent;
+  --dsc-table-header-background: transparent;
+  --dsc-table-divider-border-width: 0;
+  --dsc-table-border-width: 0;
+  --dsc-table-padding: 0 var(--ds-size-4) 0 0;
+  table-layout: fixed;
+  width: 100%;
+}
+.pair th { font-weight: 400; color: var(--ds-color-neutral-text-subtle); }
+.pair td { border-bottom: 0; font-weight: 500; }
+
+/* Med handlinger */
+.cost-table { width: 100%; }
+.cost-table .plain { font-weight: inherit; }
+.cost-table .has-error { --dsc-table-background: var(--ds-color-danger-surface-tinted); }
+.num-col { text-align: right; font-variant-numeric: tabular-nums; }
+.cost-card__body { display: flex; flex-direction: column; gap: var(--ds-size-1); }
+.cost-card__body > * { margin: 0; }
+.cost-card__top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--ds-size-3); }
+.cost-card__top > * { margin: 0; }
+/* Endre og Slett: to like knapper ved siden av hverandre */
+.actions { display: flex; gap: var(--ds-size-2); justify-content: flex-end; }
+.actions--card { display: grid; grid-template-columns: 1fr 1fr; margin-top: var(--ds-size-2); }
+.actions--card > * { justify-content: center; }
+.cost-table .ds-validation-message { justify-content: flex-end; }
+.confirm { display: flex; flex-direction: column; gap: var(--ds-size-3); max-width: 18rem; }
+.confirm > p { margin: 0; }
+.confirm__buttons { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); }
+.full { width: 100%; justify-content: center; }

@@ -153,6 +153,39 @@ body {
   font-size: 0.9375rem;
 }
 
+/* Skjermen og laget over den. contain: layout gjør at position: fixed
+   (dialoger) plasseres i rammen og ikke i nettleservinduet. */
+.frame__viewport {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  contain: layout;
+}
+
+.frame__layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  contain: layout;
+}
+
+.frame__layer > * {
+  pointer-events: auto;
+}
+
+.frame__layer .ds-dialog {
+  --dsc-dialog-max-height: 85%;
+}
+
+.frame__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.5);
+  animation: ds-dialog-fade-in 300ms ease-in-out;
+}
+
 .frame__screen {
   flex: 1;
   overflow-y: auto;
@@ -374,3 +407,52 @@ body {
 .device .frame {
   align-self: stretch;
 }
+
+/* ---------- Dynamisk bredde ---------- */
+
+.dynamic {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-3);
+  padding-top: var(--ds-size-4);
+}
+
+.dynamic__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-size-3);
+  font-weight: var(--ds-font-weight-medium);
+}
+
+.dynamic__controls input[type="range"] {
+  flex: 1 1 16rem;
+  accent-color: var(--ds-color-accent-base-default);
+}
+
+.dynamic__controls output {
+  min-width: 4.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rammen følger glidebryteren, ikke plassen rundt */
+.dynamic .frame {
+  align-self: flex-start;
+}
+
+/* Overskriftene for hoveddelene i artikkelen får luft over seg */
+.scenarios-heading,
+.language {
+  margin-top: var(--ds-size-10) !important;
+}
+
+/* Faner mellom hi-fi-sidene (tabell.html, liste.html) */
+.hifi-nav ul { display: flex; gap: var(--ds-size-1); list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--ds-color-neutral-border-subtle); }
+.hifi-nav a {
+  display: block; padding: var(--ds-size-2) var(--ds-size-4);
+  color: var(--ds-color-neutral-text-subtle); text-decoration: none; font-weight: 500;
+  border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.hifi-nav a:hover { color: var(--ds-color-neutral-text-default); background: var(--ds-color-neutral-surface-tinted); }
+.hifi-nav a[aria-current="page"] { color: var(--ds-color-accent-text-default); border-bottom-color: var(--ds-color-accent-base-default); }
+.hifi-nav a:focus-visible { outline: var(--ds-border-width-focus) solid var(--ds-color-focus-outer); outline-offset: -2px; }

@@ -1,8 +1,10 @@
 import {
+  Button,
   Card,
   Chip,
   Details,
   Dropdown,
+  ErrorSummary,
   Field,
   Fieldset,
   Heading,
@@ -10,17 +12,24 @@ import {
   Link,
   List,
   Paragraph,
+  Popover,
   Search,
   Select,
   Table,
   Tag,
+  ValidationMessage,
 } from '@digdir/designsystemet-react';
 import {
   ChatIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   DownloadIcon,
+  ExclamationmarkTriangleIcon,
+  InformationSquareIcon,
   PaperclipIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
   XMarkOctagonIcon,
 } from '@navikt/aksel-icons';
 import {
@@ -47,6 +56,16 @@ const stack = (gap = 'var(--ds-size-2)'): CSSProperties => ({
 });
 
 /**
+ * Tabell uten skillelinjer og bakgrunn, med Table sine egne tokens. Brukes
+ * inne i kort, så det ikke blir rammer i rammer i rammer (Law of Common Region).
+ */
+const plainTable = {
+  '--dsc-table-background': 'transparent',
+  '--dsc-table-divider-border-width': 0,
+  '--dsc-table-border-width': 0,
+} as CSSProperties;
+
+/**
  * Etikett og verdi som tabell med to kolonner. Designsystemet har ingen
  * komponent for beskrivelseslister, men en tabell med radoverskrifter gir den
  * samme koblingen mellom etikett og verdi for skjermlesere.
@@ -54,11 +73,14 @@ const stack = (gap = 'var(--ds-size-2)'): CSSProperties => ({
 const KeyValueTable = ({
   label,
   rows,
+  plain,
 }: {
   label: string;
   rows: [string, ReactNode][];
+  /** Uten skillelinjer, for bruk inne i et kort som allerede rammer inn */
+  plain?: boolean;
 }) => (
-  <Table data-size='sm'>
+  <Table data-size='sm' style={plain ? plainTable : undefined}>
     {/* Tabeller skal alltid ha caption. Her står navnet allerede synlig over. */}
     <caption className='ds-sr-only'>{label}</caption>
     <Table.Body>
@@ -347,11 +369,16 @@ const CASES: Case[] = [
   },
 ];
 
+/**
+ * Bare statusen som krever noe av brukeren, får farge. Får alle statusene
+ * hver sin farge, skiller ingen seg ut (Von Restorff-effekten). Teksten i
+ * merkelappen sier uansett hva statusen er, så fargen er ikke eneste kjennetegn.
+ */
 const STATUS_COLOR: Record<Status, string> = {
   'Venter på deg': 'warning',
-  'Under behandling': 'info',
+  'Under behandling': 'neutral',
   Mottatt: 'neutral',
-  Avsluttet: 'success',
+  Avsluttet: 'neutral',
 };
 
 const META: { key: keyof Case; label: string }[] = [
@@ -839,17 +866,20 @@ const TABLE_MIN_WIDTH = 832;
  * Om elementet er bredt nok til tabell. Måler elementet selv, ikke vinduet,
  * så prototypen følger bredden på rammen den vises i.
  */
-const useFitsTable = (ref: RefObject<HTMLElement | null>) => {
+const useFitsTable = (
+  ref: RefObject<HTMLElement | null>,
+  minWidth = TABLE_MIN_WIDTH,
+) => {
   const [fits, setFits] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const ro = new ResizeObserver(([entry]) =>
-      setFits(entry.contentRect.width >= TABLE_MIN_WIDTH),
+      setFits(entry.contentRect.width >= minWidth),
     );
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref]);
+  }, [ref, minWidth]);
   return fits;
 };
 
@@ -950,27 +980,24 @@ const CaseCards = ({ items }: { items: Case[] }) => (
     {items.map((c) => (
       <List.Item key={c.id}>
         <Card>
-          <Card.Block
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: 'var(--ds-size-2)',
-            }}
-          >
+          <Card.Block>
             <Heading level={4} data-size='2xs'>
               Sak {c.caseNumber}
             </Heading>
-            <CaseActions item={c} />
           </Card.Block>
           <Card.Block>
             <KeyValueTable
+              plain
               label={`Sak ${c.caseNumber}`}
               rows={CARD_FIELDS.map(({ key, label }) => [
                 label,
                 fieldValue(c, key),
               ])}
             />
+          </Card.Block>
+          {/* Knapper står til venstre, slik mønsteret for plassering av knapper sier */}
+          <Card.Block>
+            <CaseActions item={c} />
           </Card.Block>
         </Card>
       </List.Item>
@@ -979,10 +1006,104 @@ const CaseCards = ({ items }: { items: Case[] }) => (
 );
 
 /**
- * På full bredde vises sakene som tabell. Når tabellen ikke får plass, blir
- * hver rad et kort. Søk, statusfilter og sortering virker likt i begge.
+ * Hver rad blir en rik liste: saksnavnet først som lenke, så det brukeren
+ * trenger for å kjenne igjen saken. Ikke alle kolonnene er med, fordi
+ * saksnummer og behandler sjelden avgjør hvilken sak brukeren leter etter.
  */
-export const CasesSearchableCards = () => {
+const CaseRichList = ({ items }: { items: Case[] }) => (
+  <List.Unordered
+    className={plainList.className}
+    style={{ ...plainList.style, ...stack('var(--ds-size-3)') }}
+  >
+    {items.map((c) => (
+      <List.Item key={c.id}>
+        <Card style={stack()}>
+          <Heading level={4} data-size='2xs'>
+            <Link href={`#${c.id}`}>{c.title}</Link>
+          </Heading>
+          <Paragraph data-size='sm'>
+            Sak {c.caseNumber} · {c.handler} · Mottatt {c.received}
+          </Paragraph>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: 'var(--ds-size-2) var(--ds-size-3)',
+            }}
+          >
+            <StatusTag status={c.status} />
+            <Paragraph data-size='sm'>Oppdatert {c.updated}</Paragraph>
+          </div>
+          {/* Knapper står til venstre, slik mønsteret for plassering av knapper sier */}
+          <div>
+            <CaseActions item={c} />
+          </div>
+        </Card>
+      </List.Item>
+    ))}
+  </List.Unordered>
+);
+
+/** Rad i den stablede listen: én verdi til venstre og én til høyre */
+const stackedRow: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  alignItems: 'baseline',
+  gap: 'var(--ds-size-1) var(--ds-size-3)',
+};
+
+/**
+ * Stablet liste: hver rad har fire faste plasser, så brukeren kjenner igjen
+ * verdiene uten etiketter. Saksnavnet øverst til venstre er viktigst,
+ * sist oppdatert øverst til høyre, saksnummer og behandler nederst til
+ * venstre, og status nederst til høyre. Verdiene som ikke forklarer seg selv,
+ * har et ord foran («Sak», «Oppdatert»), så de er forståelige også uten
+ * kolonneoverskrift. Detaljene får brukeren ved å åpne saken.
+ */
+const CaseStackedList = ({ items }: { items: Case[] }) => (
+  <List.Unordered {...plainList}>
+    {items.map((c) => (
+      <List.Item
+        key={c.id}
+        style={{
+          ...stack('var(--ds-size-1)'),
+          paddingBlock: 'var(--ds-size-3)',
+          borderBottom:
+            'var(--ds-border-width-default) solid var(--ds-color-neutral-border-subtle)',
+        }}
+      >
+        <div style={stackedRow}>
+          <Heading level={4} data-size='2xs'>
+            <Link href={`#${c.id}`}>{c.title}</Link>
+          </Heading>
+          <Paragraph data-size='sm'>Oppdatert {c.updated}</Paragraph>
+        </div>
+        <div style={stackedRow}>
+          <Paragraph
+            data-size='sm'
+            style={{ color: 'var(--ds-color-neutral-text-subtle)' }}
+          >
+            Sak {c.caseNumber} · {c.handler} · Mottatt {c.received}
+          </Paragraph>
+          <StatusTag status={c.status} />
+        </div>
+      </List.Item>
+    ))}
+  </List.Unordered>
+);
+
+/**
+ * På full bredde vises sakene som tabell. Når tabellen ikke får plass, vises
+ * radene som kort eller rik liste. Søk, statusfilter og sortering virker
+ * likt i begge.
+ */
+const ResponsiveCases = ({
+  SmallView,
+}: {
+  SmallView: (props: { items: Case[] }) => ReactNode;
+}) => {
   const id = useId();
   const ref = useRef<HTMLElement>(null);
   const fitsTable = useFitsTable(ref);
@@ -1039,24 +1160,23 @@ export const CasesSearchableCards = () => {
         </div>
       </Fieldset>
 
-      {/* I tabellen sorteres det med kolonneoverskriftene */}
+      {/* I tabellen sorteres det med kolonneoverskriftene. På smal skjerm er
+          sorteringen én nedtrekksliste med «Nyeste først» som standard, så den
+          ikke legger fire valg til over listen (Hick's Law). */}
       {!fitsTable && (
-        <Fieldset>
-          <Fieldset.Legend>Sorter etter</Fieldset.Legend>
-          <div style={chipRow}>
+        <Field>
+          <Label>Sorter etter</Label>
+          <Select
+            value={order}
+            onChange={(e) => setOrder(e.target.value as SortOrder)}
+          >
             {SORT_ORDERS.map((o) => (
-              <Chip.Radio
-                key={o.value}
-                name={`${id}-order`}
-                value={o.value}
-                checked={order === o.value}
-                onChange={() => setOrder(o.value)}
-              >
+              <Select.Option key={o.value} value={o.value}>
                 {o.label}
-              </Chip.Radio>
+              </Select.Option>
             ))}
-          </div>
-        </Fieldset>
+          </Select>
+        </Field>
       )}
 
       {(q || status) && (
@@ -1085,11 +1205,19 @@ export const CasesSearchableCards = () => {
         (fitsTable ? (
           <CaseTable items={shown} order={order} onOrderChange={setOrder} />
         ) : (
-          <CaseCards items={shown} />
+          <SmallView items={shown} />
         ))}
     </section>
   );
 };
+
+/** 1e: Tabell på full bredde. Når den ikke får plass, blir hver rad et kort med alle kolonnene. */
+export const CasesSearchableCards = () => <ResponsiveCases SmallView={CaseCards} />;
+
+/** 1g: Tabell på full bredde. Når den ikke får plass, blir radene en rik liste med det viktigste først. */
+export const CasesTableToRichList = () => (
+  <ResponsiveCases SmallView={CaseRichList} />
+);
 
 /* -------------------------------------------------------------------------- */
 /* Scenario 3: Sammenligne få alternativer med mange egenskaper               */
@@ -1261,3 +1389,514 @@ export const CompareWithPicker = () => {
     />
   );
 };
+
+/* -------------------------------------------------------------------------- */
+/* Skjema: Rader brukeren legger inn og retter selv                           */
+/* -------------------------------------------------------------------------- */
+
+type Cost = {
+  id: string;
+  name: string;
+  category: string;
+  amount: number;
+  errors: string[];
+  warnings: string[];
+  info: string[];
+};
+
+const COSTS: Cost[] = [
+  {
+    id: 'kostnad-husleie',
+    name: 'Husleie',
+    category: 'Drift',
+    amount: 120000,
+    errors: [],
+    warnings: [],
+    info: [],
+  },
+  {
+    id: 'kostnad-konsulent',
+    name: 'Konsulenttjenester',
+    category: 'Innkjøp',
+    amount: 0,
+    errors: ['Beløpet må være større enn 0 kr.'],
+    warnings: [],
+    info: [],
+  },
+  {
+    id: 'kostnad-reise',
+    name: 'Reise til Bergen',
+    category: 'Reise',
+    amount: 48500,
+    errors: [
+      'Datoen må være innenfor prosjektperioden, 1. januar–31. desember 2026.',
+      'Du må laste opp kvittering når beløpet er over 10 000 kr.',
+    ],
+    warnings: ['Reiser over 40 000 kr blir ofte bedt om nærmere begrunnelse.'],
+    info: [],
+  },
+  {
+    id: 'kostnad-lisenser',
+    name: 'Programvarelisenser',
+    category: 'Drift',
+    amount: 9900,
+    errors: [],
+    warnings: [
+      'Skriv gjerne hvilke lisenser det gjelder, så går saksbehandlingen raskere.',
+    ],
+    info: [
+      'Lisenser som varer lenger enn prosjektet, dekkes bare for prosjektperioden.',
+    ],
+  },
+];
+
+const formatKr = (n: number) => `${n.toLocaleString('nb-NO')} kr`;
+
+/** Bredden der kostnadstabellen får plass */
+const COST_TABLE_MIN_WIDTH = 640;
+
+/**
+ * Antall advarsler eller opplysninger som knapp med popover. Det tilgjengelige
+ * navnet starter med det synlige tallet (WCAG 2.5.3), og fargen er ikke
+ * eneste kjennetegn fordi ikonet og teksten i popoveren sier hva det er.
+ */
+const NoteCount = ({
+  kind,
+  item,
+}: {
+  kind: 'warning' | 'info';
+  item: Cost;
+}) => {
+  const notes = kind === 'warning' ? item.warnings : item.info;
+  if (notes.length === 0) return null;
+  const word =
+    kind === 'warning'
+      ? notes.length === 1
+        ? 'advarsel'
+        : 'advarsler'
+      : notes.length === 1
+        ? 'opplysning'
+        : 'opplysninger';
+  const Icon =
+    kind === 'warning' ? ExclamationmarkTriangleIcon : InformationSquareIcon;
+  const color = kind === 'warning' ? 'warning' : 'info';
+  return (
+    <Popover.TriggerContext>
+      <Popover.Trigger
+        variant='tertiary'
+        data-size='sm'
+        data-color={color}
+        aria-label={`${notes.length} ${word} for ${item.name}`}
+      >
+        <Icon aria-hidden />
+        {notes.length}
+      </Popover.Trigger>
+      <Popover data-color={color} placement='bottom' style={stack()}>
+        <Paragraph data-size='sm'>
+          <strong>
+            {notes.length} {word}
+          </strong>
+        </Paragraph>
+        {notes.map((n) => (
+          <div
+            key={n}
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 'var(--ds-size-2)',
+            }}
+          >
+            <Icon aria-hidden style={{ flex: 'none', marginTop: '0.2em' }} />
+            <Paragraph data-size='sm'>{n}</Paragraph>
+          </div>
+        ))}
+      </Popover>
+    </Popover.TriggerContext>
+  );
+};
+
+const Notes = ({ item }: { item: Cost }) => (
+  <span style={{ display: 'inline-flex', gap: 'var(--ds-size-1)' }}>
+    <NoteCount kind='warning' item={item} />
+    <NoteCount kind='info' item={item} />
+  </span>
+);
+
+const Errors = ({ item }: { item: Cost }) =>
+  item.errors.length > 0 && (
+    <div style={stack('var(--ds-size-1)')}>
+      {item.errors.map((e) => (
+        <ValidationMessage key={e} data-size='sm'>
+          {e}
+        </ValidationMessage>
+      ))}
+    </div>
+  );
+
+/* Knappene sier hvilken kostnad de gjelder, så de skiller seg fra hverandre
+   i en liste over alle knappene. Det synlige ordet står først (WCAG 2.5.3). */
+const EditButton = ({ item }: { item: Cost }) => (
+  <Button variant='tertiary' data-size='sm' aria-label={`Rediger ${item.name}`}>
+    <PencilIcon aria-hidden />
+    Rediger
+  </Button>
+);
+
+/**
+ * Sletting kan ikke angres, så brukeren bekrefter i en popover. Knappene der
+ * følger mønsteret for plassering av knapper: primær først, til venstre, og
+ * tekster som sier hva som skjer.
+ */
+const DeleteButton = ({
+  item,
+  onDelete,
+}: {
+  item: Cost;
+  onDelete: () => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover.TriggerContext>
+      <Popover.Trigger
+        variant='tertiary'
+        data-size='sm'
+        data-color='danger'
+        aria-label={`Slett ${item.name}`}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <TrashIcon aria-hidden />
+        Slett
+      </Popover.Trigger>
+      <Popover
+        open={open}
+        onClose={() => setOpen(false)}
+        placement='top'
+        style={stack('var(--ds-size-3)')}
+      >
+        <Paragraph data-size='sm'>
+          Vil du slette «{item.name}»? Du kan ikke angre.
+        </Paragraph>
+        <div
+          style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--ds-size-2)' }}
+        >
+          <Button data-size='sm' data-color='danger' onClick={onDelete}>
+            Ja, slett kostnad
+          </Button>
+          <Button
+            data-size='sm'
+            variant='secondary'
+            onClick={() => setOpen(false)}
+          >
+            Behold kostnad
+          </Button>
+        </div>
+      </Popover>
+    </Popover.TriggerContext>
+  );
+};
+
+/** Rader med feil får rød bakgrunn fra Designsystemet, i tillegg til feilteksten */
+const errorRow = {
+  '--dsc-table-background': 'var(--ds-color-danger-surface-tinted)',
+} as CSSProperties;
+
+/** Antall kolonner i kostnadstabellen, for raden med feil under */
+const COST_COLUMNS = 7;
+
+/**
+ * Kostnadene som tabell, for full bredde. Feilene står i en egen rad under
+ * kostnaden de gjelder, over hele bredden, så de ikke presser kolonnene.
+ * Cellen peker på radoverskriften med headers, så skjermlesere vet hvilken
+ * kostnad feilene gjelder.
+ */
+const CostTable = ({
+  items,
+  onDelete,
+}: {
+  items: Cost[];
+  onDelete: (id: string) => void;
+}) => (
+  <Table data-size='sm' border>
+    <caption className='ds-sr-only'>Kostnader</caption>
+    <Table.Head>
+      <Table.Row>
+        <Table.HeaderCell scope='col'>Beskrivelse</Table.HeaderCell>
+        <Table.HeaderCell scope='col'>Kategori</Table.HeaderCell>
+        <Table.HeaderCell scope='col' style={numeric}>
+          Beløp
+        </Table.HeaderCell>
+        {/* Overskriftene trengs for skjermlesere, men ikoner og knapper sier nok visuelt */}
+        <Table.HeaderCell scope='col'>
+          <span className='ds-sr-only'>Advarsler</span>
+        </Table.HeaderCell>
+        <Table.HeaderCell scope='col'>
+          <span className='ds-sr-only'>Opplysninger</span>
+        </Table.HeaderCell>
+        {/* Ett interaktivt element per celle, slik retningslinjene for Table sier */}
+        <Table.HeaderCell scope='colgroup' colSpan={2}>
+          <span className='ds-sr-only'>Handlinger</span>
+        </Table.HeaderCell>
+      </Table.Row>
+    </Table.Head>
+    <Table.Body>
+      {items.flatMap((c) => {
+        const style = c.errors.length > 0 ? errorRow : undefined;
+        const rows = [
+          <Table.Row key={c.id} style={style}>
+            <Table.HeaderCell
+              scope='row'
+              id={c.id}
+              tabIndex={-1}
+              style={{ fontWeight: 'inherit' }}
+            >
+              {c.name}
+            </Table.HeaderCell>
+            <Table.Cell>{c.category}</Table.Cell>
+            <Table.Cell style={numeric}>{formatKr(c.amount)}</Table.Cell>
+            <Table.Cell>
+              <NoteCount kind='warning' item={c} />
+            </Table.Cell>
+            <Table.Cell>
+              <NoteCount kind='info' item={c} />
+            </Table.Cell>
+            <Table.Cell>
+              <EditButton item={c} />
+            </Table.Cell>
+            <Table.Cell>
+              <DeleteButton item={c} onDelete={() => onDelete(c.id)} />
+            </Table.Cell>
+          </Table.Row>,
+        ];
+        if (c.errors.length > 0)
+          rows.push(
+            <Table.Row key={`${c.id}-feil`} style={style}>
+              <Table.Cell colSpan={COST_COLUMNS} headers={c.id}>
+                <Errors item={c} />
+              </Table.Cell>
+            </Table.Row>,
+          );
+        return rows;
+      })}
+    </Table.Body>
+  </Table>
+);
+
+/**
+ * Kategori og beløp side om side, med etiketten over verdien. Det er en liten
+ * tabell med kolonneoverskrifter, så koblingen mellom etikett og verdi er med
+ * i koden. Skillelinjene og bakgrunnen er fjernet med Table sine egne tokens.
+ */
+const CostFields = ({ item }: { item: Cost }) => (
+  <Table
+    data-size='sm'
+    style={
+      {
+        '--dsc-table-background': 'transparent',
+        '--dsc-table-header-background': 'transparent',
+        '--dsc-table-divider-border-width': 0,
+        '--dsc-table-border-width': 0,
+        '--dsc-table-padding': '0 var(--ds-size-4) 0 0',
+        tableLayout: 'fixed',
+      } as CSSProperties
+    }
+  >
+    <caption className='ds-sr-only'>{item.name}</caption>
+    <Table.Head>
+      <Table.Row>
+        {['Kategori', 'Beløp'].map((label) => (
+          <Table.HeaderCell
+            key={label}
+            scope='col'
+            style={{
+              fontWeight: 'inherit',
+              color: 'var(--ds-color-neutral-text-subtle)',
+            }}
+          >
+            {label}
+          </Table.HeaderCell>
+        ))}
+      </Table.Row>
+    </Table.Head>
+    <Table.Body>
+      <Table.Row>
+        <Table.Cell style={{ borderBottom: 0 }}>{item.category}</Table.Cell>
+        <Table.Cell style={{ borderBottom: 0 }}>{formatKr(item.amount)}</Table.Cell>
+      </Table.Row>
+    </Table.Body>
+  </Table>
+);
+
+/**
+ * Hver rad blir et kort. Navnet og merknadene står øverst, kategori og beløp
+ * side om side, feilene under, og handlingene i en egen rad nederst.
+ * Kort med feil får farge fra Designsystemet, men feilteksten sier hva som er galt.
+ */
+const CostCards = ({
+  items,
+  onDelete,
+}: {
+  items: Cost[];
+  onDelete: (id: string) => void;
+}) => (
+  <List.Unordered
+    className={plainList.className}
+    style={{ ...plainList.style, ...stack('var(--ds-size-3)') }}
+  >
+    {items.map((c) => (
+      <List.Item key={c.id}>
+        <Card
+          id={c.id}
+          tabIndex={-1}
+          variant={c.errors.length > 0 ? 'tinted' : 'default'}
+          data-color={c.errors.length > 0 ? 'danger' : undefined}
+        >
+          <Card.Block style={stack('var(--ds-size-3)')}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                gap: 'var(--ds-size-2)',
+              }}
+            >
+              <Heading level={4} data-size='2xs'>
+                {c.name}
+              </Heading>
+              <Notes item={c} />
+            </div>
+            <CostFields item={c} />
+            <Errors item={c} />
+          </Card.Block>
+          {/* Handlingsraden: to like brede knapper med skillelinje mellom */}
+          <Card.Block
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              padding: 0,
+            }}
+          >
+            <div style={{ display: 'grid' }}>
+              <EditButton item={c} />
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                borderInlineStart:
+                  'var(--ds-border-width-default) solid var(--dsc-card-border-color, var(--ds-color-neutral-border-subtle))',
+              }}
+            >
+              <DeleteButton item={c} onDelete={() => onDelete(c.id)} />
+            </div>
+          </Card.Block>
+        </Card>
+      </List.Item>
+    ))}
+  </List.Unordered>
+);
+
+/**
+ * Kort med handlingsrad: rader brukeren legger inn selv i et skjema. På full
+ * bredde er det en tabell. Når den ikke får plass, blir hver rad et kort med
+ * Rediger og Slett i en egen rad nederst, og feilene står i kortet de gjelder.
+ */
+export const CostsWithActionRow = () => {
+  const id = useId();
+  const ref = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const fitsTable = useFitsTable(ref, COST_TABLE_MIN_WIDTH);
+  const [items, setItems] = useState(COSTS);
+  const [showSummary, setShowSummary] = useState(false);
+  // Kortet eller raden med fokus forsvinner, så fokus flyttes til overskriften
+  const remove = (costId: string) => {
+    setItems((prev) => prev.filter((c) => c.id !== costId));
+    headingRef.current?.focus();
+  };
+  const withErrors = items.filter((c) => c.errors.length > 0);
+  const errorCount = withErrors.reduce((n, c) => n + c.errors.length, 0);
+
+  return (
+    <section
+      ref={ref}
+      aria-labelledby={`${id}-heading`}
+      style={stack('var(--ds-size-4)')}
+    >
+      <div style={stack('var(--ds-size-1)')}>
+        <Heading
+          ref={headingRef}
+          tabIndex={-1}
+          id={`${id}-heading`}
+          level={3}
+          data-size='xs'
+        >
+          Kostnader
+        </Heading>
+        <Paragraph data-size='sm'>
+          Legg inn alle kostnadene du søker tilskudd for.
+        </Paragraph>
+      </div>
+
+      {/* Leses opp når en kostnad slettes */}
+      <Paragraph role='status' data-size='sm'>
+        {items.length} kostnader
+        {errorCount > 0 && `, ${errorCount} feil må rettes`}
+      </Paragraph>
+
+      {fitsTable ? (
+        <CostTable items={items} onDelete={remove} />
+      ) : (
+        <CostCards items={items} onDelete={remove} />
+      )}
+
+      {/* Egen handling, ikke i samme gruppe som Neste steg og Forrige steg */}
+      <div>
+        <Button
+          variant='secondary'
+          style={fitsTable ? undefined : { width: '100%' }}
+        >
+          <PlusIcon aria-hidden />
+          Legg til kostnad
+        </Button>
+      </div>
+
+      {/* Mønsteret for feilmeldinger: oppsummeringen står like over Neste steg,
+          og vises først når brukeren prøver å gå videre */}
+      {showSummary && withErrors.length > 0 && (
+        <ErrorSummary>
+          <ErrorSummary.Heading>
+            For å gå videre må du rette opp følgende feil:
+          </ErrorSummary.Heading>
+          <ErrorSummary.List>
+            {withErrors.flatMap((c) =>
+              c.errors.map((e) => (
+                <ErrorSummary.Item key={`${c.id}-${e}`}>
+                  <ErrorSummary.Link href={`#${c.id}`}>
+                    {c.name}: {e}
+                  </ErrorSummary.Link>
+                </ErrorSummary.Item>
+              )),
+            )}
+          </ErrorSummary.List>
+        </ErrorSummary>
+      )}
+
+      {/* Primær før sekundær, til venstre. På små skjermer ligger Forrige steg
+          under Neste steg. Neste steg er aldri deaktivert. */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: fitsTable ? 'row' : 'column',
+          alignItems: fitsTable ? 'center' : 'stretch',
+          gap: 'var(--ds-size-3)',
+        }}
+      >
+        <Button onClick={() => setShowSummary(true)}>Neste steg</Button>
+        <Button variant='secondary'>Forrige steg</Button>
+      </div>
+    </section>
+  );
+};
+
+/** 1h: Tabell på full bredde. Når den ikke får plass, blir radene en stablet liste med fire faste plasser. */
+export const CasesTableToStackedList = () => (
+  <ResponsiveCases SmallView={CaseStackedList} />
+);

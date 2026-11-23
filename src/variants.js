@@ -32,16 +32,25 @@ const forerkort = {
     "Klassen bestemmer hvor tung bil og tilhenger du kan kjøre. Sammenlign klassene for å se hva som passer deg.",
 };
 
+const soknad = {
+  eyebrow: "Søknad om tilskudd · Steg 2 av 4",
+  heading: "Søknad om tilskudd",
+  intro: "Fyll ut søknaden. Du kan gå tilbake og endre før du sender inn.",
+};
+
 const scenarios = [
   {
     id: "1",
-    title: "Scenario 1: Finne en bestemt rad eller enhet i en større oversikt",
-    need: "Brukeren skal finne én bestemt rad eller enhet i en større oversikt, for å utføre en handling eller sjekke en tilstand. Brukeren skal ikke sammenligne verdier på tvers av enhetene.",
-    examples: ["innboks", "oversikt over byggesaker"],
+    title: "Scenario 1: Brukeren skal finne et bestemt objekt i en større oversikt",
+    need: "Brukeren skal utføre en handling eller sjekke en tilstand. Brukeren skal ikke sammenligne verdier på tvers av enhetene.",
+    examples: [
+      "Innboks",
+      "Oversikt over byggesaker e.l.",
+    ],
     recommendations: [
-      "Bruk listevisning eller rik liste/kort.",
-      "Skap et tydelig hierarki som gjør at den viktigste informasjonen er lett å finne.",
-      "Skjul sekundær informasjon i et ekspanderbart felt dersom det sjelden er behov for den.",
+      "Bruk listevisning eller rik liste/kort",
+      "Skap et tydelig hierarki som gjør at den viktigste informasjonen er lett å finne",
+      "Bruk kollaps/ekspander dersom innholdet (brukerne trenger for å finne frem) er omfattende og ikke alle har behov for å lese alt",
     ],
     variants: [
       {
@@ -92,22 +101,38 @@ const scenarios = [
           "Hver melding er et kort i en liste, med avsender og dato øverst, emnet som lenke og en kort forhåndsvisning. Søk, filterbrikker for uleste og vedlegg og et avsendervalg gjør det lett å finne én melding, og antall treff leses opp når listen endres. Uleste meldinger har uthevet emne og en «Ulest»-merkelapp, så det ikke bare vises med utheving.",
         context: innboks,
       },
+      {
+        id: "1g",
+        story: "CasesTableToRichList",
+        title: "Tabell som blir rik liste",
+        description:
+          "Samme tabell som i 1e, men på smale skjermer prioriteres innholdet i stedet for at alle kolonnene tas med. Saksnavnet står først som lenke, saksnummer, behandler og mottatt-dato under, og status, sist oppdatert og handlinger nederst. Velg «Dynamisk» og dra i bredden for å se når tabellen blir til en liste.",
+        context: saker,
+      },
+      {
+        id: "1h",
+        story: "CasesTableToStackedList",
+        title: "Tabell som blir stablet liste",
+        description:
+          "Etter «stacked list» fra UX Movement. Hver rad har fire faste plasser: saksnavnet øverst til venstre, sist oppdatert øverst til høyre, saksnummer, behandler og mottatt-dato nederst til venstre i dempet tekst, og status nederst til høyre. Det er ingen etiketter, men verdiene som ikke forklarer seg selv, har et ord foran. Flere detaljer får brukeren ved å åpne saken, ikke ved å ekspandere raden. Det er mer kompakt enn kort, så flere saker får plass på skjermen.",
+        context: saker,
+      },
     ],
   },
   {
     id: "2",
-    title: "Scenario 2: Sammenligne verdier på tvers av mange datapunkter",
-    need: "Brukeren må se data i sammenheng i rader og kolonner, for å sammenligne, oppdage mønstre, finne avvik eller se historisk utvikling.",
+    title: "Scenario 2: Sammenligne mange datapunkter",
+    need: "Brukeren må se data i sammenheng med i rader og kolonner. Behovene kan være å sammenligne, oppdage mønstre, finne avvik eller historisk utvikling.",
     examples: [
-      "tidsserie- og måledata",
-      "pris- og takstmatriser",
-      "statistiske oversikter",
+      "Tidsserie- og måledata: Endringer i verdier over tid for flere enheter eller steder (for eksempel temperaturer, luftkvalitet eller vannstand gjennom døgnet).",
+      "Pris- og takstmatriser: Tabeller der to variable faktorer bestemmer sluttsummen (for eksempel sone basert på tidspunkt, eller gebyrsatser basert på størrelse og type).",
+      "Statistiske oversikter: Sammenstilling av nøkkeltall fordelt på fylker, kommuner eller årsperioder.",
     ],
     recommendations: [
-      "Behold tabellstrukturen, men gjør tabellen horisontalt rullbar hvis det trengs.",
-      "Lås første kolonne slik at objektets navn alltid er synlig mens brukeren ruller sideveis.",
+      "Behold (/Bruk gjerne) tabellstruktur, og gjør tabellen horisontalt rullbar hvis det trengs.",
+      "Lås første kolonne slik at objektets tittel eller navn alltid er synlig mens brukeren ruller resten av dataene sidelengs.",
       "Lås kolonneoverskriftene i toppen dersom tabellen er lang vertikalt.",
-      "Gi en visuell indikator på at tabellen er utfallende og kan rulles.",
+      "Gi en visuell indikator på at tabellen er utfallende og kan scrolles.",
     ],
     variants: [
       {
@@ -131,16 +156,16 @@ const scenarios = [
   {
     id: "3",
     title: "Scenario 3: Sammenligne få alternativer med mange egenskaper",
-    need: "Brukeren skal velge mellom noen få alternativer på grunnlag av mange egenskaper.",
+    need: "Brukeren står overfor et valg mellom noen få alternativer på grunnlag av en mange egenskaper.",
     examples: [
-      "valg av avtale- eller ytelsesmodell",
-      "kriterier for tjenester eller ordninger",
-      "produkt- eller studiekataloger",
+      "Valg av avtale- eller ytelsesmodell: Sammenligning av to utbetalings- eller dekningsgrader der sum, varighet og vilkår varierer.",
+      "Kriterier for tjenester eller ordninger: Sammenligning av to til fire rettighetsgrupper, tillatelser eller søknadskategorier for å se hvilken man oppfyller kravene til.",
+      "Produkt- eller studiekataloger: Sammenligning av et utvalg av 2-3 spesifikke tilbud på tvers av opptakskrav, omfang og plassering.",
     ],
     recommendations: [
-      "Bytt om på aksene (transponer) slik at egenskapene går nedover siden som rader.",
-      "Plasser de 2 til 3 alternativene ved siden av hverandre i smale kolonner til høyre.",
-      "Er det flere enn 2 til 3 alternativer, la brukeren velge hva som skal stå i hver kolonne.",
+      "Bytt om på aksene (transponering) slik at alle egenskapene gå vertikalt nedover siden som rader.",
+      "Plasser de 2 til 3 alternativene ved siden av hverandre i smale kolonner til høyre, slik at brukeren kan lese og sammenligne horisontalt fra venstre til høyre per egenskap.",
+      "Dersom det finnes flere enn 2 til 3 alternativer totalt, la brukeren velge hvilke alternativer som skal stå side om side via en velger eller nedtrekksmeny på toppen av hver kolonne.",
     ],
     variants: [
       {
@@ -158,6 +183,31 @@ const scenarios = [
         description:
           "Det finnes fem klasser, men bare to får plass side om side på mobil. En nedtrekksliste øverst i hver kolonne lar brukeren velge hvilke klasser som sammenlignes.",
         context: forerkort,
+      },
+    ],
+  },
+  {
+    id: "4",
+    title: "Scenario 4: Utføre en handling på en rad (utkast)",
+    need: "Brukeren skal gjøre noe med én bestemt rad, for eksempel åpne, redigere eller slette den. Ofte er det rader brukeren har lagt inn selv i et skjema, som kostnader i en søknad. Feil og advarsler må vises ved raden de gjelder.",
+    examples: [
+      "kostnader eller budsjettposter i en søknad",
+      "familiemedlemmer, arbeidsforhold eller eiendommer i et skjema",
+    ],
+    recommendations: [
+      "Vis hver oppføring som et kort når tabellen ikke får plass.",
+      "Samle handlingene for oppføringen i en egen rad nederst i kortet, med knapper som er store nok å treffe.",
+      "Vis feilene inne i kortet de gjelder, og ikke bare med farge.",
+      "Vis advarsler og opplysninger som et antall som kan åpnes, så de ikke tar plass fra feilene.",
+    ],
+    variants: [
+      {
+        id: "4a",
+        story: "CostsWithActionRow",
+        title: "Kort med handlingsrad",
+        description:
+          "På full bredde vises kostnadene som tabell, og feilene står i en egen rad under kostnaden de gjelder. Når tabellen ikke får plass, blir hver kostnad et kort med Rediger og Slett i en egen rad nederst. Kort med feil får rød bakgrunn og feilteksten under beløpet. Advarsler og opplysninger vises som et tall som åpner en popover. Slett ber om bekreftelse i en popover. Trykker du «Neste steg» mens det er feil, vises en feiloppsummering like over knappen, med lenker til kostnadene. «Neste steg» står før «Forrige steg», og under hverandre på mobil, slik mønsteret for plassering av knapper sier. Velg «Dynamisk» for å se overgangen.",
+        context: soknad,
       },
     ],
   },

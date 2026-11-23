@@ -10,6 +10,27 @@ import {
   XMarkIcon,
 } from "@navikt/aksel-icons";
 
+import { createContext, useContext, useState } from "react";
+
+/** Laget over skjermen i rammen. Dialoger og andre overlegg legges her, så de fyller rammen og ikke hele siden. */
+const FrameLayerContext = createContext(null);
+export const useFrameLayer = () => useContext(FrameLayerContext);
+
+function Screen({ label, children }) {
+  const [layer, setLayer] = useState(null);
+  return (
+    <div className="frame__viewport">
+      <FrameLayerContext.Provider value={layer}>
+        <div className="frame__screen" role="region" aria-label={label} tabIndex={0}>
+          <SiteHeader />
+          {children}
+        </div>
+      </FrameLayerContext.Provider>
+      <div className="frame__layer" ref={setLayer} />
+    </div>
+  );
+}
+
 /* Mal for mobil og nettleser, etter Designsystemets maler for eksempler.
    Rammen er bare pynt (aria-hidden). Selve innholdet ligger i en egen
    rulleflate, så rulling i prototypen holdes atskilt fra siden rundt. */
@@ -63,10 +84,7 @@ export function PhoneFrame({ width, height, label, children }) {
         <span>9:41</span>
         <StatusIcons />
       </div>
-      <div className="frame__screen" role="region" aria-label={label} tabIndex={0}>
-        <SiteHeader />
-        {children}
-      </div>
+      <Screen label={label}>{children}</Screen>
     </div>
   );
 }
@@ -107,10 +125,7 @@ export function BrowserFrame({ width, height, label, children }) {
           <MenuElipsisVerticalIcon />
         </div>
       </div>
-      <div className="frame__screen" role="region" aria-label={label} tabIndex={0}>
-        <SiteHeader />
-        {children}
-      </div>
+      <Screen label={label}>{children}</Screen>
     </div>
   );
 }

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  Button,
   Details,
   Heading,
   List,
@@ -10,7 +11,16 @@ import {
 } from "@digdir/designsystemet-react";
 import { groups } from "./variants.js";
 import { BrowserFrame, PhoneFrame } from "./components/DeviceFrame.jsx";
-import { alternatives, intro, structureNote } from "./guidance.js";
+import {
+  alternatives,
+  designText,
+  ingress,
+  intro,
+  language,
+  preparations,
+  sources,
+  structureNote,
+} from "./guidance.js";
 
 function Guidance() {
   return (
@@ -88,10 +98,98 @@ function Prototype({ variant }) {
   );
 }
 
+const MIN_WIDTH = 360;
+
+/**
+ * Én nettleserramme der bredden styres med en glidebryter, så man ser
+ * tabellen bli til kort eller liste mens bredden endres.
+ */
+function DynamicDevice({ variant }) {
+  const ref = useRef(null);
+  const [max, setMax] = useState(1280);
+  const [width, setWidth] = useState(1280);
+  const [playing, setPlaying] = useState(false);
+  const raf = useRef(0);
+
+  // Største bredde er plassen rammen har på siden
+  useEffect(() => {
+    const ro = new ResizeObserver(([e]) => {
+      const w = Math.floor(e.contentRect.width);
+      setMax(w);
+      setWidth((cur) => Math.min(cur, w));
+    });
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => () => cancelAnimationFrame(raf.current), []);
+
+  // Smalner inn til mobil og tilbake igjen
+  const play = () => {
+    if (playing) {
+      cancelAnimationFrame(raf.current);
+      setPlaying(false);
+      return;
+    }
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setWidth((w) => (w > (max + MIN_WIDTH) / 2 ? MIN_WIDTH : max));
+      return;
+    }
+    setPlaying(true);
+    const duration = 6000;
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min((now - start) / duration, 1);
+      // 0 → 1 → 0, mykt i hver ende
+      const k = (1 - Math.cos(t * 2 * Math.PI)) / 2;
+      setWidth(Math.round(max - k * (max - MIN_WIDTH)));
+      if (t < 1) raf.current = requestAnimationFrame(tick);
+      else setPlaying(false);
+    };
+    raf.current = requestAnimationFrame(tick);
+  };
+
+  const id = `bredde-${variant.id}`;
+  return (
+    <div className="dynamic" ref={ref}>
+      <div className="dynamic__controls">
+        <label htmlFor={id}>Bredde</label>
+        <input
+          id={id}
+          type="range"
+          min={MIN_WIDTH}
+          max={max}
+          step={1}
+          value={width}
+          onChange={(e) => {
+            cancelAnimationFrame(raf.current);
+            setPlaying(false);
+            setWidth(Number(e.target.value));
+          }}
+        />
+        <output htmlFor={id}>{width} px</output>
+        <Button variant="secondary" data-size="sm" onClick={play}>
+          {playing ? "Stopp" : "Spill av"}
+        </Button>
+      </div>
+      <BrowserFrame
+        width={width}
+        height={720}
+        label={`Eksempel ${variant.id}, ${width} piksler bred`}
+      >
+        <div className="frame__content">
+          <Prototype variant={variant} />
+        </div>
+      </BrowserFrame>
+    </div>
+  );
+}
+
 /** Samme eksempel på mobil, nettbrett og desktop, eller på én av dem */
 function Devices({ variant, device }) {
   const wide = useWideScreen();
   if (!wide) return <Prototype variant={variant} />;
+  if (device === "dynamisk") return <DynamicDevice variant={variant} />;
   const shown = DEVICES.filter((d) => device === "alle" || d.key === device);
   return (
     <div className="devices">
@@ -123,19 +221,19 @@ function Devices({ variant, device }) {
 function Scenario({ group }) {
   const [current, setCurrent] = useState(group.variants[0].id);
   // Valget beholdes når brukeren bytter eksempel i samme scenario
-  const [device, setDevice] = useState("alle");
+  const [device, setDevice] = useState("mobil");
   const wide = useWideScreen();
   return (
     <section className="scenario" aria-labelledby={`scenario-${group.id}`}>
-      <Heading id={`scenario-${group.id}`} level={2} data-size="md">
+      <Heading id={`scenario-${group.id}`} level={3} data-size="md">
         {group.title}
       </Heading>
       <div className="scenario__text">
-        <Heading level={3} data-size="xs">
+        <Heading level={4} data-size="xs">
           Kontekst og behov
         </Heading>
         <Paragraph>{group.need}</Paragraph>
-        <Heading level={3} data-size="xs">
+        <Heading level={4} data-size="xs">
           Eksempler
         </Heading>
         <List.Unordered>
@@ -143,7 +241,7 @@ function Scenario({ group }) {
             <List.Item key={e}>{e}</List.Item>
           ))}
         </List.Unordered>
-        <Heading level={3} data-size="xs">
+        <Heading level={4} data-size="xs">
           Anbefalinger
         </Heading>
         <List.Unordered>
@@ -153,7 +251,7 @@ function Scenario({ group }) {
         </List.Unordered>
       </div>
 
-      <Heading level={3} data-size="xs">
+      <Heading level={4} data-size="xs">
         Slik kan det se ut
       </Heading>
       <Tabs value={current} onChange={setCurrent} data-size="sm">
@@ -186,6 +284,7 @@ function Scenario({ group }) {
                         {d.label}
                       </ToggleGroup.Item>
                     ))}
+                    <ToggleGroup.Item value="dynamisk">Dynamisk</ToggleGroup.Item>
                   </ToggleGroup>
                 )}
                 <Devices variant={v} device={device} />
@@ -198,16 +297,107 @@ function Scenario({ group }) {
   );
 }
 
+/** Artikler som er inspirasjon for mønsteret, med det viktigste fra hver */
+function Sources() {
+  return (
+    <section className="guidance" aria-labelledby="sources-heading">
+      <Heading id="sources-heading" level={2} data-size="sm">
+        Inspirasjon
+      </Heading>
+      <div>
+        {sources.map((src) => (
+          <Details key={src.title}>
+            <Details.Summary>{src.title}</Details.Summary>
+            <Details.Content>
+              <Paragraph data-size="sm" className="eyebrow">
+                {src.href ? <Link href={src.href}>{src.author}</Link> : src.author}
+              </Paragraph>
+              <List.Unordered>
+                {src.points.map((t) => (
+                  <List.Item key={t}>{t}</List.Item>
+                ))}
+              </List.Unordered>
+            </Details.Content>
+          </Details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** «Forberedelser» fra artikkelen */
+function Preparations() {
+  return (
+    <section className="guidance" aria-labelledby="preparations-heading">
+      <Heading id="preparations-heading" level={2} data-size="sm">
+        Forberedelser
+      </Heading>
+      <Paragraph>{preparations.intro}</Paragraph>
+      <List.Unordered>
+        {preparations.questions.map((q) => (
+          <List.Item key={q}>{q}</List.Item>
+        ))}
+      </List.Unordered>
+    </section>
+  );
+}
+
+/** «Design og opplevelse» fra artikkelen */
+function Design() {
+  return (
+    <section className="guidance" aria-labelledby="design-heading">
+      <Heading id="design-heading" level={2} data-size="sm">
+        Design og opplevelse
+      </Heading>
+      {designText.map((t) => (
+        <Paragraph key={t}>{t}</Paragraph>
+      ))}
+    </section>
+  );
+}
+
+/** «Språk» fra artikkelen */
+function Language() {
+  return (
+    <section className="guidance language" aria-labelledby="language-heading">
+      <Heading id="language-heading" level={2} data-size="md">
+        Språk
+      </Heading>
+      {language.map((part) => (
+        <div key={part.title} className="guidance">
+          <Heading level={3} data-size="xs">
+            {part.title}
+          </Heading>
+          {part.text.map((t) => (
+            <Paragraph key={t}>{t}</Paragraph>
+          ))}
+          <List.Unordered>
+            {part.points.map((t) => (
+              <List.Item key={t}>{t}</List.Item>
+            ))}
+          </List.Unordered>
+          {part.after && <Paragraph>{part.after}</Paragraph>}
+        </div>
+      ))}
+    </section>
+  );
+}
+
 export default function App() {
   return (
     <main className="page">
       <Paragraph data-size="sm" className="eyebrow">
-        Mønster: Strukturert data på små skjermer
+        Mønster
       </Paragraph>
       <Heading level={1} data-size="lg">
-        Strukturert informasjon på små skjermer
+        Strukturerte data på små skjermer
       </Heading>
-      <Paragraph>
+      {ingress.map((t) => (
+        <Paragraph key={t} data-size="lg">
+          {t}
+        </Paragraph>
+      ))}
+      <Paragraph data-size="sm" className="eyebrow">
         Prototyper bygget med Designsystemet. Hvert scenario viser teksten fra
         artikkelen først, og så eksemplene på mobil, nettbrett og desktop.
         Eksemplene ligger i
@@ -229,10 +419,17 @@ export default function App() {
           .
         </Paragraph>
       </section>
+      <Preparations />
       <Guidance />
+      <Design />
+      <Heading level={2} data-size="md" className="scenarios-heading">
+        Brukerscenarier
+      </Heading>
       {groups.map((g) => (
         <Scenario key={g.id} group={g} />
       ))}
+      <Language />
+      <Sources />
     </main>
   );
 }

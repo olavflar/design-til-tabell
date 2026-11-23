@@ -1,0 +1,548 @@
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import {
+  Button,
+  Chip,
+  Details,
+  Dialog,
+  Field,
+  Fieldset,
+  Heading,
+  Label,
+  Link,
+  List,
+  Paragraph,
+  Input,
+  Select,
+  Table,
+  Tag,
+} from "@digdir/designsystemet-react";
+import { XMarkIcon } from "@navikt/aksel-icons";
+import { useFrameLayer } from "../components/DeviceFrame.jsx";
+import HifiNav from "../components/HifiNav.jsx";
+import {
+  CASES, STATUSES, StatusTag, SORT_ORDERS, byNewest, Intro, CaseTable, Example, Small,
+} from "../components/cases.jsx";
+
+/* Hi-fi av listeeksemplene i artikkelen: tabell på stor skjerm → liste på liten
+   skjerm. Samme saker som scenario 1 i mønsteret («Mine saker»). Sakene er fiktive. */
+
+
+/**
+ * Stablet liste: hver oppføring har fire faste plasser, så brukeren kjenner
+ * igjen verdiene uten etiketter. Saksnavnet øverst til venstre, sist oppdatert
+ * øverst til høyre, saksnummer, behandler og mottatt nederst til venstre,
+ * status nederst til høyre.
+ */
+function StackedItem({ c, headingLevel = 4 }) {
+  return (
+    <>
+      <div className="row">
+        <Heading level={headingLevel} data-size="2xs" className="row__title">
+          <Link href={`#${c.id}`}>{c.title}</Link>
+        </Heading>
+        <Paragraph data-size="sm" className="num">Oppdatert {c.updated}</Paragraph>
+      </div>
+      <div className="row">
+        <Paragraph data-size="sm" className="subtle">
+          Sak {c.caseNumber} · {c.handler} · Mottatt {c.received}
+        </Paragraph>
+        <StatusTag status={c.status} />
+      </div>
+    </>
+  );
+}
+
+function StackedList({ items, labelledBy, headingLevel }) {
+  return (
+    <List.Unordered className="stacked" aria-labelledby={labelledBy}>
+      {items.map((c) => (
+        <List.Item key={c.id}>
+          <StackedItem c={c} headingLevel={headingLevel} />
+        </List.Item>
+      ))}
+    </List.Unordered>
+  );
+}
+
+/** Gruppert liste: én gruppe per status, i den rekkefølgen brukeren må handle */
+function GroupedList({ items }) {
+  return (
+    <div className="groups">
+      {STATUSES.map((s) => {
+        const group = items.filter((c) => c.status === s).sort(byNewest);
+        if (!group.length) return null;
+        const gid = `grp-${s.replace(/\s/g, "-")}`;
+        return (
+          <section key={s} aria-labelledby={gid} className="group">
+            <Heading level={4} data-size="2xs" id={gid} className="group__heading">
+              {s} <span className="subtle">({group.length})</span>
+            </Heading>
+            <List.Unordered className="stacked">
+              {group.map((c) => (
+                <List.Item key={c.id}>
+                  <div className="row">
+                    <Heading level={5} data-size="2xs" className="row__title">
+                      <Link href={`#${c.id}`}>{c.title}</Link>
+                    </Heading>
+                    <Paragraph data-size="sm" className="num">Oppdatert {c.updated}</Paragraph>
+                  </div>
+                  <Paragraph data-size="sm" className="subtle">
+                    Sak {c.caseNumber} · {c.handler}
+                  </Paragraph>
+                </List.Item>
+              ))}
+            </List.Unordered>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Liste med detaljer ved behov: navn og status synlig, resten bak «Vis detaljer» */
+function DetailsList({ items, labelledBy }) {
+  return (
+    <List.Unordered className="stacked" aria-labelledby={labelledBy}>
+      {items.map((c) => (
+        <List.Item key={c.id}>
+          <div className="row">
+            <Heading level={4} data-size="2xs" className="row__title">
+              <Link href={`#${c.id}`}>{c.title}</Link>
+            </Heading>
+            <StatusTag status={c.status} />
+          </div>
+          <Details data-size="sm" className="item-details">
+            <Details.Summary>Detaljer om saken</Details.Summary>
+            <Details.Content>
+              <Table data-size="sm" className="kv" aria-label={`Detaljer om ${c.title}`}>
+                <Table.Body>
+                  {[
+                    ["Saksnummer", c.caseNumber],
+                    ["Mottatt", c.received],
+                    ["Sist oppdatert", c.updated],
+                    ["Behandler", c.handler],
+                  ].map(([k, v]) => (
+                    <Table.Row key={k}>
+                      <Table.HeaderCell scope="row">{k}</Table.HeaderCell>
+                      <Table.Cell>{v}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </Details.Content>
+          </Details>
+        </List.Item>
+      ))}
+    </List.Unordered>
+  );
+}
+
+const detailRows = (c) => [
+  ["Saksnummer", c.caseNumber],
+  ["Status", <StatusTag key="s" status={c.status} />],
+  ["Mottatt", c.received],
+  ["Sist oppdatert", c.updated],
+  ["Behandler", c.handler],
+];
+
+/**
+ * Knapp som åpner en dialog med alle opplysningene om saken. Dialogen legges i
+ * laget over skjermen i rammen (useFrameLayer), så den fyller eksempelet og
+ * ikke hele siden. Mens den er åpen, er resten av skjermen inert, Esc og klikk
+ * utenfor lukker, og fokus går tilbake til knappen. Nederst på smal skjerm,
+ * midt på bred skjerm.
+ */
+function CaseDialog({ c }) {
+  const layer = useFrameLayer();
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef(null);
+  const dialogRef = useRef(null);
+  const headingId = `dlg-${useId()}`;
+
+  useEffect(() => {
+    if (!open || !layer) return;
+    const screen = layer.parentElement.querySelector(".frame__screen");
+    screen.inert = true;
+    dialogRef.current?.querySelector("button")?.focus();
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      screen.inert = false;
+      document.removeEventListener("keydown", onKey);
+      triggerRef.current?.focus();
+    };
+  }, [open, layer]);
+
+  const narrow = layer && layer.clientWidth < 600;
+
+  return (
+    <>
+      <Button ref={triggerRef} variant="tertiary" data-size="sm" className="more-btn" onClick={() => setOpen(true)}>
+        Mer om saken
+      </Button>
+      {open && layer && createPortal(
+        <>
+          <div className="frame__scrim" onClick={() => setOpen(false)} />
+          <Dialog
+            ref={dialogRef}
+            open
+            modal={false}
+            closeButton="Lukk"
+            placement={narrow ? "bottom" : "center"}
+            aria-labelledby={headingId}
+            aria-modal="true"
+            onClose={() => setOpen(false)}
+          >
+            <Dialog.Block>
+              <Heading level={2} data-size="xs" id={headingId}>{c.title}</Heading>
+            </Dialog.Block>
+            <Dialog.Block>
+              <Table data-size="sm" className="kv" aria-labelledby={headingId}>
+                <Table.Body>
+                  {detailRows(c).map(([k, v]) => (
+                    <Table.Row key={k}>
+                      <Table.HeaderCell scope="row">{k}</Table.HeaderCell>
+                      <Table.Cell>{v}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </Dialog.Block>
+            <Dialog.Block>
+              <Link href={`#${c.id}`}>Gå til saken</Link>
+            </Dialog.Block>
+          </Dialog>
+        </>,
+        layer,
+      )}
+    </>
+  );
+}
+
+/** Liste der mer informasjon åpnes i en dialog */
+function DialogList({ items, labelledBy }) {
+  return (
+    <List.Unordered className="stacked" aria-labelledby={labelledBy}>
+      {items.map((c) => (
+        <List.Item key={c.id}>
+          <StackedItem c={c} />
+          <CaseDialog c={c} />
+        </List.Item>
+      ))}
+    </List.Unordered>
+  );
+}
+
+/** Tabell for stor skjerm der hver rad har en knapp som åpner samme dialog */
+function DialogTable({ items, labelledBy }) {
+  return (
+    <Table data-size="sm" zebra aria-labelledby={labelledBy} className="case-table">
+      <Table.Head>
+        <Table.Row>
+          <Table.HeaderCell scope="col">Sak</Table.HeaderCell>
+          <Table.HeaderCell scope="col">Status</Table.HeaderCell>
+          <Table.HeaderCell scope="col">Sist oppdatert</Table.HeaderCell>
+          <Table.HeaderCell scope="col">Behandler</Table.HeaderCell>
+          <Table.HeaderCell scope="col"><span className="ds-sr-only">Mer informasjon</span></Table.HeaderCell>
+        </Table.Row>
+      </Table.Head>
+      <Table.Body>
+        {items.map((c) => (
+          <Table.Row key={c.id}>
+            <Table.HeaderCell scope="row"><Link href={`#${c.id}`}>{c.title}</Link></Table.HeaderCell>
+            <Table.Cell><StatusTag status={c.status} /></Table.Cell>
+            <Table.Cell className="num">{c.updated}</Table.Cell>
+            <Table.Cell>{c.handler}</Table.Cell>
+            <Table.Cell><CaseDialog c={c} /></Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  );
+}
+
+/** Illustrasjon: én tabellrad og samme sak som listeoppføring, med nummer på hvor cellene havner */
+function Mapping() {
+  const c = CASES[0];
+  const N = ({ n }) => <span className="num-badge" aria-hidden>{n}</span>;
+  return (
+    <div className="mapping">
+      <figure>
+        <figcaption>Tabellrad</figcaption>
+        <div className="mapping__scroll">
+          <Table data-size="sm" className="case-table" aria-label="Én sak som tabellrad">
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell scope="col">Sak</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Saksnummer</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Status</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Mottatt</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Sist oppdatert</Table.HeaderCell>
+                <Table.HeaderCell scope="col">Behandler</Table.HeaderCell>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              <Table.Row>
+                <Table.HeaderCell scope="row"><N n={1} /> <Link href={`#${c.id}`}>{c.title}</Link></Table.HeaderCell>
+                <Table.Cell className="num"><N n={4} /> {c.caseNumber}</Table.Cell>
+                <Table.Cell><N n={3} /> <StatusTag status={c.status} /></Table.Cell>
+                <Table.Cell className="num"><N n={4} /> {c.received}</Table.Cell>
+                <Table.Cell className="num"><N n={2} /> {c.updated}</Table.Cell>
+                <Table.Cell><N n={4} /> {c.handler}</Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        </div>
+      </figure>
+      <figure>
+        <figcaption>Listeoppføring</figcaption>
+        <List.Unordered className="stacked mapping__item">
+          <List.Item>
+            <div className="row">
+              <Heading level={4} data-size="2xs" className="row__title">
+                <N n={1} /> <Link href={`#${c.id}`}>{c.title}</Link>
+              </Heading>
+              <Paragraph data-size="sm" className="num"><N n={2} /> Oppdatert {c.updated}</Paragraph>
+            </div>
+            <div className="row">
+              <Paragraph data-size="sm" className="subtle"><N n={4} /> Sak {c.caseNumber} · {c.handler} · Mottatt {c.received}</Paragraph>
+              <span><N n={3} /> <StatusTag status={c.status} /></span>
+            </div>
+          </List.Item>
+        </List.Unordered>
+      </figure>
+      <List.Ordered className="places" data-size="sm">
+        <List.Item><strong>Øverst til venstre:</strong> det brukeren kjenner igjen saken på, som lenke når den kan åpnes.</List.Item>
+        <List.Item><strong>Øverst til høyre:</strong> det nest viktigste, ofte en dato eller et beløp.</List.Item>
+        <List.Item><strong>Nederst til høyre:</strong> status, med tekst og ikke bare farge.</List.Item>
+        <List.Item><strong>Nederst til venstre:</strong> resten, i dempet tekst og skilt med prikk.</List.Item>
+      </List.Ordered>
+      <Paragraph data-size="sm">
+        Kolonneoverskriftene faller bort. Saksnavn og status forklarer seg selv. Datoer og nummer får et ord foran
+        («Oppdatert», «Sak», «Mottatt») i stedet for etikett, så de er forståelige uten overskrift.
+      </Paragraph>
+    </div>
+  );
+}
+
+/**
+ * Søk, statusfilter og sortering, likt på stor og liten skjerm. I tabellen
+ * vises sorteringen som nedtrekksliste her også, så prototypen viser samme
+ * kontroller på begge flatene.
+ */
+function SearchableCases({ id, large = false }) {
+  const uid = useId();
+  const [query, setQuery] = useState("");
+  const [statuses, setStatuses] = useState([]);
+  const toggleStatus = (s) =>
+    setStatuses((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]));
+  const [order, setOrder] = useState("nyest");
+
+  const q = query.trim().toLocaleLowerCase("nb");
+  const shown = CASES.filter(
+    (c) =>
+      (!statuses.length || statuses.includes(c.status)) &&
+      (!q || [c.title, c.caseNumber, c.handler].some((v) => v.toLocaleLowerCase("nb").includes(q))),
+  ).sort(SORT_ORDERS.find((o) => o.value === order).cmp);
+
+  return (
+    <div className="frame__content hifi">
+      <Intro id={id} total={CASES.length} />
+      <div className={large ? "controls controls--wide" : "controls"}>
+        <Field data-size="sm">
+          <Label>Søk i sakene</Label>
+          {/* Search er avviklet. Designsystemet anbefaler Input med type="search" i Field med Label.
+              Feltet er kontrollert, så tøm-knappen nullstiller state i onClick i stedet for type="reset". */}
+          <div className="search-field">
+            <Input
+              type="search"
+              enterKeyHint="search"
+              placeholder=" "
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Escape" && setQuery("")}
+            />
+            {query && (
+              <Button
+                type="button"
+                variant="tertiary"
+                data-size="sm"
+                icon
+                aria-label="Tøm søkefeltet"
+                className="search-field__clear"
+                onClick={(e) => {
+                  setQuery("");
+                  e.currentTarget.parentElement.querySelector("input")?.focus();
+                }}
+              >
+                <XMarkIcon aria-hidden />
+              </Button>
+            )}
+          </div>
+        </Field>
+        <Field data-size="sm">
+          <Label>Sorter etter</Label>
+          <Select value={order} onChange={(e) => setOrder(e.target.value)}>
+            {SORT_ORDERS.map((o) => (
+              <Select.Option key={o.value} value={o.value}>{o.label}</Select.Option>
+            ))}
+          </Select>
+        </Field>
+      </div>
+      <Fieldset data-size="sm">
+        <Fieldset.Legend>Status</Fieldset.Legend>
+        <Fieldset.Description>Velg én eller flere. Ingen valgt viser alle.</Fieldset.Description>
+        <div className="chips">
+          {STATUSES.map((s) => (
+            <Chip.Checkbox
+              key={s}
+              data-size="sm"
+              name={`${uid}-status`}
+              value={s}
+              checked={statuses.includes(s)}
+              onChange={() => toggleStatus(s)}
+            >
+              {s}
+            </Chip.Checkbox>
+          ))}
+        </div>
+      </Fieldset>
+      {(q || statuses.length > 0) && (
+        /* Chip-retningslinjene: chips som kan fjernes eller klikkes, bør ligge i en liste med navn */
+        <div className="active-filters">
+          <Paragraph data-size="sm" className="subtle" id={`${uid}-active`}>Valgte filtre:</Paragraph>
+          <ul aria-labelledby={`${uid}-active`}>
+            {q && (
+              <li>
+                <Chip.Removable data-size="sm" aria-label={`Fjern søk ${query.trim()}`} onClick={() => setQuery("")}>
+                  {query.trim()}
+                </Chip.Removable>
+              </li>
+            )}
+            {statuses.map((s) => (
+              <li key={s}>
+                <Chip.Removable data-size="sm" aria-label={`Fjern ${s}`} onClick={() => toggleStatus(s)}>
+                  {s}
+                </Chip.Removable>
+              </li>
+            ))}
+            <li>
+              <Chip.Button data-size="sm" onClick={() => { setQuery(""); setStatuses([]); }}>Tøm alle filtre</Chip.Button>
+            </li>
+          </ul>
+        </div>
+      )}
+      <Paragraph role="status" data-size="sm" className="meta">
+        {shown.length === 0
+          ? "Ingen saker passer søket"
+          : `Viser ${shown.length} av ${CASES.length} saker`}
+      </Paragraph>
+      {shown.length > 0 &&
+        (large ? <CaseTable items={shown} labelledBy={id} /> : <StackedList items={shown} labelledBy={id} />)}
+    </div>
+  );
+}
+
+export default function Liste() {
+  const sorted = [...CASES].sort(byNewest);
+
+  return (
+    <main className="art">
+      <HifiNav current="Liste" />
+      <header>
+        <Paragraph data-size="sm" className="eyebrow">
+          Mønster: Strukturert informasjon · <Tag data-size="sm" data-color="warning">Utkast</Tag>
+        </Paragraph>
+        <Heading level={1} data-size="lg">Liste</Heading>
+        <Paragraph>
+          Listen er riktig når brukeren skal finne eller skanne én oppføring, og ikke sammenligne mange verdier på
+          tvers av oppføringene. På små skjermer blir hver rad i tabellen en oppføring i listen, med det viktigste
+          først.
+        </Paragraph>
+      </header>
+
+      <section>
+        <Heading level={2} data-size="md">Stablet liste</Heading>
+        <Paragraph>
+          Når brukeren skal kjenne igjen én sak blant mange, og hver sak har få opplysninger.
+        </Paragraph>
+        <Heading level={3} data-size="sm">Fire faste plasser per oppføring</Heading>
+        <Mapping />
+        <Example
+          id="stacked"
+          smallLabel="Stablet liste, liten skjerm"
+          caption="Seks kolonner blir to linjer per sak. Hver verdi har en fast plass: navnet øverst til venstre, sist oppdatert øverst til høyre, status nederst til høyre. Verdier som ikke forklarer seg selv, har et ord foran («Sak», «Oppdatert»), så de er forståelige uten kolonneoverskrift. Navnet er en overskrift med lenke, så skjermleserbrukere kan hoppe fra sak til sak."
+          render={(id) => (
+            <Small id={id}><StackedList items={sorted} labelledBy={id} /></Small>
+          )}
+        />
+      </section>
+
+      <section>
+        <Heading level={2} data-size="md">Liste med søk, filter og sortering</Heading>
+        <Paragraph>
+          Når listen er så lang at brukeren ikke finner saken ved å skanne. Søk, filter og sortering virker likt i
+          tabellen og listen.
+        </Paragraph>
+        <Example
+          id="search"
+          smallLabel="Liste med søk og filter, liten skjerm"
+          large={<SearchableCases id="search-large" large />}
+          caption="I tabellen sorterer brukeren ofte med kolonneoverskriftene. Listen har ingen overskrifter, så sorteringen er en nedtrekksliste med «Nyeste først» som standard. Statusfilteret er filterbrikker, fordi det er få valg. Brukeren kan velge flere statuser samtidig, og valgte filtre vises samlet over listen, der hvert filter kan fjernes for seg. Antall treff leses opp av skjermleser når listen endres."
+          render={(id) => <SearchableCases id={id} />}
+        />
+      </section>
+
+      <section>
+        <Heading level={2} data-size="md">Gruppert liste</Heading>
+        <Paragraph>
+          Når oppføringene har en naturlig inndeling, og noen grupper er viktigere enn andre. Her kommer sakene som
+          venter på brukeren, først.
+        </Paragraph>
+        <Example
+          id="grouped"
+          smallLabel="Liste gruppert etter status, liten skjerm"
+          caption="Status er flyttet fra hver oppføring til en gruppeoverskrift, så hver sak trenger færre opplysninger. Gruppeoverskriftene er ekte overskrifter, og hver gruppe er en egen liste. Det gir struktur for skjermlesere og KI-agenter, og ikke bare visuelt."
+          render={(id) => (
+            <Small id={id}><GroupedList items={CASES} /></Small>
+          )}
+        />
+      </section>
+
+      <section>
+        <Heading level={2} data-size="md">Liste med detaljer ved behov</Heading>
+        <Paragraph>
+          Når brukeren trenger noen få nøkkelopplysninger for å finne saken, og resten bare av og til.
+        </Paragraph>
+        <Example
+          id="details"
+          smallLabel="Liste med detaljer som kan vises, liten skjerm"
+          caption="Navn og status er alltid synlige. Resten ligger under «Detaljer om saken», med etikett og verdi som radoverskrift og celle. Ingen opplysninger er fjernet, bare lagt ett trykk unna. Lenken i navnet åpner saken, så knappen for detaljer og lenken gjør hver sin ting."
+          render={(id) => (
+            <Small id={id}><DetailsList items={sorted} labelledBy={id} /></Small>
+          )}
+        />
+      </section>
+
+      <section>
+        <Heading level={2} data-size="md">Liste med mer informasjon i dialog</Heading>
+        <Paragraph>
+          Når detaljene er for mange eller for store til å vises inne i listen, men brukeren ikke trenger å åpne hele
+          saken.
+        </Paragraph>
+        <Example
+          id="dialog"
+          smallLabel="Liste med dialog for mer informasjon, liten skjerm"
+          large={
+            <Small id="dialog-large"><DialogTable items={sorted} labelledBy="dialog-large" /></Small>
+          }
+          caption="Listen er den samme stablede listen. På liten skjerm åpner «Mer om saken» en dialog nederst på skjermen med alle opplysningene som etikett og verdi. På stor skjerm åpnes samme dialog fra tabellen, midt på skjermen. Brukeren blir på samme sted og kommer tilbake til knappen når dialogen lukkes."
+          render={(id) => (
+            <Small id={id}><DialogList items={sorted} labelledBy={id} /></Small>
+          )}
+        />
+      </section>
+    </main>
+  );
+}

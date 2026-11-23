@@ -1,0 +1,502 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strukturerte data på små skjermer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: én lesekolonne med skisser i to-delte figurer (stor skjerm → liten skjerm) som stables på mobil. Følger Designsystemets uttrykk: Inter, Digdir-blå. */
+:root{
+  --bg:#ffffff; --surface:#f3f5f8; --ink:#1e2b3c; --muted:#56647a; --line:#d3d9e2;
+  --accent:#0062ba; --accent-tint:#dcebfa;
+  --ok:#0b7a29; --ok-tint:#d6f0dc; --warn:#7f5300; --warn-tint:#fbe9c4;
+  --danger:#b71c1c; --danger-tint:#fbe1e1;
+  --sk-frame:#ffffff; --sk-ink:#3b4a5e; --sk-soft:#a9b4c3; --sk-faint:#dde2e9;
+  --wf-bg:#f5f5f5; --wf-box:#e0e0e0; --wf-lock:#c9d6f5; --wf-stroke:#2b2b2b; --wf-text:#1a1a1a; --wf-muted:#5c5c5c; --anno:#2448e8;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1620; --surface:#17212d; --ink:#e6ebf1; --muted:#a0acbc; --line:#2d3b4c;
+  --accent:#74b4f3; --accent-tint:#173452;
+  --ok:#74d491; --ok-tint:#173d25; --warn:#f0c264; --warn-tint:#3e3011;
+  --danger:#ff9191; --danger-tint:#461b1d;
+  --wf-bg:#1e2228; --wf-box:#2d323a; --wf-lock:#24365e; --wf-stroke:#c4c8cf; --wf-text:#eceef1; --wf-muted:#a3a9b2; --anno:#8aa2ff;
+  --sk-frame:#1b2633; --sk-ink:#cbd5e1; --sk-soft:#64748a; --sk-faint:#334050;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1620; --surface:#17212d; --ink:#e6ebf1; --muted:#a0acbc; --line:#2d3b4c;
+  --accent:#74b4f3; --accent-tint:#173452;
+  --ok:#74d491; --ok-tint:#173d25; --warn:#f0c264; --warn-tint:#3e3011;
+  --danger:#ff9191; --danger-tint:#461b1d;
+  --wf-bg:#1e2228; --wf-box:#2d323a; --wf-lock:#24365e; --wf-stroke:#c4c8cf; --wf-text:#eceef1; --wf-muted:#a3a9b2; --anno:#8aa2ff;
+  --sk-frame:#1b2633; --sk-ink:#cbd5e1; --sk-soft:#64748a; --sk-faint:#334050;
+  color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.6}
+.wrap{max-width:880px;margin:0 auto;padding-block:40px 80px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{line-height:1.2;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,5vw,2.75rem);font-weight:700}
+h2{font-size:1.6rem;font-weight:700}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0;max-width:65ch}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:65ch}
+a{color:var(--accent)}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:2px}
+.eyebrow{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lead{font-size:1.2rem;color:var(--ink)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.draft{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  background:var(--warn-tint);color:var(--warn);padding:2px 8px;border-radius:4px;vertical-align:middle}
+
+/* Beslutningshjelp */
+.choose{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.choose{grid-template-columns:1fr}}
+.choose a{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--bg)}
+.choose a:hover{border-color:var(--accent)}
+.choose .q{font-size:.92rem;color:var(--muted)}
+.choose .a{font-weight:600;font-size:1.05rem;color:var(--accent)}
+
+/* Seksjon per brukeroppgave */
+section.case{display:flex;flex-direction:column;gap:20px;padding-top:32px;border-top:1px solid var(--line)}
+.task{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.task .n{font-size:.85rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+
+figure{margin:0;background:var(--surface);border-radius:12px;padding:20px;
+  display:grid;grid-template-columns:minmax(0,1.6fr) auto minmax(0,1fr);gap:16px;align-items:center}
+figure.two-phones{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+figure.single{grid-template-columns:minmax(0,1fr)}
+@media (max-width:640px){figure,figure.two-phones{grid-template-columns:minmax(0,1fr)} .arrow{transform:rotate(90deg);justify-self:center}}
+.cell{display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0}
+.cell svg{width:100%;height:auto;display:block}
+.cell.phone svg{max-width:180px}
+.cell .cap{font-size:.8rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.arrow{color:var(--muted);font-size:1.6rem;line-height:1}
+figcaption{grid-column:1/-1;font-size:.92rem;color:var(--muted)}
+
+.dodont{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+@media (max-width:640px){.dodont{grid-template-columns:1fr}}
+.dodont h3{display:flex;gap:8px;align-items:center}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.dot.do{background:var(--ok)} .dot.dont{background:var(--danger)}
+
+/* Anatomi */
+.anatomy{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:640px){.anatomy{grid-template-columns:1fr}}
+.mock{background:var(--sk-frame);border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:.9rem}
+.mock ul{list-style:none;padding:0;gap:0;max-width:none}
+.mock li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.mock li:last-child{border-bottom:0}
+.mock .p1{font-weight:600;color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.mock .p2{color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.mock .p4{color:var(--muted);font-size:.82rem}
+.mock .p3{justify-self:end;font-size:.78rem;font-weight:600;padding:1px 8px;border-radius:4px;white-space:nowrap}
+.st-ok{background:var(--ok-tint);color:var(--ok)} .st-warn{background:var(--warn-tint);color:var(--warn)} .st-info{background:var(--accent-tint);color:var(--accent)}
+.mock .tag{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:.7rem;font-weight:700;margin-right:6px;vertical-align:1px;text-decoration:none}
+.slots{list-style:none;padding:0;gap:12px}
+.slots li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px}
+.slots .num{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:.8rem;font-weight:700}
+
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 32px}
+@media (max-width:640px){.rules{grid-template-columns:1fr}}
+.rules div{display:flex;flex-direction:column;gap:4px}
+.rules p{color:var(--muted);font-size:.95rem}
+.rules h3{font-size:1rem}
+
+.sources{font-size:.92rem;color:var(--muted)}
+.sources ul{gap:8px}
+
+/* Skisser: grå wireframes med plassholdertekst og blå kommentarer, som i arbeidsgruppens innspill */
+.wf-bg{fill:var(--wf-bg);stroke:var(--wf-stroke);stroke-width:1.2}
+.wf-box{fill:var(--wf-box);stroke:var(--wf-stroke);stroke-width:1}
+.wf-field{fill:var(--wf-bg);stroke:var(--wf-stroke);stroke-width:1}
+.wf-lock{fill:var(--wf-lock);stroke:var(--wf-stroke);stroke-width:1}
+.wf-err{fill:var(--danger-tint);stroke:var(--danger);stroke-width:1.4}
+.wf-line{stroke:var(--wf-stroke);stroke-width:1}
+.wf-btn{fill:var(--wf-bg);stroke:var(--wf-stroke);stroke-width:1}
+.wf-btn-p{fill:var(--wf-stroke)}
+.wf-pill{fill:var(--wf-bg);stroke:var(--wf-stroke);stroke-width:.8}
+.wf-chev{fill:none;stroke:var(--wf-text);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.wf-anno-stroke{fill:none;stroke:var(--anno);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.wf-x{fill:none;stroke:var(--danger);stroke-width:2.5;stroke-linecap:round}
+.wf-fade-a{stop-color:var(--wf-bg);stop-opacity:0}
+.wf-fade-b{stop-color:var(--wf-bg);stop-opacity:1}
+svg text{font-family:"IBM Plex Sans",var(--font);fill:var(--wf-text)}
+svg text.m{fill:var(--wf-muted)}
+svg text.b{font-weight:600}
+svg text.u{text-decoration:underline}
+svg text.inv{fill:var(--wf-bg);font-weight:600}
+svg text.err{fill:var(--danger);font-weight:600}
+svg text.anno{fill:var(--anno);font-weight:600}
+figcaption{color:var(--anno)!important;font-family:"IBM Plex Sans",var(--font);font-weight:600;font-size:.98rem!important}
+.illu{display:flex;gap:10px;align-items:flex-start;border:1.5px dashed var(--anno);border-radius:8px;padding:10px 14px;font-size:.92rem;max-width:65ch}
+.illu b{color:var(--anno);white-space:nowrap}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+@media (max-width:640px){.cols{grid-template-columns:1fr}}
+.markup{font-size:.92rem;color:var(--muted)}
+.trunc{display:flex;flex-direction:column;gap:8px;font-family:"IBM Plex Sans",var(--font);font-size:.92rem}
+.trunc div{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr);gap:12px;align-items:baseline}
+.trunc span:first-child{color:var(--muted);font-size:.82rem}
+.trunc code{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:2px 8px;overflow-wrap:anywhere}
+.choose{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))!important}
+.later{font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;background:var(--surface);color:var(--muted);border:1px solid var(--line);padding:1px 8px;border-radius:4px}
+
+.wf-sym-warn{fill:var(--warn-tint);stroke:var(--warn);stroke-width:1.2;stroke-linejoin:round}
+.png{font-size:.8rem;font-weight:500;color:var(--muted)}
+.png:hover{color:var(--accent)}
+.toc{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.95rem}
+.note{border-left:3px solid var(--warn);background:var(--warn-tint);color:var(--ink);padding:8px 14px;border-radius:0 6px 6px 0;font-size:.92rem;max-width:65ch}
+.note b{color:var(--warn)}
+h4{margin:0;font-size:1rem;font-weight:600}
+.matrix{width:100%;border-collapse:collapse;font-size:.95rem}
+.matrix th,.matrix td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+.matrix thead th{font-size:.82rem;color:var(--muted);font-weight:600}
+.matrix tbody th{font-weight:600;white-space:nowrap}
+.scroll{overflow-x:auto}
+.scen{display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid var(--line);border-radius:12px}
+</style>
+
+<main class="wrap">
+  <header class="stack">
+    <span class="eyebrow">Mønster · <span class="draft">Utkast</span></span>
+    <h1>Strukturerte data på små skjermer</h1>
+    <p class="lead">Strukturerte data kan være krevende å presentere på små skjermer, særlig når datamengden og kompleksiteten øker.</p>
+    <p>Dette mønsteret hjelper deg å finne frem til gode løsninger, med fokus på formål, brukerbehov og tilgjengelighet. Skissene viser prinsippet, ikke ferdig design. Under hver skisse kan du laste den ned som PNG.</p>
+    <nav class="toc" aria-label="Innhold">
+      <a href="#definisjon">Definisjon</a><a href="#forberedelser">Forberedelser</a><a href="#tilnaerming">Oppgave og innhold</a><a href="#alternativer">Hva er alternativene?</a><a href="#design">Design og opplevelse</a><a href="#visualiseringer">Visualiseringer</a><a href="#scenarioer">Brukerscenarioer</a><a href="#sprak">Språk</a><a href="#kode">Kode</a><a href="#kilder">Kilder</a>
+    </nav>
+  </header>
+
+  <section class="stack" id="definisjon" aria-labelledby="h-def">
+    <h2 id="h-def">Definisjon</h2>
+    <p>Strukturerte data er informasjon som følger en definert og gjentakende struktur. Det kan for eksempel være en samling verdier som har de samme egenskapene, som saker med saksnummer, dato og status, eller målinger fra flere tidspunkter. Dataene kan vises som tabell, liste eller andre organiserte visninger i et brukergrensesnitt. Se også begrepet i Felles datakatalog.</p>
+  </section>
+
+  <section class="stack" id="forberedelser" aria-labelledby="h-forb">
+    <h2 id="h-forb">Forberedelser</h2>
+    <p>Start med brukerens oppgave og behov. For å finne frem til gode løsninger bør du vurdere datamengde, kompleksitet og gjenkjennelighet.</p>
+    <ul>
+      <li>Skal brukeren kun lese eller finne informasjon?</li>
+      <li>Skal brukeren sammenligne informasjon?</li>
+      <li>Skal brukeren bearbeide (endre, velge, flytte, slette, legge til) innholdet?</li>
+      <li>Hvilken informasjonsbit er den mest sentrale (objektet)?</li>
+      <li>Hvilke egenskaper er viktigst?</li>
+      <li>Hvilke opplysninger må være synlige samtidig?</li>
+      <li>Trenger brukeren søk, filtrering eller sortering?</li>
+      <li>Må alle opplysningene vises i samme visning?</li>
+    </ul>
+  </section>
+
+  <section class="stack" id="tilnaerming" aria-labelledby="h-tiln">
+    <h2 id="h-tiln">Start med oppgaven, sjekk så innholdet</h2>
+    <p>Det finnes to måter å velge visning på. Med en <strong>brukeroppgavetilnærming</strong> spør du hva brukeren skal gjøre: finne, sammenligne eller bearbeide. Med en <strong>komponenttilnærming</strong> ser du på dataene: hvor mange oppføringer og egenskaper det er, og hva slags innhold hver egenskap har.</p>
+    <p>Du trenger begge. Brukeroppgaven avgjør hva visningen skal få til. Innholdet avgjør om visningen får plass på en liten skjerm.</p>
+    <p>To datasett med like mange oppføringer og egenskaper kan derfor trenge ulik løsning. Korte tall og datoer kan stå i en tabell også på mobil. Lange setninger kan ikke det, selv om brukeroppgaven er den samme. Da blir tabellen en liste eller kort på liten skjerm.</p>
+    <div class="scroll"><table class="matrix">
+      <caption class="markup" style="text-align:left;caption-side:top;padding-bottom:8px">Slik påvirker innholdet i egenskapene visningen på liten skjerm</caption>
+      <thead><tr><th scope="col">Innhold i egenskapene</th><th scope="col">På liten skjerm</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Korte verdier</th><td>Tall, datoer, beløp og korte ord. Tabellen kan ofte beholdes, med fast førstekolonne hvis den må rulle.</td></tr>
+        <tr><th scope="row">Lange tekster</th><td>Setninger og beskrivelser gir smale kolonner med mye linjebryting. Gjør hver rad om til en oppføring i en liste eller et kort, med etiketten over teksten.</td></tr>
+        <tr><th scope="row">Symboler og status</th><td>Sparer plass og kan stå i en tabellcelle. Symbolet trenger tekst ved siden av, eller en forklaring.</td></tr>
+        <tr><th scope="row">Grafer</th><td>Trendgrafer kan stå i en celle eller en listeoppføring. Større grafer trenger egen plass, og da passer kort bedre enn tabell.</td></tr>
+        <tr><th scope="row">Blandet innhold</th><td>Når egenskapene er svært ulike, får hver oppføring ofte et eget kort. Plasser det viktigste først.</td></tr>
+      </tbody>
+    </table></div>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm: tabell</span><div data-sketch="desk-cases"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm: liste</span><div data-sketch="phone-stacked"></div></div>
+      <figcaption>Samme data og samme oppgave. Fordi innholdet ikke får plass i kolonner, blir tabellen en liste på liten skjerm.</figcaption>
+    </figure>
+    <p>Når visningen endres, skal koden følge med: en liste skal være en liste i koden og en tabell en tabell. Se også <a href="#design">Design og opplevelse</a> og <a href="#kode">Kode</a>.</p>
+  </section>
+
+  <section class="stack" id="alternativer" aria-labelledby="h-alt">
+    <h2 id="h-alt">Hva er alternativene?</h2>
+    <p>Det er hovedsakelig tre visningsformer som brukes til dette formålet: tabell, liste og kort. Ofte kan alle tre brukes for å presentere de samme dataene. Forskjellen ligger i hva brukeren skal gjøre. Tabeller egner seg best for sammenligning, lister for rask oversikt over mange oppføringer, mens kort egner seg når hver oppføring trenger mer plass, kontekst eller flere handlinger.</p>
+    <nav class="choose" aria-label="Visningsformer">
+      <a href="#tabell"><span class="q">Brukeren skal sammenligne</span><span class="a">Tabell</span></a>
+      <a href="#liste"><span class="q">Brukeren skal finne eller skanne</span><span class="a">Liste</span></a>
+      <a href="#kort"><span class="q">Hver oppføring trenger plass eller handlinger</span><span class="a">Kort</span></a>
+    </nav>
+  </section>
+
+  <section class="case" id="tabell" aria-labelledby="h-tabell">
+    <h2 id="h-tabell">Tabell</h2>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-small"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-table-fit"></div></div>
+      <figcaption>Få og korte kolonner: tabellen får plass i full bredde uten rulling.</figcaption>
+    </figure>
+    <div class="cols">
+      <div class="stack"><h3><span class="dot do" aria-hidden="true"></span> Tabell kan være greit når …</h3><ul>
+        <li>formålet primært er å sammenligne verdier på tvers av flere informasjonselementer</li>
+        <li>relasjonen mellom ledetekst og innhold er viktig for å forstå informasjonen</li>
+        <li>hver rad representerer samme type innhold, slik at sammenligning mellom radene gir mening</li>
+        <li>antall kolonner er begrenset, slik at tabellen kan vises innenfor tilgjengelig bredde uten horisontal scrolling eller vesentlig redusert lesbarhet</li>
+        <li>innholdet er kortfattet nok til at det ikke krever mye linjebryting</li>
+        <li>tabellstrukturen gir mer verdi for brukeren enn alternative presentasjonsformer som liste eller kort.</li></ul></div>
+      <div class="stack"><h3><span class="dot dont" aria-hidden="true"></span> Vær oppmerksom på:</h3><ul>
+        <li>tabeller kan bli vanskelige å bruke på små skjermer når de inneholder mange kolonner eller mye tekst</li>
+        <li>horisontal scrolling gjør sammenligning og orientering vanskeligere</li>
+        <li>lange tekster i celler kan gi mye linjebryting og redusert lesbarhet</li>
+        <li>mange kolonner kan kreve at innhold prioriteres eller presenteres på en annen måte</li>
+        <li>dersom sammenligning ikke er en sentral oppgave, kan liste eller kort være bedre alternativer.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="case" id="liste" aria-labelledby="h-liste">
+    <h2 id="h-liste">Liste</h2>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-cases"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-stacked"></div></div>
+      <figcaption>Fem kolonner blir to linjer per oppføring, med det viktigste først.</figcaption>
+    </figure>
+    <div class="cols">
+      <div class="stack"><h3><span class="dot do" aria-hidden="true"></span> Liste kan være greit når …</h3><ul>
+        <li>brukeren skal se gjennom mange oppføringer</li>
+        <li>hver oppføring er enkel og avgrenset, med få eller ingen ekstra egenskaper</li>
+        <li>brukeren primært skal lese, finne eller skanne informasjon</li>
+        <li>hver oppføring kan forstås uavhengig av de andre</li>
+        <li>innholdet har en naturlig rekkefølge, for eksempel kronologisk, alfabetisk eller prioritert</li>
+        <li>det er få opplysninger knyttet til hver oppføring</li>
+        <li>brukeren ikke har behov for å sammenligne mange egenskaper på tvers av flere oppføringer samtidig</li>
+        <li>den viktigste informasjonen kan presenteres først i hver oppføring</li>
+        <li>innholdet skal fungere godt på tvers av skjermstørrelser uten spesielle tilpasninger.</li></ul></div>
+      <div class="stack"><h3><span class="dot dont" aria-hidden="true"></span> Vær oppmerksom på:</h3><ul>
+        <li>lister fungerer dårlig når brukeren skal sammenligne mange verdier mellom ulike oppføringer</li>
+        <li>lange lister kan bli krevende å skanne uten søk, filtrering eller gruppering</li>
+        <li>viktige sammenhenger mellom ulike datafelt kan bli mindre tydelige enn i en tabell.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="case" id="kort" aria-labelledby="h-kort">
+    <h2 id="h-kort">Kort</h2>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-costs"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-cards"></div></div>
+      <figcaption>Hvert kort samler én oppføring med handlingene sine. Feil vises inne i kortet de gjelder.</figcaption>
+    </figure>
+    <div class="cols">
+      <div class="stack"><h3><span class="dot do" aria-hidden="true"></span> Kort kan være greit når …</h3><ul>
+        <li>hver oppføring inneholder flere egenskaper som bør presenteres samlet</li>
+        <li>brukeren primært skal fokusere på én oppføring om gangen</li>
+        <li>informasjonen varierer i lengde eller innhold mellom oppføringene</li>
+        <li>det er ønskelig å fremheve enkelte opplysninger</li>
+        <li>hver oppføring inneholder handlinger, for eksempel rediger, slett eller åpne</li>
+        <li>innholdet skal fungere godt på tvers av skjermstørrelser uten spesielle tilpasninger</li>
+        <li>visuelle elementer som status, kategorier, ikoner eller bilder bidrar til forståelsen.</li></ul></div>
+      <div class="stack"><h3><span class="dot dont" aria-hidden="true"></span> Vær oppmerksom på:</h3><ul>
+        <li>kort kan bruke betydelig mer plass enn lister og tabeller</li>
+        <li>sammenligning mellom oppføringer blir ofte vanskeligere</li>
+        <li>mange kort etter hverandre kan føre til mye scrolling</li>
+        <li>ulikt innhold i hvert kort kan gjøre informasjonen mindre oversiktlig.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="case" id="design" aria-labelledby="h-design">
+    <h2 id="h-design">Design og opplevelse</h2>
+    <p>Når presentasjonen av strukturerte data tilpasses små skjermer, handler designjobben om å bevare sammenhengen i dataene, sikre god lesbarhet og gi store nok trykkflater.</p>
+    <p>Vurder hvilke opplysninger brukeren må se umiddelbart for å løse sine oppgaver, og hvilke som kan legges bak en sekundær handling, for eksempel i en ekspanderbar visning. Den viktigste informasjonen bør tydeliggjøres ved hjelp av plassering og utforming.</p>
+    <figure>
+      <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-cases"></div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-expand"></div></div>
+      <figcaption>Det viktigste vises med en gang. Resten ligger i en ekspanderbar visning.</figcaption>
+    </figure>
+    <p>Pass på at det er tilstrekkelig avstand mellom elementer, så innholdet blir lesbart til tross for begrenset skjermstørrelse.</p>
+    <p>Når en tabell endres til kort eller liste på mobil, må sammenhengen mellom opplysningene bestå. Brukeren skal aldri være i tvil om hva en enkeltverdi beskriver, eller hvilke datafelt som tilhører samme oppføring. Sørg for at tilhørende ledetekster følger verdiene på en entydig måte.</p>
+    <div class="dodont">
+      <div class="stack"><h3><span class="dot dont" aria-hidden="true"></span>Unngå</h3>
+        <figure class="single" style="padding:16px"><div class="cell phone"><div data-sketch="phone-labels-dont"></div></div>
+          <figcaption>Verdier uten ledetekst. Hvilken dato er fristen?</figcaption></figure></div>
+      <div class="stack"><h3><span class="dot do" aria-hidden="true"></span>Gjør dette</h3>
+        <figure class="single" style="padding:16px"><div class="cell phone"><div data-sketch="phone-labels-do"></div></div>
+          <figcaption>Ledeteksten følger hver verdi.</figcaption></figure></div>
+    </div>
+  </section>
+
+  <section class="case" id="visualiseringer" aria-labelledby="h-vis">
+    <h2 id="h-vis">Visualiseringer</h2>
+    <p>På små skjermer er det sjelden plass til tradisjonelle visualiseringer. Her handler visualisering om kompakte visualiseringer som kan integreres rett i en tabellcelle eller et listeelement. På denne måten slipper brukeren å hoppe mellom en tabell med tall og en visualisering på en annen skjerm.</p>
+
+    <h3>Trendgraf (eng. «sparkline»)</h3>
+    <p>En trendgraf er en enkel datalinje som plasseres rett ved siden av et tall eller i en tabellkolonne. Den krever ikke mer plass enn bredden til noen få bokstaver, men viser likevel en hel serie med datapunkter. Ved å vise formen på utviklingen sammen med den nøyaktige nåtidsverdien unngår man «recency bias», tendensen til å overvurdere de aller siste målingene fordi man mangler referanser.</p>
+    <figure class="two-phones">
+      <div class="cell phone"><span class="cap">I en liste</span><div data-sketch="phone-sparkline"></div></div>
+      <div class="arrow" aria-hidden="true">·</div>
+      <div class="cell phone"><span class="cap">Som nøkkeltall</span><div data-sketch="phone-trend"></div></div>
+      <figcaption>Trendgrafen står ved siden av dagens verdi, så brukeren ser både tallet og utviklingen.</figcaption>
+    </figure>
+
+    <h3>Piktogrammer og symboler</h3>
+    <p>Piktogrammer og symboler, som værikoner eller statusindikatorer, er effektive fordi de sparer tekstplass og kan tolkes i ett enkelt blikk. De fungerer best når de oppfører seg som typografiske tegn som er integrert med resten av innholdet, og er intuitivt forståelige for brukeren.</p>
+    <figure class="two-phones">
+      <div class="cell phone"><span class="cap">Værsymboler</span><div data-sketch="phone-weather"></div></div>
+      <div class="arrow" aria-hidden="true">·</div>
+      <div class="cell phone"><span class="cap">Varsel, vurdering, sted</span><div data-sketch="phone-symbols"></div></div>
+      <figcaption>Symbolene erstatter ord som «Vær» og «Sted», men nivået i varselet står fortsatt i tekst.</figcaption>
+    </figure>
+    <div class="note"><b>Åpne spørsmål:</b> Er farevarsel egentlig forenkling av strukturerte data? Er terningkast en god analogi, når terningen er tilfeldig? Sparer et stedsikon nok plass til at vi slipper å skrive «Sted»? Blir piktogrammenes betydning viktigere på små skjermer?</div>
+
+    <h3>Små repetisjoner (eng. «small multiples»)</h3>
+    <p>Små repetisjoner er en serie små, identisk oppbygde miniatyrfigurer som gjentas etter hverandre med samme skala, format og akser. Den visuelle rammen er helt lik fra bilde til bilde. Det fungerer godt til sammenligning, siden hjernen slipper å tolke designet på nytt og kan fokusere på endringene i selve dataene. Mens tradisjonelle tabeller organiserer data i rader og kolonner, er små repetisjoner visuelt sammenlignbare enheter innenfor samme synsfelt.</p>
+    <figure class="single">
+      <div class="cell phone"><div data-sketch="phone-multiples"></div></div>
+      <figcaption>Seks byer, samme skala. Forskjellene i formen er det brukeren sammenligner.</figcaption>
+    </figure>
+    <div class="note"><b>Åpent spørsmål:</b> Finnes det et godt norsk uttrykk for «small multiples»?</div>
+  </section>
+
+  <section class="case" id="scenarioer" aria-labelledby="h-scen">
+    <h2 id="h-scen">Brukerscenarioer</h2>
+    <p>Tabeller har en rekke utfordringer på små skjermer. Ved å gå inn i det aktuelle scenarioet vil du oppdage at det antakelig finnes gode alternativer til tabell. Det er alltid mulig å presentere dataene på en forenklet måte, og tilby brukeren å se dem i en full tabell etterpå.</p>
+    <div class="note"><b>Åpent spørsmål:</b> Hvordan skal lenken til full tabell se ut?</div>
+
+    <div class="scen" id="sc-finne">
+      <h3>Brukeren skal finne et bestemt objekt i en større oversikt</h3>
+      <h4>Kontekst og behov</h4>
+      <p>Brukeren skal utføre en handling eller sjekke en tilstand. Brukeren skal ikke sammenligne verdier på tvers av enhetene.</p>
+      <h4>Eksempler</h4>
+      <ul><li>Innboks</li><li>Oversikt over byggesaker</li></ul>
+      <h4>Anbefalinger</h4>
+      <ul>
+        <li>Bruk listevisning eller rik liste/kort.</li>
+        <li>Skap et tydelig hierarki som gjør at den viktigste informasjonen er lett å finne.</li>
+        <li>Bruk kollaps/ekspander dersom innholdet brukerne trenger for å finne frem er omfattende, og ikke alle har behov for å lese alt.</li>
+      </ul>
+      <figure class="two-phones">
+        <div class="cell phone"><span class="cap">Finne</span><div data-sketch="phone-stacked-tap"></div></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="cell phone"><span class="cap">Åpne</span><div data-sketch="phone-detail"></div></div>
+        <figcaption>Brukeren finner oppføringen i listen og åpner den for å se alt og gjøre noe med den.</figcaption>
+      </figure>
+    </div>
+
+    <div class="scen" id="sc-fa">
+      <h3>Brukeren skal sammenligne få alternativer med mange egenskaper</h3>
+      <h4>Kontekst og behov</h4>
+      <p>Brukeren står overfor et valg mellom noen få alternativer på grunnlag av mange egenskaper. Dette passer ikke der det bare er én egenskap man reelt sett vurderer.</p>
+      <h4>Eksempler</h4>
+      <ul>
+        <li><strong>Valg av avtale- eller ytelsesmodell:</strong> sammenligning av to utbetalings- eller dekningsgrader der sum, varighet og vilkår varierer.</li>
+        <li><strong>Kriterier for tjenester eller ordninger:</strong> sammenligning av to til fire rettighetsgrupper, tillatelser eller søknadskategorier for å se hvilken man oppfyller kravene til.</li>
+        <li><strong>Produkt- eller studiekataloger:</strong> sammenligning av 2–3 spesifikke tilbud på tvers av opptakskrav, omfang og plassering.</li>
+      </ul>
+      <h4>Anbefalinger</h4>
+      <ul>
+        <li>Bytt om på aksene (transponering), slik at alle egenskapene går vertikalt nedover siden som rader.</li>
+        <li>Plasser de 2–3 alternativene ved siden av hverandre i smale kolonner til høyre, slik at brukeren kan lese og sammenligne fra venstre til høyre per egenskap.</li>
+        <li>Finnes det flere enn 2–3 alternativer totalt, la brukeren velge hvilke som skal stå side om side, med en velger øverst i hver kolonne.</li>
+        <li>Fremhev egenskapene som skiller alternativene.</li>
+      </ul>
+      <figure>
+        <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-compare"></div></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-transposed"></div></div>
+        <figcaption>Tabellen er snudd: egenskapene går nedover, og brukeren velger hvilke to alternativer som står side om side.</figcaption>
+      </figure>
+    </div>
+
+    <div class="scen" id="sc-mange">
+      <h3>Brukeren skal sammenligne mange datapunkter</h3>
+      <h4>Kontekst og behov</h4>
+      <p>Brukeren må se data i sammenheng, i rader og kolonner. Behovene kan være å sammenligne, oppdage mønstre, finne avvik eller se historisk utvikling.</p>
+      <h4>Eksempler</h4>
+      <ul>
+        <li><strong>Tidsserie- og måledata:</strong> endringer i verdier over tid for flere enheter eller steder, for eksempel temperatur, luftkvalitet eller vannstand gjennom døgnet.</li>
+        <li><strong>Pris- og takstmatriser:</strong> tabeller der to variable faktorer bestemmer sluttsummen, for eksempel sone og tidspunkt, eller gebyrsatser basert på størrelse og type.</li>
+        <li><strong>Statistiske oversikter:</strong> sammenstilling av nøkkeltall fordelt på fylker, kommuner eller årsperioder.</li>
+      </ul>
+      <h4>Anbefalinger</h4>
+      <ul>
+        <li>Behold tabellstrukturen, og gjør tabellen horisontalt rullbar hvis det trengs.</li>
+        <li>Lås første kolonne, slik at objektets tittel eller navn alltid er synlig mens brukeren ruller resten av dataene sidelengs.</li>
+        <li>Lås kolonneoverskriftene i toppen dersom tabellen er lang.</li>
+        <li>Gi en visuell indikator på at tabellen er utfallende og kan scrolles.</li>
+      </ul>
+      <figure>
+        <div class="cell"><span class="cap">Stor skjerm</span><div data-sketch="desk-stats"></div></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="cell phone"><span class="cap">Liten skjerm</span><div data-sketch="phone-scroll"></div></div>
+        <figcaption>Første kolonne og overskriftsraden står fast. Toningen til høyre viser at det er mer å se.</figcaption>
+      </figure>
+    </div>
+
+    <h3>Generelle tips</h3>
+    <ul>
+      <li>Skal brukeren finne høyeste eller laveste verdi, tilby sortering.</li>
+      <li>Skal brukeren finne objekter som oppfyller bestemte kriterier, tilby filtrering.</li>
+    </ul>
+    <figure class="single">
+      <div class="cell phone"><div data-sketch="phone-filter"></div></div>
+      <figcaption>Søk, filtre og sortering øverst. Antall treff og valgt sortering står i tekst.</figcaption>
+    </figure>
+  </section>
+
+  <section class="case" id="sprak" aria-labelledby="h-sprak">
+    <h2 id="h-sprak">Språk</h2>
+    <div class="cols">
+      <div class="stack">
+        <h3>Forkortelser</h3>
+        <p>Plassmangel på små skjermer gjør det fristende å forkorte ord og ledetekster. Unngå unødvendige eller ukjente forkortelser som svekker lesbarheten.</p>
+        <ul>
+          <li><strong>Bruk kun allment kjente forkortelser.</strong> Begrens bruken til etablerte standarder som org.nr., tlf. og kr.</li>
+          <li><strong>Unngå interne fagbegreper.</strong> Saksbehandlerbegreper eller fagsjargong, som s-beh. eller jfr., bør ikke brukes.</li>
+          <li><strong>Forenkle fremfor å forkorte.</strong> Velg kortere synonymer der det er mulig, for eksempel «Dato» i stedet for «Reg.dato».</li>
+          <li>Trenger du likevel en ukjent forkortelse, forklar den med en hjelpetekst eller en stjerne og forklaring under tabellen.</li>
+        </ul>
+      </div>
+      <div class="stack">
+        <h3>Avkorting av tekst (trunkering)</h3>
+        <p>Avkorting betyr å erstatte deler av teksten med en ellipse (…) for å spare plass. Det skjuler innhold og bør regnes som en nødløsning. Vurder heller linjebryting.</p>
+        <p>Avkorter du, må brukeren kunne lese hele teksten ved en bevisst handling. Skjermlesere må alltid få hele teksten.</p>
+        <p>Plasseringen av avkortingen må tilpasses innholdstypen. Som hovedregel avkorter du i slutten, men det finnes unntak:</p>
+        <div class="trunc" aria-label="Eksempler på avkorting">
+          <div><span>Hovedregel: i slutten</span><code>Søknad om tilskudd til ombygging av…</code></div>
+          <div><span>Like oppføringer: i midten</span><code>Vedtak i sak 24/1832 … Storgata 12</code></div>
+          <div><span>Filnavn: i midten, så filtypen vises</span><code>vedtak_2026_…_endelig.pdf</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="case" id="kode" aria-labelledby="h-kode">
+    <h2 id="h-kode">Kode</h2>
+    <div class="rules">
+      <div><h3>Tabell (<code>table</code>)</h3><p>Følg spesifikasjonen. Vær obs hvis det blir mange tomme celler.</p></div>
+      <div><h3>Beskrivelsesliste (<code>dl</code>)</h3><p>Følg spesifikasjonen, men vær obs på en svakhet i den.</p></div>
+      <div><h3>Lister (<code>ol</code>, <code>ul</code>)</h3><p>Følg spesifikasjonen.</p></div>
+      <div><h3>Sortering</h3><p>Rekkefølgen i innholdet endres. Husk å gi informasjon om endringen.</p></div>
+      <div><h3>Filtrering</h3><p>Det som vises, endres. Husk å gi informasjon om endringen.</p></div>
+    </div>
+    <div class="note"><b>Temaer som bør omtales:</b> horisontal scrolling i tabell og fast kolonne · hva som skjer teknisk når presentasjonen endres mellom tabell og liste · trendgrafer og piler opp og ned. Unngå å duplisere komponentdokumentasjonen, lenk heller til den, og lenk til Uutilsynet der det er relevant.</div>
+  </section>
+
+  <section class="case sources" id="kilder" aria-labelledby="h-kilder">
+    <h2 id="h-kilder" style="font-size:1.1rem;color:var(--ink)">Kilder og annen relevant informasjon</h2>
+    <ul>
+      <li>Uutilsynet: Tabeller</li>
+      <li>WCAG 1.3.1 Informasjon og relasjoner (nivå A), Uutilsynet</li>
+      <li>Veiledning og løsningsforslag til 1.3.1, Uutilsynet</li>
+    </ul>
+  </section>
+</main>
+
+<script src="skisser.js"></script>
+<script>
+  // Lenke til PNG-versjonen under hver skisse
+  document.querySelectorAll('[data-sketch]').forEach(el => {
+    const a = document.createElement('a');
+    a.className = 'png'; a.href = 'skisser/' + el.dataset.sketch + '.png'; a.download = '';
+    a.textContent = 'Last ned PNG';
+    el.after(a);
+  });
+</script>
