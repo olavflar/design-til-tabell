@@ -226,7 +226,7 @@ function CostCards({ items, onDelete }) {
   );
 }
 
-function Costs({ large = false }) {
+export function Costs({ large = false }) {
   const id = useId();
   const headingRef = useRef(null);
   const [items, setItems] = useState(COSTS);

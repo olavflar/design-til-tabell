@@ -29,7 +29,7 @@ const fylker = [
   "Nordland", "Oslo", "Rogaland", "Telemark", "Troms", "Trøndelag",
   "Vestfold", "Vestland", "Østfold",
 ];
-const rows = fylker.map((navn, i) => ({
+export const rows = fylker.map((navn, i) => ({
   navn,
   verdier: years.map((_, j) => 1000 + i * 37 + j * 91 + ((i * 13 + j * 7) % 29)),
 }));
@@ -37,7 +37,7 @@ const fmt = new Intl.NumberFormat("nb-NO");
 
 const TITLE = "Nye elbiler per fylke";
 
-function StatTable({ data, captionId, className }) {
+export function StatTable({ data, captionId, className }) {
   return (
     <Table data-size="sm" zebra stickyHeader className={className}>
       <caption className="ds-sr-only">{TITLE}</caption>
@@ -63,7 +63,7 @@ function StatTable({ data, captionId, className }) {
   );
 }
 
-function Intro({ id }) {
+export function Intro({ id }) {
   return (
     <>
       <Heading level={3} data-size="sm" id={id}>{TITLE}</Heading>
@@ -177,7 +177,7 @@ function ColumnNavScreen({ stickyHeader = false, stickyNav = true }) {
 
 const PER_PAGE = 5;
 
-function SmallScreen({ id, paginate = false }) {
+export function SmallScreen({ id, paginate = false }) {
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(rows.length / PER_PAGE);
   const { pages, prevButtonProps, nextButtonProps } = usePagination({

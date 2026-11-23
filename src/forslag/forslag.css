@@ -1,0 +1,54 @@
+/* Forslag til artikkel: oppsett for artikkelen og de nye eksemplene */
+.forslag { max-width: 90rem; }
+.forslag section { scroll-margin-top: var(--ds-size-4); }
+.forslag .rule { max-width: 44rem; display: flex; flex-direction: column; gap: var(--ds-size-2); }
+.forslag .rule > * { margin: 0; }
+.forslag .steps { max-width: 44rem; }
+.forslag .overview { max-width: 44rem; }
+.forslag .overview .ds-table, .forslag section > .ds-table { width: 100%; max-width: 44rem; }
+.task { display: flex; flex-direction: column; gap: var(--ds-size-3); padding-top: var(--ds-size-6); }
+.task > * { margin: 0; }
+.task__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--ds-size-4); max-width: 64rem; }
+.task__facts > div > * { margin: 0; }
+.task__facts h4 { margin-bottom: var(--ds-size-2); }
+.forslag .meta code { margin-inline-end: var(--ds-size-2); }
+.forslag .cols .ds-details { align-self: start; }
+
+/* Felles for eksemplene */
+.hifi .plain { font-weight: inherit; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); }
+.compare { min-width: 100%; }
+.compare th[scope="col"] { white-space: normal; min-width: 8rem; }
+
+/* Trendgraf */
+.spark { color: var(--ds-color-accent-base-default); vertical-align: middle; flex: none; }
+.spark__limit { stroke: var(--ds-color-danger-border-default); stroke-dasharray: 2 2; stroke-width: 1; }
+.trend { display: inline-flex; align-items: center; gap: var(--ds-size-2); }
+.air-table { width: 100%; }
+
+/* Avkryssing og handling for de valgte */
+.bulk { padding-bottom: 0; }
+.check-col { width: 1%; }
+.bulk__item { flex-direction: row !important; align-items: flex-start; gap: var(--ds-size-3) !important; }
+.bulk__body { flex: 1; display: flex; flex-direction: column; gap: var(--ds-size-1); }
+.bulk__body > * { margin: 0; }
+.bulk__bar {
+  position: sticky; bottom: 0; z-index: 2;
+  display: flex; justify-content: space-between; align-items: center; gap: var(--ds-size-3);
+  margin-inline: calc(var(--ds-size-4) * -1);
+  padding: var(--ds-size-3) var(--ds-size-4);
+  background: var(--ds-color-neutral-background-default);
+  border-top: 1px solid var(--ds-color-neutral-border-subtle);
+}
+.bulk__bar > p { margin: 0; }
+
+/* Småbilder: samme figur og skala for hver kommune */
+.multiples { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: var(--ds-size-4); }
+.multiples > li { margin: 0; display: flex; flex-direction: column; gap: var(--ds-size-1); }
+.multiples > li > p { margin: 0; }
+.mini-chart rect { fill: var(--ds-color-accent-base-default); }
+
+/* Brukeroppgavene er egne seksjoner i seksjonen, og skal ha full bredde som eksemplene */
+.art section > .task { max-width: none !important; }
+.task > :not(.examples):not(.task__facts) { max-width: 44rem; }
+.rank { display: inline-block; min-width: 1.75rem; font-variant-numeric: tabular-nums; color: var(--ds-color-neutral-text-subtle); }

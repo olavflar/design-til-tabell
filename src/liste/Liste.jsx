@@ -56,7 +56,7 @@ function StackedItem({ c, headingLevel = 4 }) {
   );
 }
 
-function StackedList({ items, labelledBy, headingLevel }) {
+export function StackedList({ items, labelledBy, headingLevel }) {
   return (
     <List.Unordered className="stacked" aria-labelledby={labelledBy}>
       {items.map((c) => (
@@ -104,7 +104,7 @@ function GroupedList({ items }) {
 }
 
 /** Liste med detaljer ved behov: navn og status synlig, resten bak «Vis detaljer» */
-function DetailsList({ items, labelledBy }) {
+export function DetailsList({ items, labelledBy }) {
   return (
     <List.Unordered className="stacked" aria-labelledby={labelledBy}>
       {items.map((c) => (
@@ -269,7 +269,7 @@ function DialogTable({ items, labelledBy }) {
 }
 
 /** Illustrasjon: én tabellrad og samme sak som listeoppføring, med nummer på hvor cellene havner */
-function Mapping() {
+export function Mapping() {
   const c = CASES[0];
   const N = ({ n }) => <span className="num-badge" aria-hidden>{n}</span>;
   return (
@@ -338,7 +338,7 @@ function Mapping() {
  * vises sorteringen som nedtrekksliste her også, så prototypen viser samme
  * kontroller på begge flatene.
  */
-function SearchableCases({ id, large = false }) {
+export function SearchableCases({ id, large = false }) {
   const uid = useId();
   const [query, setQuery] = useState("");
   const [statuses, setStatuses] = useState([]);

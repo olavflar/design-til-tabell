@@ -13,6 +13,7 @@ export default defineConfig({
         tabell: "tabell.html",
         liste: "liste.html",
         kort: "kort.html",
+        forslag: "forslag.html",
       },
     },
   },
