@@ -13,6 +13,9 @@ import {
   ValidationMessage,
 } from "@digdir/designsystemet-react";
 import HifiNav from "../components/HifiNav.jsx";
+import { extract, cssBetween } from "../components/CodeExample.jsx";
+import src from "./Kort.jsx?raw";
+import css from "./kort.css?raw";
 import { CASES, StatusTag, byNewest, Intro, Example, Small } from "../components/cases.jsx";
 
 /* Hi-fi av korteksemplene: tabell på stor skjerm → kort på liten skjerm.
@@ -293,6 +296,10 @@ export default function Kort() {
         </Paragraph>
         <Example
           id="kv"
+          code={[
+            { label: "Kort", code: extract(src, "LabelValueCards", "KeyValue") },
+            { label: "CSS", code: cssBetween(css, "Kortlister", "Kompakt") },
+          ]}
           smallLabel="Kort med etikett og verdi, liten skjerm"
           caption="Hver rad i tabellen blir et kort. Etiketten står foran hver verdi, så ingen opplysninger mister sammenhengen med kolonneoverskriften. Saksnavnet er en lenke, så kortet trenger ingen pil."
           render={(id) => (
@@ -309,6 +316,10 @@ export default function Kort() {
         </Paragraph>
         <Example
           id="compact"
+          code={[
+            { label: "Kort", code: extract(src, "CompactCards") },
+            { label: "CSS", code: cssBetween(css, "Kortlister", "Etikett og verdi") + "\n\n" + cssBetween(css, "Kompakt", "Med handlinger") },
+          ]}
           smallLabel="Kompakte kort, liten skjerm"
           large={
             <Small id="compact-large"><CompactCards items={few} labelledBy="compact-large" grid /></Small>
@@ -328,6 +339,12 @@ export default function Kort() {
         </Paragraph>
         <Example
           id="actions"
+          code={[
+            { label: "Kort", code: extract(src, "CostCards", "EditButton", "DeleteButton") },
+            { label: "Tabell", code: extract(src, "CostTable") },
+            { label: "Siden", code: extract(src, "Costs") },
+            { label: "CSS", code: cssBetween(css, "Med handlinger", "Stor skjerm") },
+          ]}
           smallLabel="Kort med handlinger, liten skjerm"
           large={<Costs large />}
           caption="Endre og Slett står nederst i kortet, som i tabellen. Feilen står der beløpet skulle stått, og kortet får rød bakgrunn, så fargen ikke er eneste kjennetegn. Slett ber om bekreftelse. Neste steg er aldri deaktivert: trykker brukeren på den med feil, vises en feiloppsummering med lenke til kortet."

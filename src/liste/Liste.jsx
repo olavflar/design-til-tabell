@@ -19,6 +19,10 @@ import {
 import { XMarkIcon } from "@navikt/aksel-icons";
 import { useFrameLayer } from "../components/DeviceFrame.jsx";
 import HifiNav from "../components/HifiNav.jsx";
+import { extract, cssBetween } from "../components/CodeExample.jsx";
+import src from "./Liste.jsx?raw";
+import css from "./liste.css?raw";
+import casesSrc from "../components/cases.jsx?raw";
 import {
   CASES, TITLE, STATUSES, StatusTag, SORT_ORDERS, byNewest, Intro, CaseTable, Example, Small,
 } from "../components/cases.jsx";
@@ -541,6 +545,11 @@ export default function Liste() {
         <Mapping />
         <Example
           id="stacked"
+          code={[
+            { label: "Liste", code: extract(src, "StackedItem", "StackedList") },
+            { label: "Tabell", code: extract(casesSrc, "CaseTable") },
+            { label: "CSS", code: cssBetween(css, "Stablet liste", "Gruppert liste") },
+          ]}
           smallLabel="Stablet liste, liten skjerm"
           caption="Seks kolonner blir to linjer per sak. Hver verdi har en fast plass: navnet øverst til venstre, sist oppdatert øverst til høyre, status nederst til høyre. Verdier som ikke forklarer seg selv, har et ord foran («Sak», «Oppdatert»), så de er forståelige uten kolonneoverskrift. Navnet er en overskrift med lenke, så skjermleserbrukere kan hoppe fra sak til sak."
           render={(id) => (
@@ -557,6 +566,10 @@ export default function Liste() {
         </Paragraph>
         <Example
           id="search"
+          code={[
+            { label: "Søk, filter og sortering", code: extract(src, "SearchableCases") },
+            { label: "CSS", code: cssBetween(css, "Søk og filter", "Dialog-knapp") },
+          ]}
           smallLabel="Liste med søk og filter, liten skjerm"
           large={<SearchableCases id="search-large" large />}
           caption="Søk, sortering og statusfilter står over listen og virker likt i tabellen og listen. Sorteringen har fire valg, så den er filterbrikker der brukeren velger ett, og ikke en nedtrekksliste. Statusfilteret er filterbrikker der brukeren kan velge flere statuser samtidig. Valgte filtre vises samlet over listen, der hvert filter kan fjernes for seg. Antall treff leses opp av skjermleser når listen endres."
@@ -572,6 +585,10 @@ export default function Liste() {
         </Paragraph>
         <Example
           id="grouped"
+          code={[
+            { label: "Liste", code: extract(src, "GroupedList") },
+            { label: "CSS", code: cssBetween(css, "Gruppert liste", "Detaljer ved behov") },
+          ]}
           smallLabel="Liste gruppert etter status, liten skjerm"
           caption="Status er flyttet fra hver oppføring til en gruppeoverskrift, så hver sak trenger færre opplysninger. Gruppeoverskriftene er ekte overskrifter, og hver gruppe er en egen liste. Det gir struktur for skjermlesere og KI-agenter, og ikke bare visuelt."
           render={(id) => (
@@ -587,6 +604,10 @@ export default function Liste() {
         </Paragraph>
         <Example
           id="details"
+          code={[
+            { label: "Liste", code: extract(src, "DetailsList") },
+            { label: "CSS", code: cssBetween(css, "Detaljer ved behov", "Søk og filter") },
+          ]}
           smallLabel="Liste med detaljer som kan vises, liten skjerm"
           caption="Navn og status er alltid synlige. Resten ligger under «Detaljer om saken», med etikett og verdi som radoverskrift og celle. Ingen opplysninger er fjernet, bare lagt ett trykk unna. Lenken i navnet åpner saken, så knappen for detaljer og lenken gjør hver sin ting."
           render={(id) => (
@@ -603,6 +624,10 @@ export default function Liste() {
         </Paragraph>
         <Example
           id="dialog"
+          code={[
+            { label: "Liste", code: extract(src, "DialogList", "detailRows", "CaseDialog") },
+            { label: "Tabell", code: extract(src, "DialogTable") },
+          ]}
           smallLabel="Liste med dialog for mer informasjon, liten skjerm"
           large={
             <Small id="dialog-large"><DialogTable items={sorted} labelledBy="dialog-large" /></Small>
@@ -622,6 +647,10 @@ export default function Liste() {
         </Paragraph>
         <Example
           id="queue"
+          code={[
+            { label: "Liste", code: extract(src, "QueueList") },
+            { label: "CSS", code: cssBetween(css, "---------- Nummerert liste") },
+          ]}
           smallLabel="Nummerert liste, liten skjerm"
           large={<QueueScreen id="queue-large" />}
           caption="Det er samme nummererte liste på begge skjermene. På stor skjerm står verdiene i kolonner med en overskriftsrad over, så den ser ut som en tabell. På liten skjerm stables hver oppføring, og etiketten står foran verdien. Overskriftsraden er bare visuell. For skjermlesere har hver verdi sin egen etikett, og plassen kommer fra nummereringen. Brukeren kan ikke bevege seg opp og ned i en kolonne slik som i en ekte tabell. Skal brukeren sammenligne verdier på tvers av oppføringene, er en tabell med en kolonne for plass bedre."

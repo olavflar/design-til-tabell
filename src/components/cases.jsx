@@ -1,5 +1,6 @@
 import { Heading, Link, Paragraph, Table, Tag } from "@digdir/designsystemet-react";
 import { BrowserFrame, PhoneFrame } from "./DeviceFrame.jsx";
+import CodeExample from "./CodeExample.jsx";
 
 /* Felles for hi-fi-sidene (liste og kort): sakene fra scenario 1 («Mine saker»),
    tabellen for stor skjerm og rammen for eksemplene. Sakene er fiktive. */
@@ -80,7 +81,7 @@ export function CaseTable({ items, labelledBy }) {
 
 
 /** Stor og liten skjerm side om side, med bildetekst. `render(id)` lager innholdet for liste-visningene. */
-export function Example({ id, smallLabel, caption, large, render }) {
+export function Example({ id, smallLabel, caption, large, render, code }) {
   return (
     <div className="examples">
       <figure className="wide">
@@ -101,6 +102,7 @@ export function Example({ id, smallLabel, caption, large, render }) {
         </PhoneFrame>
       </figure>
       <Paragraph data-size="sm">{caption}</Paragraph>
+      {code && <CodeExample snippets={code} />}
     </div>
   );
 }

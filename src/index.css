@@ -456,3 +456,24 @@ body {
 .hifi-nav a:hover { color: var(--ds-color-neutral-text-default); background: var(--ds-color-neutral-surface-tinted); }
 .hifi-nav a[aria-current="page"] { color: var(--ds-color-accent-text-default); border-bottom-color: var(--ds-color-accent-base-default); }
 .hifi-nav a:focus-visible { outline: var(--ds-border-width-focus) solid var(--ds-color-focus-outer); outline-offset: -2px; }
+
+/* Kode under eksemplene, slik designsystemet.no viser det */
+.code { flex-basis: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: var(--ds-size-2); min-width: 0; }
+.code > div { width: 100%; }
+.code__block { position: relative; margin-top: var(--ds-size-2); }
+.code__block pre {
+  margin: 0;
+  max-height: 32rem;
+  overflow: auto;
+  padding: var(--ds-size-4);
+  padding-top: var(--ds-size-10);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-color-neutral-background-tinted);
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+.code__block pre:focus-visible { outline: var(--ds-border-width-focus) solid var(--ds-color-focus-outer); }
+.code__copy { position: absolute; top: var(--ds-size-2); right: var(--ds-size-2); }

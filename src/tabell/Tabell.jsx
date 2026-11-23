@@ -15,6 +15,9 @@ import {
 import { ArrowLeftIcon, ArrowRightIcon } from "@navikt/aksel-icons";
 import { BrowserFrame, PhoneFrame } from "../components/DeviceFrame.jsx";
 import HifiNav from "../components/HifiNav.jsx";
+import CodeExample, { extract, cssBetween } from "../components/CodeExample.jsx";
+import src from "./Tabell.jsx?raw";
+import css from "./tabell.css?raw";
 
 /* Hi-fi av tabelleksempelet i artikkelen: stor skjerm → liten skjerm.
    Liten skjerm: første kolonne og overskriftsraden står fast, resten ruller
@@ -268,7 +271,7 @@ function TransposedScreen() {
 }
 
 /** Stor skjerm og liten skjerm side om side, med bildetekst */
-function Example({ id, smallLabel, caption, children }) {
+function Example({ id, smallLabel, caption, code, children }) {
   return (
     <div className="examples">
       <figure className="wide">
@@ -287,6 +290,7 @@ function Example({ id, smallLabel, caption, children }) {
         </PhoneFrame>
       </figure>
       <Paragraph data-size="sm">{caption}</Paragraph>
+      {code && <CodeExample snippets={code} />}
     </div>
   );
 }
@@ -317,6 +321,10 @@ export default function Tabell() {
         <Paragraph>Når brukeren skal sammenligne mange oppføringer på tvers av mange egenskaper.</Paragraph>
         <Example
           id="scroll"
+          code={[
+            { label: "Tabell", code: extract(src, "StatTable", "ScrollArea") },
+            { label: "CSS", code: cssBetween(css, "Rulleflaten", "Snudd tabell") },
+          ]}
           smallLabel="Tabell som ruller sideveis, liten skjerm"
           caption="Første kolonne og overskriftsraden står fast. Resten ruller sideveis. En skygge ved den faste kolonnen og en toning til høyre viser at det er mer innhold."
         >
@@ -332,6 +340,10 @@ export default function Tabell() {
         </Paragraph>
         <Example
           id="paged"
+          code={[
+            { label: "Tabell med sider", code: extract(src, "SmallScreen") },
+            { label: "CSS", code: cssBetween(css, "Rulleflaten", "Snudd tabell") },
+          ]}
           smallLabel="Tabell med paginering, liten skjerm"
           caption="Tabellen ruller sideveis som før, men viser fem fylker om gangen. Det gir en kortere tabell, men brukeren kan ikke sammenligne fylker som ligger på ulike sider. Vurder sortering eller søk i tillegg, så brukeren slipper å bla for å finne et fylke."
         >
@@ -347,6 +359,10 @@ export default function Tabell() {
         </Paragraph>
         <Example
           id="flip"
+          code={[
+            { label: "Snudd tabell", code: extract(src, "TransposedScreen") },
+            { label: "CSS", code: cssBetween(css, "Snudd tabell", "Bla mellom") },
+          ]}
           smallLabel="Snudd tabell, liten skjerm"
           caption="Årene går nedover, og brukeren velger hvilke to fylker som står side om side. Det fungerer når oppgaven er å sammenligne noen få oppføringer. Skal brukeren se alle fylkene samtidig, er det bedre å beholde tabellen og la den rulle."
         >
@@ -376,6 +392,10 @@ export default function Tabell() {
         </div>
         <Example
           id="cols"
+          code={[
+            { label: "Tabell", code: extract(src, "ColumnNavScreen") },
+            { label: "CSS", code: cssBetween(css, "Bla mellom kolonnene") },
+          ]}
           smallLabel="Tabell der brukeren blar mellom kolonnene, liten skjerm"
           caption="Første kolonne står fast, og tabellen viser to år om gangen. Pilknappene ligger nederst, innenfor rekkevidde for tommelen. De flytter ett år frem eller tilbake, så brukeren kan sammenligne to år som ligger ved siden av hverandre. Teksten ved knappene sier hvilke år som vises. Den leses også opp av skjermleser når brukeren blar. Med bryterne kan du prøve med og uten fast overskriftsrad og faste knapper."
         >
