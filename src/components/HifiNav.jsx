@@ -3,7 +3,7 @@ const PAGES = [
   { href: "tabell.html", label: "Tabell" },
   { href: "liste.html", label: "Liste" },
   { href: "kort.html", label: "Kort" },
-  { href: "forslag.html", label: "Forslag" },
+  { href: "forslag.html", label: "Forslag til artikkel" },
 ];
 
 export default function HifiNav({ current }) {

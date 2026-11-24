@@ -1,18 +1,76 @@
-/* Forslag til artikkel: oppsett for artikkelen og de nye eksemplene */
-.forslag { max-width: 90rem; }
-.forslag section { scroll-margin-top: var(--ds-size-4); }
-.forslag .rule { max-width: 44rem; display: flex; flex-direction: column; gap: var(--ds-size-2); }
-.forslag .rule > * { margin: 0; }
-.forslag .steps { max-width: 44rem; }
-.forslag .overview { max-width: 44rem; }
-.forslag .overview .ds-table, .forslag section > .ds-table { width: 100%; max-width: 44rem; }
-.task { display: flex; flex-direction: column; gap: var(--ds-size-3); padding-top: var(--ds-size-6); }
-.task > * { margin: 0; }
-.task__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--ds-size-4); max-width: 64rem; }
-.task__facts > div > * { margin: 0; }
-.task__facts h4 { margin-bottom: var(--ds-size-2); }
-.forslag .meta code { margin-inline-end: var(--ds-size-2); }
-.forslag .cols .ds-details { align-self: start; }
+/* Forslag til artikkel: siden etterligner designsystemet.no, med toppmeny, meny over mønstrene
+   til venstre, artikkelen i midten og innholdsfortegnelsen til høyre. */
+.forslag { min-height: 100vh; }
+.forslag__proto { padding: var(--ds-size-4) var(--ds-size-4) 0; }
+.forslag__proto .hifi-nav ul { flex-wrap: wrap; }
+
+.ds-site-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--ds-size-3) var(--ds-size-8); padding: var(--ds-size-4) var(--ds-size-6); border-bottom: 1px solid var(--ds-color-neutral-border-subtle); }
+.ds-site-header__name { font-size: var(--ds-font-size-6); font-weight: var(--ds-font-weight-medium); color: var(--ds-color-neutral-text-default); text-decoration: none; }
+.ds-site-header ul { display: flex; flex-wrap: wrap; gap: var(--ds-size-2) var(--ds-size-6); list-style: none; margin: 0; padding: 0; }
+.ds-site-header li { margin: 0; }
+.ds-site-header nav a { color: var(--ds-color-neutral-text-default); text-decoration: none; padding-block: var(--ds-size-1); }
+.ds-site-header nav a[aria-current="page"] { font-weight: var(--ds-font-weight-medium); box-shadow: inset 0 -2px 0 currentColor; }
+@media (max-width: 64rem) { .ds-site-header nav { display: none; } }
+
+.site-body { display: grid; grid-template-columns: minmax(0, 1fr); }
+.pattern-menu { display: none; }
+@media (min-width: 64rem) {
+  .site-body { grid-template-columns: 17rem minmax(0, 1fr); }
+  .pattern-menu { display: flex; flex-direction: column; gap: var(--ds-size-6); padding: var(--ds-size-8) 0 var(--ds-size-8) var(--ds-size-4); border-right: 1px solid var(--ds-color-neutral-border-subtle); }
+}
+.pattern-menu__group { margin: 0 0 var(--ds-size-2); padding-inline: var(--ds-size-4); font-weight: var(--ds-font-weight-medium); color: var(--ds-color-neutral-text-subtle); }
+.pattern-menu ul { list-style: none; margin: 0; padding: 0; }
+.pattern-menu li { margin: 0; }
+.pattern-menu a { display: block; padding: var(--ds-size-2) var(--ds-size-4); color: var(--ds-color-neutral-text-default); text-decoration: none; border-radius: var(--ds-border-radius-sm) 0 0 var(--ds-border-radius-sm); }
+.pattern-menu a:hover { background: var(--ds-color-neutral-surface-tinted); }
+.pattern-menu a[aria-current="page"] { background: var(--ds-color-neutral-background-tinted); box-shadow: inset 3px 0 0 var(--ds-color-neutral-border-default); }
+
+/* Artikkelen: overskrift og innhold i midten, innholdsfortegnelsen til høyre på store skjermer */
+.forslag-article { box-sizing: border-box; width: 100%; max-width: 82rem; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "header" "toc" "content"; gap: var(--ds-size-8); padding: var(--ds-size-10) var(--ds-size-4) var(--ds-size-18); }
+.article-header { grid-area: header; }
+@media (min-width: 48rem) { .forslag-article { padding-inline: var(--ds-size-10); } }
+@media (min-width: 90rem) {
+  .forslag-article { grid-template-columns: minmax(0, 1fr) 17rem; grid-template-areas: "header toc" "content toc"; column-gap: var(--ds-size-12); row-gap: 0; }
+  .article-toc { position: sticky; top: var(--ds-size-6); align-self: start; }
+}
+
+/* Toppen: kategori, tittel, ingress, samarbeidspartnere og dato */
+.article-header { display: flex; flex-direction: column; gap: var(--ds-size-3); max-width: 44rem; margin-bottom: var(--ds-size-6); }
+.article-header > * { margin: 0; }
+.article-header__eyebrow, .article-header__meta { color: var(--ds-color-neutral-text-subtle); }
+.article-header__meta { margin-top: var(--ds-size-3); }
+
+/* Avstandene følger artiklene på designsystemet.no: luft mellom avsnitt og mye luft over overskriftene */
+.article-content { grid-area: content; min-width: 0; display: flex; flex-direction: column; gap: var(--ds-size-5); }
+.article-content > * { margin: 0; }
+.article-content > :not(.examples) { max-width: 44rem; }
+.article-content li { line-height: var(--ds-body-long-md-line-height); }
+.article-content li + li { margin-top: var(--ds-size-2); }
+.article-content > h2 { margin-top: var(--ds-size-12); scroll-margin-top: var(--ds-size-6); }
+.article-content > h3 { margin-top: var(--ds-size-6); scroll-margin-top: var(--ds-size-6); }
+.article-content > h2 + h3 { margin-top: 0; }
+.article-content > .examples { margin-block: var(--ds-size-4); }
+.article-content > .ds-card { display: flex; flex-direction: column; gap: var(--ds-size-2); }
+.article-content .ds-card > * { margin: 0; }
+.article-table { width: 100%; }
+.article-table code { overflow-wrap: anywhere; }
+
+.article-toc { grid-area: toc; }
+@media (max-width: 89.99rem) { .article-toc { padding-bottom: var(--ds-size-6); border-bottom: 1px solid var(--ds-color-neutral-border-subtle); } }
+.article-toc > h2 { margin: 0 0 var(--ds-size-3); padding-inline-start: var(--ds-size-4); color: var(--ds-color-neutral-text-subtle); }
+.article-toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--ds-size-1); }
+.article-toc li { margin: 0; }
+.article-toc a { display: block; padding: var(--ds-size-1) var(--ds-size-4); border-radius: var(--ds-border-radius-sm); color: inherit; text-decoration: none; }
+.article-toc a:hover { background: var(--ds-color-neutral-surface-tinted); }
+.article-toc a[aria-current] { font-weight: var(--ds-font-weight-medium); background: var(--ds-color-neutral-background-tinted); box-shadow: inset 3px 0 0 var(--ds-color-neutral-border-default); }
+.article-toc__feedback { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ds-size-4); margin-top: var(--ds-size-5); padding: var(--ds-size-5) var(--ds-size-4) 0; border-top: 1px solid var(--ds-color-neutral-border-subtle); }
+.article-toc__feedback > * { margin: 0; }
+
+/* Bidragsytere nederst, som på designsystemet.no */
+.contributors { margin-top: var(--ds-size-10); padding: var(--ds-size-6); border: 1px solid var(--ds-color-neutral-border-subtle); border-radius: var(--ds-border-radius-xl); display: flex; flex-direction: column; gap: var(--ds-size-3); }
+.contributors > * { margin: 0; }
+.contributors__list { display: flex; flex-wrap: wrap; gap: var(--ds-size-2) var(--ds-size-4); list-style: none; padding: 0; color: var(--ds-color-neutral-text-subtle); }
+.contributors__list li { margin: 0; }
 
 /* Felles for eksemplene */
 .hifi .plain { font-weight: inherit; }
@@ -48,7 +106,4 @@
 .multiples > li > p { margin: 0; }
 .mini-chart rect { fill: var(--ds-color-accent-base-default); }
 
-/* Brukeroppgavene er egne seksjoner i seksjonen, og skal ha full bredde som eksemplene */
-.art section > .task { max-width: none !important; }
-.task > :not(.examples):not(.task__facts) { max-width: 44rem; }
 .rank { display: inline-block; min-width: 1.75rem; font-variant-numeric: tabular-nums; color: var(--ds-color-neutral-text-subtle); }

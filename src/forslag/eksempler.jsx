@@ -10,8 +10,8 @@ import {
   Paragraph,
   Switch,
   Table,
+  Tabs,
   Tag,
-  ToggleGroup,
 } from "@digdir/designsystemet-react";
 import { DownloadIcon } from "@navikt/aksel-icons";
 import { CASES, StatusTag, byNewest } from "../components/cases.jsx";
@@ -329,7 +329,7 @@ function downloadCsv() {
 
 /**
  * Noen ferdige visninger for de vanligste spørsmålene, og «Alle data» for
- * dem som trenger alt. Visningene byttes med ToggleGroup. Alle data kan
+ * dem som trenger alt. Visningene byttes med Tabs. Alle data kan
  * også lastes ned. Tabellen med alle data ruller sideveis med fast første
  * kolonne, fordi det er rådata uten en bestemt oppgave.
  */
@@ -344,13 +344,14 @@ export function UnknownTask() {
       <Paragraph data-size="sm" className="meta">
         Bensin 95, kr per liter, snitt per måned. <Tag data-size="sm" data-color="warning">Fiktive priser</Tag>
       </Paragraph>
-      <ToggleGroup data-size="sm" value={view} onChange={setView} aria-label="Velg visning">
-        <ToggleGroup.Item value="billigst">Billigst nå</ToggleGroup.Item>
-        <ToggleGroup.Item value="utvikling">Utvikling</ToggleGroup.Item>
-        <ToggleGroup.Item value="alle">Alle data</ToggleGroup.Item>
-      </ToggleGroup>
+      <Tabs data-size="sm" value={view} onChange={setView}>
+        <Tabs.List aria-label="Velg visning">
+          <Tabs.Tab value="billigst">Billigst nå</Tabs.Tab>
+          <Tabs.Tab value="utvikling">Utvikling</Tabs.Tab>
+          <Tabs.Tab value="alle">Alle data</Tabs.Tab>
+        </Tabs.List>
 
-      {view === "billigst" && (
+        <Tabs.Panel value="billigst">
         <List.Ordered className="stacked" role="list" aria-label="Billigst i juni">
           {cheapest.map(([k, v], i) => (
             <List.Item key={k}>
@@ -362,9 +363,9 @@ export function UnknownTask() {
             </List.Item>
           ))}
         </List.Ordered>
-      )}
+        </Tabs.Panel>
 
-      {view === "utvikling" && (
+        <Tabs.Panel value="utvikling">
         /* Småbilder: samme figur og samme skala for hver kommune, så bare dataene endrer seg */
         <List.Unordered className="multiples" role="list" aria-label="Utvikling per kommune">
           {PRICES.map(([k, v]) => (
@@ -377,9 +378,9 @@ export function UnknownTask() {
             </List.Item>
           ))}
         </List.Unordered>
-      )}
+        </Tabs.Panel>
 
-      {view === "alle" && (
+        <Tabs.Panel value="alle">
         <div className="scroll-area" role="region" aria-label="Alle data, tabell" tabIndex={0}>
           <Table data-size="sm" zebra className="sticky-first">
             <caption className="ds-sr-only">Drivstoffpriser i Troms 2026, kr per liter</caption>
@@ -399,7 +400,8 @@ export function UnknownTask() {
             </Table.Body>
           </Table>
         </div>
-      )}
+        </Tabs.Panel>
+      </Tabs>
 
       <div>
         <Button data-size="sm" variant="secondary" onClick={downloadCsv}>
