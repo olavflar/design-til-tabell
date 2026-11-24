@@ -63,3 +63,7 @@
 .frame--browser .frame__content.hifi { padding-inline: var(--ds-size-4); }
 .case-table :is(th, td) { padding-inline: var(--ds-size-2); }
 .case-table .ds-tag { white-space: normal; }
+
+/* Skjemaet for å legge til eller endre en kostnad */
+.cost-form { display: flex; flex-direction: column; gap: var(--ds-size-4); }
+.cost-form__buttons { display: flex; flex-wrap: wrap; gap: var(--ds-size-3); }

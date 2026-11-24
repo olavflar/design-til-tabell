@@ -348,10 +348,12 @@ export default function Forslag() {
             id="endre"
             smallLabel="Kort med handlinger, liten skjerm"
             large={<Costs large />}
-            caption="Endre og Slett står nederst i kortet. Feilen står der beløpet skulle stått. Slett ber om bekreftelse."
+            caption="Endre og Slett står nederst i kortet. Feilen står der beløpet skulle stått. Slett ber om bekreftelse. Endre og «Legg til kostnad» åpner et skjema i en dialog. Feil vises ved feltet de gjelder. Når brukeren lagrer, oppdateres tabellen eller kortet, en melding sier hva som skjedde, og fokus går tilbake til knappen."
             render={() => <Costs />}
             code={[
               { label: "Kort", code: extract(kortSrc, "CostCards", "EditButton", "DeleteButton") },
+              { label: "Skjema", code: extract(kortSrc, "CostForm", "parseKr") },
+              { label: "Siden", code: extract(kortSrc, "Costs") },
               { label: "Tabell", code: extract(kortSrc, "CostTable") },
               { label: "CSS", code: cssBetween(kortCss, "Med handlinger", "Stor skjerm") },
             ]}

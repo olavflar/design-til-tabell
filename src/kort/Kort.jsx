@@ -8,11 +8,16 @@ import {
   List,
   Paragraph,
   Popover,
+  Radio,
   Table,
+  Textfield,
+  Fieldset,
   Tag,
   ValidationMessage,
 } from "@digdir/designsystemet-react";
 import HifiNav from "../components/HifiNav.jsx";
+import FrameDialog from "../components/FrameDialog.jsx";
+import { PlusIcon } from "@navikt/aksel-icons";
 import { extract, cssBetween } from "../components/CodeExample.jsx";
 import src from "./Kort.jsx?raw";
 import css from "./kort.css?raw";
@@ -122,11 +127,67 @@ const COSTS = [
   { id: "lisenser", name: "Programvarelisenser", category: "Drift", amount: 9900 },
 ];
 const ERROR = "Fyll inn beløp.";
+const CATEGORIES = ["Drift", "Innkjøp", "Reise", "Annet"];
 const kr = (n) => `${n.toLocaleString("nb-NO")} kr`;
 
-function EditButton({ item }) {
+/** Gjør «12 500», «12500» og «12 500,50» om til et tall. Gir NaN hvis det ikke er et tall. */
+const parseKr = (v) => Number(v.replace(/[\s\u00a0]/g, "").replace(/kr$/i, "").replace(",", "."));
+
+/**
+ * Skjemaet for å legge til eller endre en kostnad. Feilene vises ved feltet
+ * de gjelder når brukeren prøver å lagre. Fire kategorier gir radioknapper,
+ * ikke Select, fordi Select brukes først fra 7 valg.
+ */
+function CostForm({ item, onSave, onCancel }) {
+  const uid = useId();
+  const [name, setName] = useState(item?.name ?? "");
+  const [category, setCategory] = useState(item?.category ?? "Drift");
+  const [amount, setAmount] = useState(item?.amount != null ? String(item.amount) : "");
+  const [errors, setErrors] = useState({});
+
+  const submit = (e) => {
+    e.preventDefault();
+    const n = parseKr(amount);
+    const next = {
+      name: name.trim() ? null : "Skriv hva kostnaden gjelder.",
+      amount: !amount.trim()
+        ? "Skriv beløpet i kroner."
+        : Number.isNaN(n) ? "Beløpet må være et tall, for eksempel 12 500."
+        : n <= 0 ? "Beløpet må være større enn 0 kr." : null,
+    };
+    setErrors(next);
+    if (next.name || next.amount) {
+      e.currentTarget.querySelector(next.name ? "input[name=name]" : "input[name=amount]")?.focus();
+      return;
+    }
+    onSave({ ...item, name: name.trim(), category, amount: n });
+  };
+
   return (
-    <Button variant="secondary" data-size="sm" aria-label={`Endre ${item.name}`}>
+    <form className="cost-form" onSubmit={submit} noValidate>
+      <Textfield data-size="sm" label="Hva gjelder kostnaden?" name="name" value={name}
+        onChange={(e) => setName(e.target.value)} error={errors.name} autoComplete="off" />
+      <Fieldset data-size="sm">
+        <Fieldset.Legend>Kategori</Fieldset.Legend>
+        {CATEGORIES.map((c) => (
+          <Radio key={c} label={c} name={`${uid}-kategori`} value={c}
+            checked={category === c} onChange={() => setCategory(c)} />
+        ))}
+      </Fieldset>
+      <Textfield data-size="sm" label="Beløp" name="amount" suffix="kr" inputMode="decimal"
+        value={amount} onChange={(e) => setAmount(e.target.value)} error={errors.amount} autoComplete="off" />
+      {/* Primær før sekundær, til venstre */}
+      <div className="cost-form__buttons">
+        <Button data-size="sm" type="submit">{item?.id ? "Lagre endringer" : "Legg til"}</Button>
+        <Button data-size="sm" variant="secondary" type="button" onClick={onCancel}>Avbryt</Button>
+      </div>
+    </form>
+  );
+}
+
+function EditButton({ item, onEdit }) {
+  return (
+    <Button variant="secondary" data-size="sm" aria-label={`Endre ${item.name}`} onClick={(e) => onEdit(item, e.currentTarget)}>
       Endre
     </Button>
   );
@@ -159,7 +220,7 @@ function DeleteButton({ item, onDelete }) {
   );
 }
 
-function CostTable({ items, onDelete }) {
+function CostTable({ items, onDelete, onEdit }) {
   return (
     <Table data-size="sm" className="cost-table">
       <caption className="ds-sr-only">Kostnader</caption>
@@ -182,7 +243,7 @@ function CostTable({ items, onDelete }) {
               <Table.Cell className="num-col">
                 {error ? <ValidationMessage data-size="sm">{ERROR}</ValidationMessage> : kr(c.amount)}
               </Table.Cell>
-              <Table.Cell className="action-cell"><EditButton item={c} /></Table.Cell>
+              <Table.Cell className="action-cell"><EditButton item={c} onEdit={onEdit} /></Table.Cell>
               <Table.Cell className="action-cell"><DeleteButton item={c} onDelete={() => onDelete(c.id)} /></Table.Cell>
             </Table.Row>
           );
@@ -193,7 +254,7 @@ function CostTable({ items, onDelete }) {
 }
 
 /** Hver kostnad blir et kort: navn og beløp øverst, feilen under, Endre og Slett i en egen rad nederst */
-function CostCards({ items, onDelete }) {
+function CostCards({ items, onDelete, onEdit }) {
   return (
     <List.Unordered className="cards">
       {items.map((c) => {
@@ -214,7 +275,7 @@ function CostCards({ items, onDelete }) {
                 <Paragraph data-size="sm" className="subtle">{c.category}</Paragraph>
                 {error && <ValidationMessage data-size="sm">{ERROR}</ValidationMessage>}
                 <div className="actions actions--card">
-                  <EditButton item={c} />
+                  <EditButton item={c} onEdit={onEdit} />
                   <DeleteButton item={c} onDelete={() => onDelete(c.id)} />
                 </div>
               </Card.Block>
@@ -231,11 +292,34 @@ export function Costs({ large = false }) {
   const headingRef = useRef(null);
   const [items, setItems] = useState(COSTS);
   const [showSummary, setShowSummary] = useState(false);
+  const [editing, setEditing] = useState(null); // null, { } for ny, eller kostnaden som endres
+  const [message, setMessage] = useState("");
+  const triggerRef = useRef(null); // Knappen som åpnet skjemaet, så fokus kan gå tilbake dit
+  const openForm = (item, trigger) => {
+    triggerRef.current = trigger;
+    setEditing(item);
+  };
   const withErrors = items.filter((c) => c.amount == null);
   // Raden eller kortet med fokus forsvinner, så fokus flyttes til overskriften
   const remove = (costId) => {
+    const gone = items.find((c) => c.id === costId);
     setItems((prev) => prev.filter((c) => c.id !== costId));
+    setMessage(`«${gone?.name}» er slettet.`);
     headingRef.current?.focus();
+  };
+  const save = (cost) => {
+    if (cost.id) {
+      setItems((prev) => prev.map((c) => (c.id === cost.id ? cost : c)));
+      setMessage(`«${cost.name}» er endret.`);
+    } else {
+      setItems((prev) => [...prev, { ...cost, id: `ny-${Date.now()}` }]);
+      setMessage(`«${cost.name}» er lagt til.`);
+    }
+    setEditing(null);
+  };
+  const next = () => {
+    setShowSummary(true);
+    setMessage(withErrors.length ? "" : "Alle kostnadene er fylt ut. I en ekte løsning går du nå videre til steg 3.");
   };
 
   return (
@@ -244,11 +328,27 @@ export function Costs({ large = false }) {
         <Paragraph data-size="sm" className="subtle">Søknad om tilskudd · Steg 2 av 4</Paragraph>
         <Heading level={3} data-size="sm" id={id} ref={headingRef} tabIndex={-1}>Kostnader</Heading>
       </div>
-      {/* Bare for skjermlesere: leses opp når en kostnad slettes */}
-      <p role="status" className="ds-sr-only">
-        {items.length} kostnader{withErrors.length > 0 && `, ${withErrors.length} må rettes`}
-      </p>
-      {large ? <CostTable items={items} onDelete={remove} /> : <CostCards items={items} onDelete={remove} />}
+      {/* Leses opp når en kostnad legges til, endres eller slettes */}
+      <Paragraph data-size="sm" role="status" className="meta">{message}</Paragraph>
+      {large
+        ? <CostTable items={items} onDelete={remove} onEdit={openForm} />
+        : <CostCards items={items} onDelete={remove} onEdit={openForm} />}
+      <div>
+        <Button data-size="sm" variant="secondary" className={large ? undefined : "full"} onClick={(e) => openForm({}, e.currentTarget)}>
+          <PlusIcon aria-hidden />
+          Legg til kostnad
+        </Button>
+      </div>
+      <FrameDialog
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        returnFocusRef={triggerRef}
+        title={editing?.id ? `Endre «${editing.name}»` : "Legg til kostnad"}
+      >
+        {editing !== null && (
+          <CostForm key={editing.id ?? "ny"} item={editing} onSave={save} onCancel={() => setEditing(null)} />
+        )}
+      </FrameDialog>
       {showSummary && withErrors.length > 0 && (
         <ErrorSummary data-size="sm">
           <ErrorSummary.Heading>For å gå videre må du rette opp følgende feil:</ErrorSummary.Heading>
@@ -263,7 +363,7 @@ export function Costs({ large = false }) {
       )}
       {/* Neste steg er aldri deaktivert */}
       <div>
-        <Button data-size="sm" className={large ? undefined : "full"} onClick={() => setShowSummary(true)}>
+        <Button data-size="sm" className={large ? undefined : "full"} onClick={next}>
           Neste steg
         </Button>
       </div>
@@ -341,13 +441,14 @@ export default function Kort() {
           id="actions"
           code={[
             { label: "Kort", code: extract(src, "CostCards", "EditButton", "DeleteButton") },
+            { label: "Skjema", code: extract(src, "CostForm", "parseKr") },
             { label: "Tabell", code: extract(src, "CostTable") },
             { label: "Siden", code: extract(src, "Costs") },
             { label: "CSS", code: cssBetween(css, "Med handlinger", "Stor skjerm") },
           ]}
           smallLabel="Kort med handlinger, liten skjerm"
           large={<Costs large />}
-          caption="Endre og Slett står nederst i kortet, som i tabellen. Feilen står der beløpet skulle stått, og kortet får rød bakgrunn, så fargen ikke er eneste kjennetegn. Slett ber om bekreftelse. Neste steg er aldri deaktivert: trykker brukeren på den med feil, vises en feiloppsummering med lenke til kortet."
+          caption="Endre og Slett står nederst i kortet, som i tabellen. Feilen står der beløpet skulle stått, og kortet får rød bakgrunn, så fargen ikke er eneste kjennetegn. Slett ber om bekreftelse. Neste steg er aldri deaktivert: trykker brukeren på den med feil, vises en feiloppsummering med lenke til kortet. Endre og «Legg til kostnad» åpner et skjema i en dialog. Feil vises ved feltet de gjelder. Når brukeren lagrer, oppdateres tabellen eller kortet, en melding sier hva som skjedde, og fokus går tilbake til knappen."
           render={() => <Costs />}
         />
       </section>

@@ -1,0 +1,1 @@
+import{G as e,H as t,U as n,q as r}from"./DeviceFrame-BLfhRT72.js";/* empty css                 */import{i}from"./Tabell-B_tbC7fT.js";var a=r(e(),1),o=n(),s=t();(0,o.createRoot)(document.getElementById(`root`)).render((0,s.jsx)(a.StrictMode,{children:(0,s.jsx)(i,{})}));

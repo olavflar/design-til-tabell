@@ -1,1 +1,0 @@
-import{B as e,G as t,U as n,V as r}from"./DeviceFrame-C4KpHYVz.js";/* empty css                 */import{n as i}from"./Kort--xU9pthQ.js";var a=t(n(),1),o=r(),s=e();(0,o.createRoot)(document.getElementById(`root`)).render((0,s.jsx)(a.StrictMode,{children:(0,s.jsx)(i,{})}));
