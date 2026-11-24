@@ -12,13 +12,13 @@ npm run dev     # http://localhost:5173
 npm run build   # bygger til dist/
 ```
 
-`node_modules`, `dist`, `.vercel` og `.DS_Store` skal ikke inn i Git.
+`node_modules`, `dist` og `.DS_Store` skal ikke inn i Git.
 
 ## Deling og kommentarer
 
-Prosjektet ligger på Vercel, som bygger på nytt ved hver push. `main` gir den faste lenken, og hver pull request får
-sin egen forhåndsvisning. Andre kommenterer direkte i prototypen med kommentarverktøyet til Vercel, og kommentarene
-vises også i pull requesten.
+Prototypen ligger ute på GitHub Pages. `.github/workflows/pages.yml` bygger og publiserer den hver gang noe havner
+på `main`, også når en pull request blir merget. Gruppen kommenterer i Miro, med bilder av eksemplene og lenke til
+prototypen.
 
 ## Struktur
 
