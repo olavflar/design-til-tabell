@@ -8,3 +8,6 @@ inspirasjon/
 miro /
 articles/*Medium.pdf
 miro-eksport/LES-MEG.txt
+
+# Bilder til Miro lages med npm run miro-bilder
+miro-bilder/

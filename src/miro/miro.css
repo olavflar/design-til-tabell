@@ -1,0 +1,2 @@
+/* Bare for bildene til Miro: tabeller som ruller, vises i full høyde, så hele innholdet kommer med */
+.miro-shot .scroll-area { max-height: none; }

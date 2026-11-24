@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "miro-bilder": "node scripts/miro-bilder.mjs"
   },
   "dependencies": {
     "@digdir/designsystemet-css": "^1.23.0",
