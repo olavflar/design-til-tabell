@@ -416,15 +416,16 @@ export default function Forslag() {
             alternativer, bruk heller <C slug="chip">Chip</C>.
           </Paragraph>
           <Paragraph variant="long">
-            Mange produktsider viser i stedet alternativene side om side, med egenskapene i grupper og ledeteksten
-            under hver verdi. Det gir mer plass til hver verdi, og hver kolonne kan leses for seg. Er det mange
-            egenskaper, hjelper det at navnene på alternativene står fast øverst når brukeren ruller.
+            Er det mange egenskaper, kan du vise alternativene side om side, slik mange produktsider gjør. Start
+            med de viktigste tallene i stor skrift, og del resten inn i grupper med overskrift. Ledeteksten står
+            over hver verdi, så hver kolonne kan leses for seg. La valgene av alternativ stå fast øverst når
+            brukeren ruller.
           </Paragraph>
           <Example
             id="fa-side"
             smallLabel="To studier side om side i grupper, liten skjerm"
             large={<CompareSideBySide large />}
-            caption="Hver kolonne er én studie, valgt med en nedtrekksliste øverst. Egenskapene står i grupper med overskrift, og ledeteksten står under hver verdi. Når brukeren ruller forbi toppen, står navnene fast øverst. I koden er hver gruppe en tabell med rad- og kolonneoverskrifter, så skjermlesere får vite hvilken egenskap og studie hver verdi gjelder."
+            caption="Hver kolonne er én studie. Nedtrekkslistene står fast øverst når brukeren ruller. Hurtigvisningen viser de viktigste tallene stort, og resten står i grupper med ledeteksten over verdien. En strek betyr at studiet ikke har det. I koden er hver gruppe en tabell med rad- og kolonneoverskrifter, så skjermlesere får vite hvilken egenskap og studie hver verdi gjelder."
             render={() => <CompareSideBySide />}
             code={[
               { label: "Visning", code: extract(eksSrc, "CompareSideBySide") },

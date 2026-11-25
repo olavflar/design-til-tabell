@@ -86,38 +86,38 @@
 .compare th[scope="col"] { width: 5rem; vertical-align: bottom; }
 .compare th[scope="row"] { width: 5rem; }
 
-/* Side om side: én kolonne per studie, grupper med overskrift og ledetekst under hver verdi */
+/* Side om side: én kolonne per studie, som på sammenligningssidene til mange produktsider */
 /* Uten mellomrom mellom kolonnene, men med luft til høyre i hver, så de står rett over tabellkolonnene */
-.sbs-cols, .sbs-sticky { display: grid; grid-template-columns: repeat(var(--sbs-cols), minmax(0, 1fr)); }
-.sbs-cols > *, .sbs-sticky > * { padding-inline-end: var(--ds-size-4); }
-.sbs-top { display: flex; flex-direction: column; gap: var(--ds-size-2); min-width: 0; }
-.sbs-top .ds-select { width: 100%; }
-.sbs-top p { margin: 0; }
-.sbs-name { font-size: var(--ds-font-size-5); font-weight: var(--ds-font-weight-semibold); line-height: 1.25; }
-.sbs-key { display: flex; flex-direction: column; }
-.sbs-key__value { font-size: var(--ds-font-size-7); font-weight: var(--ds-font-weight-semibold); line-height: 1.1; font-variant-numeric: tabular-nums; }
-.sbs-label { display: block; color: var(--ds-color-neutral-text-subtle); font-size: var(--ds-font-size-2); }
-/* Fast linje med navnene, bare når toppen er rullet ut av syne */
-.sbs-sticky {
+.sbs-cols { display: grid; grid-template-columns: repeat(var(--sbs-cols), minmax(0, 1fr)); }
+.sbs-cols > * { padding-inline-end: var(--ds-size-4); min-width: 0; }
+/* Nedtrekkslistene står fast øverst */
+.sbs-pick {
   position: sticky; top: 0; z-index: 2;
-  margin-inline: calc(var(--ds-size-4) * -1); padding: var(--ds-size-2) var(--ds-size-4);
+  margin-inline: calc(var(--ds-size-4) * -1); padding: var(--ds-size-2) 0 var(--ds-size-2) var(--ds-size-4);
   background: var(--ds-color-neutral-background-default);
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
-  font-size: var(--ds-font-size-2); font-weight: var(--ds-font-weight-semibold);
-  /* Tar ingen plass før den vises, så toppen ikke hopper */
-  height: 0; padding-block: 0; overflow: hidden; border-bottom-width: 0; margin-bottom: calc(var(--ds-size-5) * -1);
 }
-.sbs-sticky[data-stuck="true"] { height: auto; padding-block: var(--ds-size-2); border-bottom-width: 1px; }
-.sbs-group { display: flex; flex-direction: column; gap: var(--ds-size-2); }
+.sbs-pick .ds-select { width: 100%; }
+.sbs-top { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ds-size-2); }
+.sbs-top p { margin: 0; }
+.sbs-name { font-size: var(--ds-font-size-5); font-weight: var(--ds-font-weight-semibold); line-height: 1.25; }
+.sbs-group { display: flex; flex-direction: column; gap: var(--ds-size-3); margin-top: var(--ds-size-6); }
 .sbs-group > * { margin: 0; }
-.sbs-group h4 { padding-bottom: var(--ds-size-2); border-bottom: 2px solid var(--ds-color-neutral-border-default); }
-/* Radoverskriften er bare for skjermlesere og tar ingen plass. Kolonnene står under hver sin studie. */
+.sbs-group h4 { padding-bottom: var(--ds-size-3); border-bottom: 1px solid var(--ds-color-neutral-border-default); }
+/* Radoverskriften er bare for skjermlesere og tar nesten ingen plass. Kolonnene står under hver sin studie. */
 .sbs-table { width: calc(100% + var(--ds-size-4)); table-layout: fixed; margin-inline-start: calc(var(--ds-size-4) * -1) !important; }
-.sbs-table thead th { padding: 0; border: 0; height: 0; }
 /* Med fast tabelloppsett er det første rad som bestemmer bredden på kolonnene */
 .sbs-table tr > :first-child { width: var(--ds-size-4); padding: 0; }
-.sbs-table td { vertical-align: top; padding-inline: 0 var(--ds-size-4); }
-.sbs-value { display: block; font-weight: var(--ds-font-weight-medium); }
+.sbs-table thead th { padding: 0; height: 0; }
+/* Ingen linjer mellom radene, bare luft */
+.sbs-table :is(th, td) { border: 0; }
+.sbs-table td { color: var(--ds-color-neutral-text-default); vertical-align: top; padding: 0 var(--ds-size-4) var(--ds-size-4) 0; }
+.sbs-label { display: block; font-weight: var(--ds-font-weight-semibold); }
+.sbs-value { display: block; overflow-wrap: anywhere; }
+/* Hurtigvisning: store tall med ledeteksten under */
+.sbs-group--quick .sbs-value { font-size: var(--ds-font-size-8); font-weight: var(--ds-font-weight-semibold); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.sbs-group--quick .sbs-label { font-weight: var(--ds-font-weight-regular); font-size: var(--ds-font-size-2); color: var(--ds-color-neutral-text-subtle); }
+.sbs-group--quick td { padding-bottom: var(--ds-size-6); }
 
 /* Trendgraf */
 .spark { color: var(--ds-color-accent-base-default); vertical-align: middle; flex: none; }

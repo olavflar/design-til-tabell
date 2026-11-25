@@ -29,13 +29,13 @@ const nb = new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 1, minimumFra
 
 /* \u00AD er myke bindestreker, så lange ord deles riktig når kolonnene er smale på mobil */
 const STUDIES = [
-  { id: "uib", name: "Infor\u00ADmatikk, Bergen", points: 180, grade: 52.3, places: 120, language: "Norsk", practice: "Nei", start: "August" },
-  { id: "uio", name: "Infor\u00ADmatikk, Oslo", points: 180, grade: 54.1, places: 200, language: "Norsk", practice: "Nei", start: "August" },
-  { id: "ntnu", name: "Infor\u00ADmatikk, Trondheim", points: 180, grade: 53.0, places: 150, language: "Norsk og engelsk", practice: "Nei", start: "August" },
-  { id: "uit", name: "Infor\u00ADmatikk, Tromsø", points: 180, grade: 41.2, places: 60, language: "Norsk", practice: "Nei", start: "August" },
-  { id: "hvl", name: "Data\u00ADingeniør, Bergen", points: 180, grade: 47.8, places: 90, language: "Norsk", practice: "Ja", start: "August" },
-  { id: "oslomet", name: "Data\u00ADingeniør, Oslo", points: 180, grade: 50.9, places: 140, language: "Norsk", practice: "Ja", start: "August" },
-  { id: "uia", name: "Data\u00ADingeniør, Grimstad", points: 180, grade: 44.6, places: 80, language: "Norsk", practice: "Ja", start: "August" },
+  { id: "uib", name: "Infor\u00ADmatikk, Bergen", points: 180, grade: 52.3, places: 120, language: "Norsk", practice: "Nei", start: "August", firstGrade: 50.1, practiceText: "—", exchange: "5. semester", duration: "3 år", deadline: "15. april" },
+  { id: "uio", name: "Infor\u00ADmatikk, Oslo", points: 180, grade: 54.1, places: 200, language: "Norsk", practice: "Nei", start: "August", firstGrade: 52.8, practiceText: "—", exchange: "5. eller 6. semester", duration: "3 år", deadline: "15. april" },
+  { id: "ntnu", name: "Infor\u00ADmatikk, Trondheim", points: 180, grade: 53.0, places: 150, language: "Norsk og engelsk", practice: "Nei", start: "August", firstGrade: 51.4, practiceText: "—", exchange: "5. semester", duration: "3 år", deadline: "15. april" },
+  { id: "uit", name: "Infor\u00ADmatikk, Tromsø", points: 180, grade: 41.2, places: 60, language: "Norsk", practice: "Nei", start: "August", firstGrade: 38.9, practiceText: "—", exchange: "5. semester", duration: "3 år", deadline: "15. april" },
+  { id: "hvl", name: "Data\u00ADingeniør, Bergen", points: 180, grade: 47.8, places: 90, language: "Norsk", practice: "Ja", start: "August", firstGrade: 45.0, practiceText: "10 uker i bedrift", exchange: "5. semester", duration: "3 år", deadline: "15. april" },
+  { id: "oslomet", name: "Data\u00ADingeniør, Oslo", points: 180, grade: 50.9, places: 140, language: "Norsk", practice: "Ja", start: "August", firstGrade: 48.7, practiceText: "8 uker i bedrift", exchange: "—", duration: "3 år", deadline: "15. april" },
+  { id: "uia", name: "Data\u00ADingeniør, Grimstad", points: 180, grade: 44.6, places: 80, language: "Norsk", practice: "Ja", start: "August", firstGrade: 42.3, practiceText: "10 uker i bedrift", exchange: "4. semester", duration: "3 år", deadline: "15. april" },
 ];
 
 const STUDY_ROWS = [
@@ -47,15 +47,35 @@ const STUDY_ROWS = [
   { key: "start", label: "Oppstart", format: (v) => v },
 ];
 
-/* Egenskapene i grupper, til sammenligningen side om side */
-const STUDY_GROUPS = [
-  ["Opptak", ["grade", "places"]],
-  ["Studiet", ["points", "practice", "language"]],
-  ["Oppstart", ["start"]],
+/* Egenskapene i grupper, til sammenligningen side om side. Hurtigvisningen viser
+   de viktigste tallene stort, resten står i grupper med ledeteksten over verdien. */
+const SBS_QUICK = [
+  { key: "grade", label: "poeng\u00ADgrense 2026", format: (v) => nb.format(v) },
+  { key: "places", label: "studie\u00ADplasser", format: (v) => v },
+  { key: "points", label: "studie\u00ADpoeng", format: (v) => v },
 ];
+const SBS_GROUPS = [
+  ["Opptak", [
+    { key: "grade", label: "Poenggrense, ordinær", format: (v) => nb.format(v) },
+    { key: "firstGrade", label: "Poenggrense, førstegang", format: (v) => nb.format(v) },
+    { key: "places", label: "Studieplasser", format: (v) => v },
+    { key: "deadline", label: "Søknadsfrist", format: (v) => v },
+  ]],
+  ["Studiet", [
+    { key: "points", label: "Studiepoeng", format: (v) => v },
+    { key: "duration", label: "Studietid", format: (v) => v },
+    { key: "language", label: "Undervisnings\u00ADspråk", format: (v) => v },
+    { key: "start", label: "Oppstart", format: (v) => v },
+  ]],
+  ["Praksis og utveksling", [
+    { key: "practiceText", label: "Praksis", format: (v) => v },
+    { key: "exchange", label: "Utveksling", format: (v) => v },
+  ]],
+];
+const SBS_ROWS = SBS_GROUPS.flatMap(([, rows]) => rows);
 
 /** Egenskapene som er forskjellige for de viste studiene */
-const differing = (studies) => STUDY_ROWS.filter((r) => new Set(studies.map((s) => s[r.key])).size > 1);
+const differing = (studies, rows = STUDY_ROWS) => rows.filter((r) => new Set(studies.map((s) => s[r.key])).size > 1);
 
 /**
  * Sammenligne noen få alternativer.
@@ -150,14 +170,15 @@ export function CompareStudies({ large = false }) {
 }
 
 /**
- * Sammenligne side om side, slik produktsider ofte gjør.
- * Hver kolonne er én studie, valgt med en Select øverst. Egenskapene står i grupper
- * med overskrift, og ledeteksten står under hver verdi, så kolonnene kan leses hver for seg.
- * Når toppen er rullet ut av syne, viser en fast linje hvilke studier som sammenlignes.
+ * Sammenligne side om side, slik produktsider ofte gjør (for eksempel apple.com/no/mac/compare).
+ * Hver kolonne er én studie. Nedtrekkslistene står fast øverst mens brukeren ruller.
+ * Under dem kommer en topp med navn og handling, en hurtigvisning med de viktigste tallene
+ * i stor skrift, og så grupper med overskrift der ledeteksten står over verdien.
+ * «—» betyr at studiet ikke har det.
  *
- * Koden er likevel en tabell per gruppe, med radoverskrifter og kolonneoverskrifter,
- * så skjermlesere får egenskap og studie for hver verdi. Overskriftene er skjult visuelt,
- * fordi ledeteksten og navnet allerede står synlig.
+ * Koden er likevel en tabell per gruppe, med rad- og kolonneoverskrifter, så skjermlesere
+ * får egenskap og studie for hver verdi. Overskriftene er skjult visuelt, fordi
+ * ledeteksten og navnet allerede står synlig.
  * Stor skjerm: tre studier. Liten skjerm: to.
  */
 export function CompareSideBySide({ large = false }) {
@@ -165,21 +186,45 @@ export function CompareSideBySide({ large = false }) {
   const count = large ? 3 : 2;
   const [picked, setPicked] = useState(["uib", "hvl", "ntnu"]);
   const [onlyDiff, setOnlyDiff] = useState(false);
-  const [stuck, setStuck] = useState(false);
-  const topRef = useRef(null);
   const shown = picked.slice(0, count).map((p) => STUDIES.find((s) => s.id === p));
-  const keep = new Set((onlyDiff ? differing(shown) : STUDY_ROWS).map((r) => r.key));
+  const keep = new Set((onlyDiff ? differing(shown, SBS_ROWS) : SBS_ROWS).map((r) => r.key));
   const pick = (i, value) => setPicked((cur) => cur.map((p, j) => (j === i ? value : p)));
-  const plain = (name) => name.replaceAll("\u00AD", "");
+  const plain = (text) => text.replaceAll("\u00AD", "");
 
-  // Den faste linjen med navn vises først når toppen med nedtrekkslistene er ute av syne
-  useEffect(() => {
-    const el = topRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setStuck(!e.isIntersecting && e.boundingClientRect.top < 0));
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  /** Én gruppe som tabell. quick gir store tall med ledeteksten under. */
+  const group = (title, rows, quick = false) => (
+    <section key={title} className={`sbs-group${quick ? " sbs-group--quick" : ""}`} aria-labelledby={`${id}-${title}`}>
+      <Heading level={4} data-size="xs" id={`${id}-${title}`}>{title}</Heading>
+      <Table data-size="sm" className="sbs-table">
+        <caption className="ds-sr-only">{title}</caption>
+        <Table.Head>
+          <Table.Row>
+            <Table.HeaderCell scope="col"><span className="ds-sr-only">Egenskap</span></Table.HeaderCell>
+            {shown.map((s, i) => (
+              <Table.HeaderCell key={i} scope="col"><span className="ds-sr-only">{plain(s.name)}</span></Table.HeaderCell>
+            ))}
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {rows.map((r) => (
+            <Table.Row key={r.key}>
+              <Table.HeaderCell scope="row"><span className="ds-sr-only">{plain(r.label)}</span></Table.HeaderCell>
+              {shown.map((s, i) => (
+                <Table.Cell key={i}>
+                  {!quick && <span className="sbs-label" aria-hidden>{r.label}</span>}
+                  <span className="sbs-value">{r.format(s[r.key])}</span>
+                  {quick && <span className="sbs-label" aria-hidden>{r.label}</span>}
+                </Table.Cell>
+              ))}
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table>
+    </section>
+  );
+
+  const quickRows = SBS_QUICK.filter((r) => !onlyDiff || differing(shown, [r]).length);
+  const detailCount = SBS_ROWS.filter((r) => keep.has(r.key)).length;
 
   return (
     <div className="frame__content hifi sbs" style={{ "--sbs-cols": count }}>
@@ -188,26 +233,28 @@ export function CompareSideBySide({ large = false }) {
         Bachelorstudier i informatikk og data. <Tag data-size="sm" data-color="warning">Fiktive tall</Tag>
       </Paragraph>
 
-      <div className="sbs-sticky" data-stuck={stuck} aria-hidden>
-        {shown.map((s, i) => <span key={i}>{s.name}</span>)}
+      {/* Nedtrekkslistene står fast øverst, så brukeren alltid ser hva som sammenlignes */}
+      <div className="sbs-cols sbs-pick">
+        {shown.map((s, i) => (
+          <Field key={i} data-size="sm">
+            <Label>Studie {i + 1}</Label>
+            <Select value={picked[i]} onChange={(e) => pick(i, e.target.value)}>
+              {STUDIES.map((o) => (
+                <Select.Option key={o.id} value={o.id}>{plain(o.name)}</Select.Option>
+              ))}
+            </Select>
+          </Field>
+        ))}
       </div>
 
-      <div className="sbs-cols" ref={topRef}>
+      <div className="sbs-cols">
         {shown.map((s, i) => (
           <div key={i} className="sbs-top">
-            <Field data-size="sm">
-              <Label>Studie {i + 1}</Label>
-              <Select value={picked[i]} onChange={(e) => pick(i, e.target.value)}>
-                {STUDIES.map((o) => (
-                  <Select.Option key={o.id} value={o.id}>{plain(o.name)}</Select.Option>
-                ))}
-              </Select>
-            </Field>
             <p className="sbs-name">{s.name}</p>
-            <p className="sbs-key">
-              <span className="sbs-key__value">{nb.format(s.grade)}</span>
-              <span className="sbs-label">poenggrense 2026</span>
-            </p>
+            <p className="meta">Bachelor, {s.duration}</p>
+            <Button data-size="sm" variant="secondary" asChild>
+              <a href="https://www.samordnaopptak.no">Søk opptak</a>
+            </Button>
           </div>
         ))}
       </div>
@@ -215,41 +262,13 @@ export function CompareSideBySide({ large = false }) {
       <Switch data-size="sm" label="Vis bare det som er forskjellig" checked={onlyDiff}
         onChange={(e) => setOnlyDiff(e.target.checked)} />
       <Paragraph role="status" data-size="sm" className="meta">
-        {onlyDiff ? `Viser ${keep.size} av ${STUDY_ROWS.length} egenskaper` : `Viser alle ${STUDY_ROWS.length} egenskaper`}
+        {onlyDiff ? `Viser ${detailCount} av ${SBS_ROWS.length} egenskaper` : `Viser alle ${SBS_ROWS.length} egenskaper`}
       </Paragraph>
 
-      {STUDY_GROUPS.map(([group, keys]) => {
-        const rows = STUDY_ROWS.filter((r) => keys.includes(r.key) && keep.has(r.key));
-        if (rows.length === 0) return null;
-        return (
-          <section key={group} className="sbs-group" aria-labelledby={`${id}-${group}`}>
-            <Heading level={4} data-size="xs" id={`${id}-${group}`}>{group}</Heading>
-            <Table data-size="sm" className="sbs-table">
-              <caption className="ds-sr-only">{group}</caption>
-              <Table.Head>
-                <Table.Row>
-                  <Table.HeaderCell scope="col"><span className="ds-sr-only">Egenskap</span></Table.HeaderCell>
-                  {shown.map((s, i) => (
-                    <Table.HeaderCell key={i} scope="col"><span className="ds-sr-only">{plain(s.name)}</span></Table.HeaderCell>
-                  ))}
-                </Table.Row>
-              </Table.Head>
-              <Table.Body>
-                {rows.map((r) => (
-                  <Table.Row key={r.key}>
-                    <Table.HeaderCell scope="row"><span className="ds-sr-only">{plain(r.label)}</span></Table.HeaderCell>
-                    {shown.map((s, i) => (
-                      <Table.Cell key={i}>
-                        <span className="sbs-value">{r.format(s[r.key])}</span>
-                        <span className="sbs-label" aria-hidden>{r.label}</span>
-                      </Table.Cell>
-                    ))}
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          </section>
-        );
+      {quickRows.length > 0 && group("Hurtigvisning", quickRows, true)}
+      {SBS_GROUPS.map(([title, rows]) => {
+        const visible = rows.filter((r) => keep.has(r.key));
+        return visible.length ? group(title, visible) : null;
       })}
     </div>
   );
