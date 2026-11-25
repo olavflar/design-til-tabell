@@ -97,7 +97,7 @@ export function Example({ id, smallLabel, caption, large, render, code }) {
       </figure>
       <figure>
         <figcaption>Liten skjerm</figcaption>
-        <PhoneFrame width={390} height={720} label={smallLabel}>
+        <PhoneFrame width={390} height={844} label={smallLabel}>
           {render(`${id}-small`)}
         </PhoneFrame>
       </figure>

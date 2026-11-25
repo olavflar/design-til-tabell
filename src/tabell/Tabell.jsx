@@ -285,7 +285,7 @@ function Example({ id, smallLabel, caption, code, children }) {
       </figure>
       <figure>
         <figcaption>Liten skjerm</figcaption>
-        <PhoneFrame width={390} height={720} label={smallLabel}>
+        <PhoneFrame width={390} height={844} label={smallLabel}>
           {children}
         </PhoneFrame>
       </figure>

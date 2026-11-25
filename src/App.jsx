@@ -65,7 +65,7 @@ function Guidance() {
 // Hvert eksempel vises i tre bredder samtidig. 390 × 844 tilsvarer nyere
 // iPhone, 768 er et nettbrett på høykant, og desktop fyller bredden.
 const DEVICES = [
-  { key: "mobil", label: "Mobil", frame: "phone", width: 390, height: 720 },
+  { key: "mobil", label: "Mobil", frame: "phone", width: 390, height: 844 },
   { key: "nettbrett", label: "Nettbrett", frame: "browser", width: 768, height: 720 },
   { key: "desktop", label: "Desktop", frame: "browser", height: 720 },
 ];

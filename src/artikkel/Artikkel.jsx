@@ -54,7 +54,7 @@ function Example({ story, wide = false, caption }) {
       )}
       <figure>
         <figcaption>Liten skjerm</figcaption>
-        <PhoneFrame width={390} height={720} label={`${label}, liten skjerm`}>
+        <PhoneFrame width={390} height={844} label={`${label}, liten skjerm`}>
           <Prototype story={story} />
         </PhoneFrame>
       </figure>
