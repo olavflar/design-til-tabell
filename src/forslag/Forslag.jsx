@@ -544,6 +544,10 @@ export default function Forslag() {
             "liste eller kort kan være bedre hvis sammenligning ikke er en sentral oppgave",
           ]} />
 
+          <Paragraph variant="long">
+            Se flere eksempler på tabeller i prototypen <Link href="tabell.html">Tabell</Link>.
+          </Paragraph>
+
           <Heading level={3} data-size="sm">Liste kan være greit når …</Heading>
           <Bullets items={[
             "brukeren skal se gjennom mange oppføringer",
@@ -561,6 +565,10 @@ export default function Forslag() {
             "sammenhenger mellom egenskaper kan bli mindre tydelige enn i en tabell",
           ]} />
 
+          <Paragraph variant="long">
+            Se flere eksempler på lister i prototypen <Link href="liste.html">Liste</Link>.
+          </Paragraph>
+
           <Heading level={3} data-size="sm">Kort kan være greit når …</Heading>
           <Bullets items={[
             "hver oppføring har flere egenskaper som bør presenteres samlet",
@@ -577,6 +585,10 @@ export default function Forslag() {
             "mange kort etter hverandre kan gi mye rulling",
             "ulikt innhold i hvert kort kan gjøre informasjonen mindre oversiktlig",
           ]} />
+
+          <Paragraph variant="long">
+            Se flere eksempler på kort i prototypen <Link href="kort.html">Kort</Link>.
+          </Paragraph>
 
           <Heading level={3} data-size="sm">Utforming av liste og kort</Heading>
           <Paragraph variant="long">
