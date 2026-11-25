@@ -14,7 +14,7 @@ const sorted = [...CASES].sort(byNewest);
 export const EXAMPLES = {
   ukjent: { large: () => <UnknownTask />, small: () => <UnknownTask /> },
   finne: { large: (id) => <SearchableCases id={id} large />, small: (id) => <SearchableCases id={id} /> },
-  fa: { large: () => <CompareStudies initial={["uib", "uio", "hvl", "ntnu"]} />, small: () => <CompareStudies /> },
+  fa: { large: () => <CompareStudies large />, small: () => <CompareStudies /> },
   mange: {
     large: (id) => (
       <div className="frame__content hifi">

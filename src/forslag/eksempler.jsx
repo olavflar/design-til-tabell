@@ -1,13 +1,16 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   Button,
   Checkbox,
   Chip,
+  Field,
   Fieldset,
   Heading,
+  Label,
   Link,
   List,
   Paragraph,
+  Select,
   Switch,
   Table,
   Tabs,
@@ -24,67 +27,101 @@ const nb = new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 1, minimumFra
 /* Brukeroppgave 2: Sammenligne få alternativer                               */
 /* -------------------------------------------------------------------------- */
 
+/* \u00AD er myke bindestreker, så lange ord deles riktig når kolonnene er smale på mobil */
 const STUDIES = [
-  { id: "uib", name: "Informatikk, Bergen", points: 180, grade: 52.3, places: 120, language: "Norsk", practice: "Nei", start: "August" },
-  { id: "uio", name: "Informatikk, Oslo", points: 180, grade: 54.1, places: 200, language: "Norsk", practice: "Nei", start: "August" },
-  { id: "hvl", name: "Dataingeniør, Bergen", points: 180, grade: 47.8, places: 90, language: "Norsk", practice: "Ja", start: "August" },
-  { id: "ntnu", name: "Informatikk, Trondheim", points: 180, grade: 53.0, places: 150, language: "Norsk og engelsk", practice: "Nei", start: "August" },
+  { id: "uib", name: "Infor\u00ADmatikk, Bergen", points: 180, grade: 52.3, places: 120, language: "Norsk", practice: "Nei", start: "August" },
+  { id: "uio", name: "Infor\u00ADmatikk, Oslo", points: 180, grade: 54.1, places: 200, language: "Norsk", practice: "Nei", start: "August" },
+  { id: "ntnu", name: "Infor\u00ADmatikk, Trondheim", points: 180, grade: 53.0, places: 150, language: "Norsk og engelsk", practice: "Nei", start: "August" },
+  { id: "uit", name: "Infor\u00ADmatikk, Tromsø", points: 180, grade: 41.2, places: 60, language: "Norsk", practice: "Nei", start: "August" },
+  { id: "hvl", name: "Data\u00ADingeniør, Bergen", points: 180, grade: 47.8, places: 90, language: "Norsk", practice: "Ja", start: "August" },
+  { id: "oslomet", name: "Data\u00ADingeniør, Oslo", points: 180, grade: 50.9, places: 140, language: "Norsk", practice: "Ja", start: "August" },
+  { id: "uia", name: "Data\u00ADingeniør, Grimstad", points: 180, grade: 44.6, places: 80, language: "Norsk", practice: "Ja", start: "August" },
 ];
 
 const STUDY_ROWS = [
-  { key: "grade", label: "Poenggrense 2026", num: true, format: (v) => nb.format(v) },
-  { key: "places", label: "Studieplasser", num: true, format: (v) => v },
+  { key: "grade", label: "Poeng\u00ADgrense 2026", num: true, format: (v) => nb.format(v) },
+  { key: "places", label: "Studie\u00ADplasser", num: true, format: (v) => v },
   { key: "practice", label: "Praksis", format: (v) => v },
-  { key: "language", label: "Undervisningsspråk", format: (v) => v },
-  { key: "points", label: "Studiepoeng", num: true, format: (v) => v },
+  { key: "language", label: "Språk", format: (v) => v },
+  { key: "points", label: "Studie\u00ADpoeng", num: true, format: (v) => v },
   { key: "start", label: "Oppstart", format: (v) => v },
 ];
 
+/** Egenskapene som er forskjellige for de viste studiene */
+const differing = (studies) => STUDY_ROWS.filter((r) => new Set(studies.map((s) => s[r.key])).size > 1);
+
 /**
- * Snudd tabell: alternativene er kolonner og egenskapene går nedover. Brukeren
- * velger hvilke alternativer som står side om side, og kan skjule egenskapene
- * som er like for alle, så forskjellene kommer frem.
+ * Sammenligne noen få alternativer.
+ * Stor skjerm: vanlig tabell med én studie per rad og egenskapene som kolonner.
+ * Liten skjerm: tabellen er snudd, så egenskapene går nedover og to studier står
+ * side om side. Brukeren velger hvilke to med hver sin Select over kolonnene.
+ * Select fordi det er 7 studier å velge mellom (Select brukes fra 7 valg).
+ * Bryteren skjuler egenskapene som er like, så forskjellene kommer frem.
  */
-export function CompareStudies({ initial = ["uib", "hvl"] }) {
+export function CompareStudies({ large = false }) {
   const id = useId();
-  const [picked, setPicked] = useState(initial);
+  const [picked, setPicked] = useState(["uib", "hvl"]);
   const [onlyDiff, setOnlyDiff] = useState(false);
-  const shown = STUDIES.filter((s) => picked.includes(s.id));
-  const toggle = (sid) =>
-    setPicked((cur) => (cur.includes(sid) ? cur.filter((x) => x !== sid) : [...cur, sid]));
-  const rows = STUDY_ROWS.filter(
-    (r) => !onlyDiff || new Set(shown.map((s) => s[r.key])).size > 1,
-  );
+  const shown = large ? STUDIES : picked.map((p) => STUDIES.find((s) => s.id === p));
+  const rows = onlyDiff ? differing(shown) : STUDY_ROWS;
+  const pick = (i, value) => setPicked((cur) => cur.map((p, j) => (j === i ? value : p)));
 
   return (
     <div className="frame__content hifi">
-      <Heading level={3} data-size="sm">Sammenlign studier</Heading>
-      <Fieldset data-size="sm">
-        <Fieldset.Legend>Velg studier</Fieldset.Legend>
-        <Fieldset.Description>Velg to eller tre for å se dem side om side.</Fieldset.Description>
-        <div className="chips">
-          {STUDIES.map((s) => (
-            <Chip.Checkbox key={s.id} data-size="sm" name={`${id}-studie`} value={s.id}
-              checked={picked.includes(s.id)} onChange={() => toggle(s.id)}>
-              {s.name}
-            </Chip.Checkbox>
+      <Heading level={3} data-size="sm" id={`${id}-title`}>Sammenlign studier</Heading>
+      <Paragraph data-size="sm" className="meta">
+        Bachelorstudier i informatikk og data. <Tag data-size="sm" data-color="warning">Fiktive tall</Tag>
+      </Paragraph>
+      {!large && (
+        <div className="compare-pick">
+          {["Studie 1", "Studie 2"].map((label, i) => (
+            <Field key={label} data-size="sm">
+              <Label>{label}</Label>
+              <Select value={picked[i]} onChange={(e) => pick(i, e.target.value)}>
+                {STUDIES.map((s) => (
+                  <Select.Option key={s.id} value={s.id}>{s.name.replaceAll("\u00AD", "")}</Select.Option>
+                ))}
+              </Select>
+            </Field>
           ))}
         </div>
-      </Fieldset>
+      )}
       <Switch data-size="sm" label="Vis bare det som er forskjellig" checked={onlyDiff}
         onChange={(e) => setOnlyDiff(e.target.checked)} />
       <Paragraph role="status" data-size="sm" className="meta">
-        {shown.length < 2 ? "Velg minst to studier for å sammenligne." : `Sammenligner ${shown.length} studier`}
+        {onlyDiff ? `Viser ${rows.length} av ${STUDY_ROWS.length} egenskaper` : `Viser alle ${STUDY_ROWS.length} egenskaper`}
       </Paragraph>
-      {shown.length > 0 && (
-        <div className="scroll-area" role="region" aria-label="Sammenligning, tabell" tabIndex={0}>
+      <div className="scroll-area" role="region" aria-labelledby={`${id}-title`} tabIndex={0}>
+        {large ? (
+          <Table data-size="sm" zebra className="sticky-first">
+            <caption className="ds-sr-only">Sammenligning av studier, én studie per rad</caption>
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell scope="col">Studie</Table.HeaderCell>
+                {rows.map((r) => (
+                  <Table.HeaderCell key={r.key} scope="col" className={r.num ? "num" : undefined}>{r.label}</Table.HeaderCell>
+                ))}
+              </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              {shown.map((s) => (
+                <Table.Row key={s.id}>
+                  <Table.HeaderCell scope="row">{s.name}</Table.HeaderCell>
+                  {rows.map((r) => (
+                    <Table.Cell key={r.key} className={r.num ? "num" : undefined}>{r.format(s[r.key])}</Table.Cell>
+                  ))}
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        ) : (
           <Table data-size="sm" zebra className="sticky-first compare">
-            <caption className="ds-sr-only">Sammenligning av studier</caption>
+            <caption className="ds-sr-only">Sammenligning av to studier, én egenskap per rad</caption>
             <Table.Head>
               <Table.Row>
                 <Table.HeaderCell scope="col">Egenskap</Table.HeaderCell>
-                {shown.map((s) => (
-                  <Table.HeaderCell key={s.id} scope="col">{s.name}</Table.HeaderCell>
+                {shown.map((s, i) => (
+                  <Table.HeaderCell key={i} scope="col">{s.name}</Table.HeaderCell>
                 ))}
               </Table.Row>
             </Table.Head>
@@ -92,15 +129,15 @@ export function CompareStudies({ initial = ["uib", "hvl"] }) {
               {rows.map((r) => (
                 <Table.Row key={r.key}>
                   <Table.HeaderCell scope="row">{r.label}</Table.HeaderCell>
-                  {shown.map((s) => (
-                    <Table.Cell key={s.id} className={r.num ? "num" : undefined}>{r.format(s[r.key])}</Table.Cell>
+                  {shown.map((s, i) => (
+                    <Table.Cell key={i} className={r.num ? "num" : undefined}>{r.format(s[r.key])}</Table.Cell>
                   ))}
                 </Table.Row>
               ))}
             </Table.Body>
           </Table>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -329,43 +366,39 @@ function downloadCsv() {
 
 /**
  * Noen ferdige visninger for de vanligste spørsmålene, og «Alle data» for
- * dem som trenger alt. Visningene byttes med Tabs. Alle data kan
+ * dem som trenger alt. Med god plass står visningene side om side, ellers
+ * byttes de med Tabs. Alle data kan
  * også lastes ned. Tabellen med alle data ruller sideveis med fast første
  * kolonne, fordi det er rådata uten en bestemt oppgave.
  */
 export function UnknownTask() {
   const id = useId();
   const [view, setView] = useState("billigst");
+  const [ref, wide] = useWide(720);
   const cheapest = [...PRICES].sort((a, b) => a[1].at(-1) - b[1].at(-1));
 
-  return (
-    <div className="frame__content hifi">
-      <Heading level={3} data-size="sm" id={id}>Drivstoffpriser i Troms 2026</Heading>
-      <Paragraph data-size="sm" className="meta">
-        Bensin 95, kr per liter, snitt per måned. <Tag data-size="sm" data-color="warning">Fiktive priser</Tag>
-      </Paragraph>
-      <Tabs data-size="sm" value={view} onChange={setView}>
-        <Tabs.List aria-label="Velg visning">
-          <Tabs.Tab value="billigst">Billigst nå</Tabs.Tab>
-          <Tabs.Tab value="utvikling">Utvikling</Tabs.Tab>
-          <Tabs.Tab value="alle">Alle data</Tabs.Tab>
-        </Tabs.List>
-
-        <Tabs.Panel value="billigst">
+  const views = [
+    {
+      value: "billigst",
+      label: "Billigst nå",
+      content: (
         <List.Ordered className="stacked" role="list" aria-label="Billigst i juni">
           {cheapest.map(([k, v], i) => (
             <List.Item key={k}>
               <div className="row">
                 {/* Plassen vises, men skjermlesere får den fra ol */}
-                <Heading level={4} data-size="2xs" className="row__title"><span className="rank" aria-hidden>{i + 1}.</span>{k}</Heading>
+                <Heading level={wide ? 5 : 4} data-size="2xs" className="row__title"><span className="rank" aria-hidden>{i + 1}.</span>{k}</Heading>
                 <Paragraph data-size="sm" className="num"><strong>{nb.format(v.at(-1))} kr</strong></Paragraph>
               </div>
             </List.Item>
           ))}
         </List.Ordered>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="utvikling">
+      ),
+    },
+    {
+      value: "utvikling",
+      label: "Utvikling",
+      content: (
         /* Småbilder: samme figur og samme skala for hver kommune, så bare dataene endrer seg */
         <List.Unordered className="multiples" role="list" aria-label="Utvikling per kommune">
           {PRICES.map(([k, v]) => (
@@ -378,9 +411,12 @@ export function UnknownTask() {
             </List.Item>
           ))}
         </List.Unordered>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="alle">
+      ),
+    },
+    {
+      value: "alle",
+      label: "Alle data",
+      content: (
         <div className="scroll-area" role="region" aria-label="Alle data, tabell" tabIndex={0}>
           <Table data-size="sm" zebra className="sticky-first">
             <caption className="ds-sr-only">Drivstoffpriser i Troms 2026, kr per liter</caption>
@@ -400,8 +436,36 @@ export function UnknownTask() {
             </Table.Body>
           </Table>
         </div>
-        </Tabs.Panel>
-      </Tabs>
+      ),
+    },
+  ];
+
+  return (
+    <div className="frame__content hifi" ref={ref}>
+      <Heading level={3} data-size="sm" id={id}>Drivstoffpriser i Troms 2026</Heading>
+      <Paragraph data-size="sm" className="meta">
+        Bensin 95, kr per liter, snitt per måned. <Tag data-size="sm" data-color="warning">Fiktive priser</Tag>
+      </Paragraph>
+
+      {wide ? (
+        /* God plass: visningene står side om side, hver med egen overskrift */
+        <div className="views-side">
+          {views.map((v) => (
+            <section key={v.value} className="views-side__item" aria-labelledby={`${id}-${v.value}`}>
+              <Heading level={4} data-size="2xs" id={`${id}-${v.value}`}>{v.label}</Heading>
+              {v.content}
+            </section>
+          ))}
+        </div>
+      ) : (
+        /* Lite plass: de samme visningene som faner */
+        <Tabs data-size="sm" value={view} onChange={setView}>
+          <Tabs.List aria-label="Velg visning">
+            {views.map((v) => <Tabs.Tab key={v.value} value={v.value}>{v.label}</Tabs.Tab>)}
+          </Tabs.List>
+          {views.map((v) => <Tabs.Panel key={v.value} value={v.value}>{v.content}</Tabs.Panel>)}
+        </Tabs>
+      )}
 
       <div>
         <Button data-size="sm" variant="secondary" onClick={downloadCsv}>
@@ -411,6 +475,18 @@ export function UnknownTask() {
       </div>
     </div>
   );
+}
+
+/** Måler bredden på elementet, så eksempelet tilpasser seg rammen det står i, ikke vinduet */
+function useWide(min) {
+  const ref = useRef(null);
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const ro = new ResizeObserver(([e]) => setWide(e.contentRect.width >= min));
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, [min]);
+  return [ref, wide];
 }
 
 /** Liten stolpefigur med fast skala (21–24 kr), så figurene kan sammenlignes */

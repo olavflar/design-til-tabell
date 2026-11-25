@@ -254,10 +254,10 @@ export default function Forslag() {
             id="ukjent"
             smallLabel="Ferdige visninger og alle data, liten skjerm"
             large={<UnknownTask />}
-            caption="Tre visninger svarer på hvert sitt spørsmål: hvor er det billigst nå, hvordan har prisene utviklet seg, og alle data. Visningene byttes med faner (Tabs). «Alle data» er en tabell som ruller sideveis med fast første kolonne, og alle data kan lastes ned."
+            caption="Tre visninger svarer på hvert sitt spørsmål: hvor er det billigst nå, hvordan har prisene utviklet seg, og alle data. Når det er god plass, står visningene side om side. På liten skjerm blir de faner (Tabs). «Alle data» er en tabell som ruller sideveis med fast første kolonne, og alle data kan lastes ned."
             render={() => <UnknownTask />}
             code={[
-              { label: "Visninger", code: extract(eksSrc, "UnknownTask", "MiniChart", "downloadCsv") },
+              { label: "Visninger", code: extract(eksSrc, "UnknownTask", "useWide", "MiniChart", "downloadCsv") },
               { label: "CSS", code: cssBetween(eksCss, "Småbilder") },
             ]}
           />
@@ -302,24 +302,26 @@ export default function Forslag() {
             egenskap.
           </Paragraph>
           <Bullets items={[
-            <>Bruk en <C slug="table">Table</C>, og snu den, så egenskapene går nedover og alternativene står i kolonner.</>,
-            "Er det flere enn to eller tre alternativer, la brukerne velge hvilke som skal sammenlignes.",
+            <>På stor skjerm: bruk en vanlig <C slug="table">Table</C> med ett alternativ per rad og egenskapene som kolonner.</>,
+            "På liten skjerm: snu tabellen, så egenskapene går nedover og to alternativer står side om side.",
+            <>La brukerne velge hvilke to som sammenlignes, med en <C slug="select">Select</C> over hver kolonne.</>,
             "Gjør det lett å se det som skiller alternativene.",
           ]} />
           <Example
             id="fa"
-            smallLabel="Snudd tabell, liten skjerm"
-            large={<CompareStudies initial={["uib", "uio", "hvl", "ntnu"]} />}
-            caption="Egenskapene går nedover, og studiene står i kolonner. På liten skjerm velger brukeren to eller tre. Bryteren skjuler egenskapene som er like for alle, så forskjellene kommer frem. Blir tabellen bredere enn skjermen, står første kolonne fast."
+            smallLabel="Snudd tabell med to valgte studier, liten skjerm"
+            large={<CompareStudies large />}
+            caption="På stor skjerm står hver studie på sin rad. På liten skjerm er tabellen snudd: egenskapene går nedover, og brukeren velger to studier med nedtrekkslistene over kolonnene. Bryteren skjuler egenskapene som er like, så forskjellene kommer frem."
             render={() => <CompareStudies />}
             code={[
-              { label: "Tabell", code: extract(eksSrc, "CompareStudies") },
-              { label: "CSS", code: cssBetween(tabellCss, "Fast førstekolonne", "Toning") },
+              { label: "Tabell", code: extract(eksSrc, "CompareStudies", "differing") },
+              { label: "CSS", code: cssBetween(eksCss, "Snudd tabell", "Trendgraf") },
             ]}
           />
           <Paragraph variant="long">
-            Alternativene velges med <C slug="chip">Chip</C>, og en <C slug="switch">Switch</C> skjuler egenskapene som
-            er like for alle.
+            Studiene velges med <C slug="select">Select</C> fordi det er sju å velge mellom. Er det færre enn sju
+            alternativer, bruk heller <C slug="chip">Chip</C>. En <C slug="switch">Switch</C> skjuler egenskapene som er
+            like for alle.
           </Paragraph>
 
           <Heading level={3} data-size="sm" id="oppgave-mange">Når brukerne skal sammenligne mange oppføringer</Heading>

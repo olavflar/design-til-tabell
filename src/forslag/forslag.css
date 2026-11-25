@@ -26,10 +26,10 @@
 .pattern-menu a[aria-current="page"] { background: var(--ds-color-neutral-background-tinted); box-shadow: inset 3px 0 0 var(--ds-color-neutral-border-default); }
 
 /* Artikkelen: overskrift og innhold i midten, innholdsfortegnelsen til høyre på store skjermer */
-.forslag-article { box-sizing: border-box; width: 100%; max-width: 82rem; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "header" "toc" "content"; gap: var(--ds-size-8); padding: var(--ds-size-10) var(--ds-size-4) var(--ds-size-18); }
+.forslag-article { box-sizing: border-box; width: 100%; max-width: 120rem; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "header" "toc" "content"; gap: var(--ds-size-8); padding: var(--ds-size-10) var(--ds-size-4) var(--ds-size-18); }
 .article-header { grid-area: header; }
 @media (min-width: 48rem) { .forslag-article { padding-inline: var(--ds-size-10); } }
-@media (min-width: 90rem) {
+@media (min-width: 112rem) {
   .forslag-article { grid-template-columns: minmax(0, 1fr) 17rem; grid-template-areas: "header toc" "content toc"; column-gap: var(--ds-size-12); row-gap: 0; }
   .article-toc { position: sticky; top: var(--ds-size-6); align-self: start; }
 }
@@ -56,7 +56,7 @@
 .article-table code { overflow-wrap: anywhere; }
 
 .article-toc { grid-area: toc; }
-@media (max-width: 89.99rem) { .article-toc { padding-bottom: var(--ds-size-6); border-bottom: 1px solid var(--ds-color-neutral-border-subtle); } }
+@media (max-width: 111.99rem) { .article-toc { padding-bottom: var(--ds-size-6); border-bottom: 1px solid var(--ds-color-neutral-border-subtle); } }
 .article-toc > h2 { margin: 0 0 var(--ds-size-3); padding-inline-start: var(--ds-size-4); color: var(--ds-color-neutral-text-subtle); }
 .article-toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--ds-size-1); }
 .article-toc li { margin: 0; }
@@ -75,8 +75,15 @@
 /* Felles for eksemplene */
 .hifi .plain { font-weight: inherit; }
 .chips { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); }
+/* Snudd tabell: smale kolonner, så to studier får plass side om side på mobil.
+   Overskriftene bryter over flere linjer, og lange ord deles med myke bindestreker i teksten. */
 .compare { min-width: 100%; }
-.compare th[scope="col"] { white-space: normal; min-width: 8rem; }
+/* De to nedtrekkslistene står side om side, over hver sin kolonne */
+.compare-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ds-size-3); }
+.compare-pick .ds-select { width: 100%; }
+.scroll-area .compare :is(th, td) { white-space: normal; }
+.compare th[scope="col"] { width: 5rem; vertical-align: bottom; }
+.compare th[scope="row"] { width: 5rem; }
 
 /* Trendgraf */
 .spark { color: var(--ds-color-accent-base-default); vertical-align: middle; flex: none; }
@@ -107,3 +114,8 @@
 .mini-chart rect { fill: var(--ds-color-accent-base-default); }
 
 .rank { display: inline-block; min-width: 1.75rem; font-variant-numeric: tabular-nums; color: var(--ds-color-neutral-text-subtle); }
+
+/* Visningene side om side når det er god plass */
+.views-side { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--ds-size-6); align-items: start; }
+.views-side__item { display: flex; flex-direction: column; gap: var(--ds-size-3); min-width: 0; }
+.views-side__item > * { margin: 0; }
