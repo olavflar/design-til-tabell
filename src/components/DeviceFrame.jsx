@@ -35,13 +35,15 @@ function Screen({ label, children }) {
    Rammen er bare pynt (aria-hidden). Selve innholdet ligger i en egen
    rulleflate, så rulling i prototypen holdes atskilt fra siden rundt. */
 
+/* Fire ruter som sammen danner en stor rute, med smale mellomrom. Tegnet som
+   vektor etter «Forbedringer høst/image 147.svg», så den er skarp i alle størrelser. */
 const Logo = () => (
   <svg viewBox="0 0 24 24" width="1.4em" height="1.4em" aria-hidden>
     <g fill="currentColor">
-      <rect x="9" y="1.5" width="6" height="6" transform="rotate(45 12 4.5)" />
-      <rect x="1.5" y="9" width="6" height="6" transform="rotate(45 4.5 12)" />
-      <rect x="16.5" y="9" width="6" height="6" transform="rotate(45 19.5 12)" />
-      <rect x="9" y="16.5" width="6" height="6" transform="rotate(45 12 19.5)" />
+      <path d="M12 0 17.15 5.15 12 10.3 6.85 5.15Z" />
+      <path d="M5.15 6.85 10.3 12 5.15 17.15 0 12Z" />
+      <path d="M18.85 6.85 24 12 18.85 17.15 13.7 12Z" />
+      <path d="M12 13.7 17.15 18.85 12 24 6.85 18.85Z" />
     </g>
   </svg>
 );
