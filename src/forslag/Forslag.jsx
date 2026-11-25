@@ -16,7 +16,7 @@ import { extract, cssBetween } from "../components/CodeExample.jsx";
 import { SearchableCases, DetailsList, Mapping } from "../liste/Liste.jsx";
 import { Costs } from "../kort/Kort.jsx";
 import { StatTable, SmallScreen, Intro as ElbilIntro, rows as elbilRows } from "../tabell/Tabell.jsx";
-import { CompareStudies, AirQuality, BulkCases, UnknownTask } from "./eksempler.jsx";
+import { CompareStudies, CompareSideBySide, AirQuality, BulkCases, UnknownTask } from "./eksempler.jsx";
 import listeSrc from "../liste/Liste.jsx?raw";
 import listeCss from "../liste/liste.css?raw";
 import kortSrc from "../kort/Kort.jsx?raw";
@@ -415,6 +415,22 @@ export default function Forslag() {
             Studiene velges med <C slug="select">Select</C> fordi det er sju å velge mellom. Er det færre enn sju
             alternativer, bruk heller <C slug="chip">Chip</C>.
           </Paragraph>
+          <Paragraph variant="long">
+            Mange produktsider viser i stedet alternativene side om side, med egenskapene i grupper og ledeteksten
+            under hver verdi. Det gir mer plass til hver verdi, og hver kolonne kan leses for seg. Er det mange
+            egenskaper, hjelper det at navnene på alternativene står fast øverst når brukeren ruller.
+          </Paragraph>
+          <Example
+            id="fa-side"
+            smallLabel="To studier side om side i grupper, liten skjerm"
+            large={<CompareSideBySide large />}
+            caption="Hver kolonne er én studie, valgt med en nedtrekksliste øverst. Egenskapene står i grupper med overskrift, og ledeteksten står under hver verdi. Når brukeren ruller forbi toppen, står navnene fast øverst. I koden er hver gruppe en tabell med rad- og kolonneoverskrifter, så skjermlesere får vite hvilken egenskap og studie hver verdi gjelder."
+            render={() => <CompareSideBySide />}
+            code={[
+              { label: "Visning", code: extract(eksSrc, "CompareSideBySide") },
+              { label: "CSS", code: cssBetween(eksCss, "Side om side", "Trendgraf") },
+            ]}
+          />
 
           <Heading level={3} data-size="sm" id="oppgave-mange">3. Sammenligne et større utvalg</Heading>
           <Paragraph variant="long">

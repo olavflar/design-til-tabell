@@ -4,7 +4,7 @@ import { CASES, byNewest, Intro, CaseTable, Small } from "../components/cases.js
 import { SearchableCases, DetailsList } from "../liste/Liste.jsx";
 import { Costs } from "../kort/Kort.jsx";
 import { StatTable, SmallScreen, Intro as ElbilIntro, rows as elbilRows } from "../tabell/Tabell.jsx";
-import { CompareStudies, AirQuality, BulkCases, UnknownTask } from "../forslag/eksempler.jsx";
+import { CompareStudies, CompareSideBySide, AirQuality, BulkCases, UnknownTask } from "../forslag/eksempler.jsx";
 
 /* Viser ett eksempel fra forslaget i én bredde, så scripts/miro-bilder.mjs kan ta bilde av det.
    Adresse: miro.html?eks=finne&bredde=390. Siden bygges ikke og legges ikke ut. */
@@ -15,6 +15,7 @@ export const EXAMPLES = {
   ukjent: { large: () => <UnknownTask />, small: () => <UnknownTask /> },
   finne: { large: (id) => <SearchableCases id={id} large />, small: (id) => <SearchableCases id={id} /> },
   fa: { large: () => <CompareStudies large />, small: () => <CompareStudies /> },
+  "fa-side": { large: () => <CompareSideBySide large />, small: () => <CompareSideBySide /> },
   mange: {
     large: (id) => (
       <div className="frame__content hifi">

@@ -14,6 +14,7 @@ const EXAMPLES = [
   ["ukjent", "Forberedelser – ferdige visninger og alle data"],
   ["finne", "Finne én oppføring"],
   ["fa", "Sammenligne noen få alternativer"],
+  ["fa-side", "Sammenligne noen få alternativer – side om side"],
   ["mange", "Sammenligne mange oppføringer"],
   ["detaljer", "Detaljer bare av og til"],
   ["avvik", "Oppdage mønstre og avvik"],

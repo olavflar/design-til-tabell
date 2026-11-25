@@ -47,6 +47,13 @@ const STUDY_ROWS = [
   { key: "start", label: "Oppstart", format: (v) => v },
 ];
 
+/* Egenskapene i grupper, til sammenligningen side om side */
+const STUDY_GROUPS = [
+  ["Opptak", ["grade", "places"]],
+  ["Studiet", ["points", "practice", "language"]],
+  ["Oppstart", ["start"]],
+];
+
 /** Egenskapene som er forskjellige for de viste studiene */
 const differing = (studies) => STUDY_ROWS.filter((r) => new Set(studies.map((s) => s[r.key])).size > 1);
 
@@ -138,6 +145,112 @@ export function CompareStudies({ large = false }) {
           </Table>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Sammenligne side om side, slik produktsider ofte gjør.
+ * Hver kolonne er én studie, valgt med en Select øverst. Egenskapene står i grupper
+ * med overskrift, og ledeteksten står under hver verdi, så kolonnene kan leses hver for seg.
+ * Når toppen er rullet ut av syne, viser en fast linje hvilke studier som sammenlignes.
+ *
+ * Koden er likevel en tabell per gruppe, med radoverskrifter og kolonneoverskrifter,
+ * så skjermlesere får egenskap og studie for hver verdi. Overskriftene er skjult visuelt,
+ * fordi ledeteksten og navnet allerede står synlig.
+ * Stor skjerm: tre studier. Liten skjerm: to.
+ */
+export function CompareSideBySide({ large = false }) {
+  const id = useId();
+  const count = large ? 3 : 2;
+  const [picked, setPicked] = useState(["uib", "hvl", "ntnu"]);
+  const [onlyDiff, setOnlyDiff] = useState(false);
+  const [stuck, setStuck] = useState(false);
+  const topRef = useRef(null);
+  const shown = picked.slice(0, count).map((p) => STUDIES.find((s) => s.id === p));
+  const keep = new Set((onlyDiff ? differing(shown) : STUDY_ROWS).map((r) => r.key));
+  const pick = (i, value) => setPicked((cur) => cur.map((p, j) => (j === i ? value : p)));
+  const plain = (name) => name.replaceAll("\u00AD", "");
+
+  // Den faste linjen med navn vises først når toppen med nedtrekkslistene er ute av syne
+  useEffect(() => {
+    const el = topRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setStuck(!e.isIntersecting && e.boundingClientRect.top < 0));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div className="frame__content hifi sbs" style={{ "--sbs-cols": count }}>
+      <Heading level={3} data-size="sm" id={`${id}-title`}>Sammenlign studier</Heading>
+      <Paragraph data-size="sm" className="meta">
+        Bachelorstudier i informatikk og data. <Tag data-size="sm" data-color="warning">Fiktive tall</Tag>
+      </Paragraph>
+
+      <div className="sbs-sticky" data-stuck={stuck} aria-hidden>
+        {shown.map((s, i) => <span key={i}>{s.name}</span>)}
+      </div>
+
+      <div className="sbs-cols" ref={topRef}>
+        {shown.map((s, i) => (
+          <div key={i} className="sbs-top">
+            <Field data-size="sm">
+              <Label>Studie {i + 1}</Label>
+              <Select value={picked[i]} onChange={(e) => pick(i, e.target.value)}>
+                {STUDIES.map((o) => (
+                  <Select.Option key={o.id} value={o.id}>{plain(o.name)}</Select.Option>
+                ))}
+              </Select>
+            </Field>
+            <p className="sbs-name">{s.name}</p>
+            <p className="sbs-key">
+              <span className="sbs-key__value">{nb.format(s.grade)}</span>
+              <span className="sbs-label">poenggrense 2026</span>
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <Switch data-size="sm" label="Vis bare det som er forskjellig" checked={onlyDiff}
+        onChange={(e) => setOnlyDiff(e.target.checked)} />
+      <Paragraph role="status" data-size="sm" className="meta">
+        {onlyDiff ? `Viser ${keep.size} av ${STUDY_ROWS.length} egenskaper` : `Viser alle ${STUDY_ROWS.length} egenskaper`}
+      </Paragraph>
+
+      {STUDY_GROUPS.map(([group, keys]) => {
+        const rows = STUDY_ROWS.filter((r) => keys.includes(r.key) && keep.has(r.key));
+        if (rows.length === 0) return null;
+        return (
+          <section key={group} className="sbs-group" aria-labelledby={`${id}-${group}`}>
+            <Heading level={4} data-size="xs" id={`${id}-${group}`}>{group}</Heading>
+            <Table data-size="sm" className="sbs-table">
+              <caption className="ds-sr-only">{group}</caption>
+              <Table.Head>
+                <Table.Row>
+                  <Table.HeaderCell scope="col"><span className="ds-sr-only">Egenskap</span></Table.HeaderCell>
+                  {shown.map((s, i) => (
+                    <Table.HeaderCell key={i} scope="col"><span className="ds-sr-only">{plain(s.name)}</span></Table.HeaderCell>
+                  ))}
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {rows.map((r) => (
+                  <Table.Row key={r.key}>
+                    <Table.HeaderCell scope="row"><span className="ds-sr-only">{plain(r.label)}</span></Table.HeaderCell>
+                    {shown.map((s, i) => (
+                      <Table.Cell key={i}>
+                        <span className="sbs-value">{r.format(s[r.key])}</span>
+                        <span className="sbs-label" aria-hidden>{r.label}</span>
+                      </Table.Cell>
+                    ))}
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          </section>
+        );
+      })}
     </div>
   );
 }
