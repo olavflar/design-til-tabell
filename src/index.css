@@ -150,6 +150,11 @@ body {
   container-type: inline-size;
 }
 
+/* Ingen synlige rullefelt i mobileksemplene, som på en ekte telefon.
+   Innholdet kan fortsatt rulles sideveis, og tabellene viser det med skygge og toning. */
+.frame--phone * { scrollbar-width: none; }
+.frame--phone *::-webkit-scrollbar { display: none; }
+
 /* Tabeller ruller fortsatt sideveis, men ikke nedover */
 .frame--phone .scroll-area {
   max-height: none;
