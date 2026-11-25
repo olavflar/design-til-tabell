@@ -3,7 +3,6 @@ import { PencilLineIcon } from "@navikt/aksel-icons";
 import {
   Button,
   Card,
-  Details,
   Divider,
   Heading,
   Link,
@@ -36,15 +35,15 @@ const PARTNERS = ["Digdir", "Nav", "Oslo kommune", "Skatteetaten", "Politiet", "
 const DISCUSSION = "https://github.com/digdir/designsystemet/discussions/3703";
 
 const SECTIONS = [
-  ["hva", "Hva er strukturert informasjon?"],
+  ["definisjon", "Definisjon"],
   ["forberedelser", "Forberedelser"],
-  ["velg-visning", "Velg visning etter hva brukerne skal gjøre"],
-  ["liten-skjerm", "Tilpass visningen til små skjermer"],
-  ["visualiseringer", "Små visualiseringer"],
+  ["design", "Design og opplevelse"],
+  ["visualiseringer", "Visualiseringer"],
+  ["brukeroppgaver", "Brukeroppgaver"],
+  ["komponenter", "Komponenter"],
   ["sprak", "Språk"],
-  ["kode", "Koding og tilgjengelighet"],
-  ["oppsummering", "Oppsummering"],
-  ["kilder", "Kilder og relevant informasjon"],
+  ["kode", "Kode"],
+  ["kilder", "Kilder og annen relevant informasjon"],
   ["avklaring", "Til avklaring i arbeidsgruppen"],
 ];
 
@@ -167,14 +166,14 @@ export default function Forslag() {
       <main className="forslag-article">
       <header className="article-header">
         <Heading data-size="xs" asChild><p className="article-header__eyebrow">Mønstre</p></Heading>
-        <Heading level={1} data-size="lg">Strukturert informasjon</Heading>
+        <Heading level={1} data-size="lg">Strukturerte data på små skjermer</Heading>
         <Paragraph data-size="lg">
-          Det skal være enkelt å lese og sammenligne strukturert informasjon, også på små skjermer. Mønsteret hjelper
-          deg å velge mellom tabell, liste og kort, og å tilpasse visningen uten at sammenhengen i informasjonen går
-          tapt.
+          Strukturerte data kan være krevende å presentere på små skjermer, særlig når datamengden og kompleksiteten
+          øker. Dette mønsteret hjelper deg å finne frem til gode løsninger, med fokus på formål, brukerbehov og
+          tilgjengelighet.
         </Paragraph>
         <Paragraph data-size="sm" className="article-header__meta">
-          {PARTNERS.join(", ")} · Oppdatert 24. november 2026
+          {PARTNERS.join(", ")} · Oppdatert 25. november 2026
         </Paragraph>
       </header>
 
@@ -189,67 +188,81 @@ export default function Forslag() {
             </Paragraph>
           </Card>
 
-          <Paragraph variant="long">
-            Mange offentlige løsninger bruker tabeller for å presentere strukturert informasjon. På store skjermer gir
-            tabeller ofte god oversikt og gjør det enkelt å sammenligne. På små skjermer er plassen mer begrenset, og
-            det samme oppsettet kan bli vanskelig å lese og bruke.
-          </Paragraph>
-          <Paragraph variant="long">Mønsteret er bygd opp etter tre spørsmål:</Paragraph>
-          <List.Ordered>
-            <List.Item><strong>Er det strukturert informasjon?</strong> Se <Link href="#hva">Hva er strukturert informasjon?</Link></List.Item>
-            <List.Item><strong>Hva skal brukerne gjøre?</strong> Oppgaven avgjør om du velger tabell, liste eller kort. Se <Link href="#velg-visning">Velg visning etter hva brukerne skal gjøre</Link>.</List.Item>
-            <List.Item><strong>Hva skjer på en liten skjerm?</strong> Behold tabellen, eller gjør den om til liste eller kort uten at sammenhengen går tapt. Se <Link href="#liten-skjerm">Tilpass visningen til små skjermer</Link>.</List.Item>
-          </List.Ordered>
-
           {/* ------------------------------------------------------------ */}
-          <Heading level={2} data-size="md" id="hva">Hva er strukturert informasjon?</Heading>
+          <Heading level={2} data-size="md" id="definisjon">Definisjon</Heading>
           <Paragraph variant="long">
-            Strukturert informasjon er en samling <strong>oppføringer</strong> av samme type, der hver oppføring har de
-            samme <strong>egenskapene</strong>. Saker med saksnummer, dato og status er strukturert informasjon. Det er
-            også målinger fra flere steder og tidspunkter, og studietilbud med opptakskrav og poenggrense.
+            Strukturerte data er informasjon som følger et definert oppsett, som rader og kolonner. Ifølge{" "}
+            <Link href="https://data.norge.no">Felles datakatalog</Link> er det data der informasjonselementer og
+            relasjoner mellom dem er definert.
           </Paragraph>
           <Paragraph variant="long">
-            En enkel test er å spørre om informasjonen kunne stått i et regneark, med én rad per oppføring og én kolonne
-            per egenskap. Da hører den til dette mønsteret. Er det bare én kolonne, er det en vanlig liste, og da
-            gjelder retningslinjene for <C slug="list">List</C>.
+            Til presentasjon av strukturerte data brukes blant annet tabeller og lister, men også andre organiserte
+            visninger. Eksempler på strukturerte data er saker med saksnummer, dato og status, målinger fra flere steder
+            og tidspunkter, og studietilbud med opptakskrav og poenggrense.
           </Paragraph>
           <Heading level={3} data-size="sm">Begreper vi bruker</Heading>
           <Bullets items={[
+            <><strong>Data:</strong> i dette mønsteret er data oppføringer med én eller flere egenskaper.</>,
             <><strong>Oppføring:</strong> én sak, én måling, ett studietilbud. I en tabell er det en rad.</>,
             <><strong>Egenskap:</strong> det alle oppføringene har, som status eller dato. I en tabell er det en kolonne.</>,
-            <><strong>Verdi:</strong> egenskapen for én oppføring, som «Under behandling». I en tabell er det en celle.</>,
-          ]} />
-          <Heading level={3} data-size="sm">Dette er ikke med i mønsteret</Heading>
-          <Bullets items={[
-            <>Punktlister med tekst, som råd eller steg i en veiledning. Se <C slug="list">List</C>.</>,
-            "Menyer og navigasjon.",
-            "Skjemaer.",
-            "Store grafer, som linjediagram og stolpediagram. De hører til et eget mønster for datavisualisering.",
           ]} />
 
           {/* ------------------------------------------------------------ */}
           <Heading level={2} data-size="md" id="forberedelser">Forberedelser</Heading>
-          <Heading level={3} data-size="sm">Finn ut hva brukerne skal gjøre</Heading>
-          <Paragraph variant="long">Før du velger visning, må du vite hva brukerne skal bruke informasjonen til. Tenk over</Paragraph>
+          <Paragraph variant="long">
+            Alle designsystemer har flere komponenter laget for å strukturere data. De vanligste er tabell, liste, grid
+            og kort. Utfordringen er at komponentene har overlappende egenskaper, så det er ikke rett frem å velge
+            hvilken som passer best til et formål. Avklar derfor først hvilke brukeroppgaver som skal løses, og hvordan
+            dataene ser ut.
+          </Paragraph>
+          <Paragraph variant="long">Start med å kartlegge brukerens oppgaver og behov:</Paragraph>
           <Bullets items={[
-            "om brukerne skal finne, sammenligne, oppdage avvik eller endre noe",
-            "hvilken egenskap brukerne kjenner igjen oppføringen på",
-            "hvilke egenskaper som må være synlige samtidig, og hvilke som kan ligge bak en handling",
-            "hvor mange oppføringer det er, og om brukerne trenger søk, filter eller sortering",
+            "Skal brukeren bare lese eller finne informasjon?",
+            "Skal brukeren sammenligne informasjon?",
+            "Skal brukeren bearbeide innholdet, altså endre, velge, flytte, slette eller legge til?",
+            "Hvilken informasjon er den mest sentrale, altså selve oppføringen?",
+            "Hvilke egenskaper er viktigst?",
+            "Hvilke opplysninger må være synlige samtidig?",
+            "Trenger brukeren søk, filtrering eller sortering?",
+            "Må alle opplysningene vises i samme visning?",
           ]} />
-          <Heading level={3} data-size="sm">Utfordre dataene</Heading>
+          <Paragraph variant="long">Kartlegg deretter dataene som skal presenteres:</Paragraph>
+          <Bullets items={[
+            "mengde",
+            "egenskaper",
+            "interaksjon",
+            "vekting og prioritering",
+            "avsenders formål",
+            "ønsket effekt",
+          ]} />
           <Paragraph variant="long">
-            En database har ofte mange flere egenskaper enn brukerne trenger. Ikke vis alle kolonnene fordi de finnes.
-            Velg egenskapene ut fra hva brukerne skal gjøre, og la resten ligge bak en handling. Mange tabeller som er
-            vanskelige på mobil, er egentlig en utskrift av databasen som ingen har prioritert.
+            Det beste er å tilpasse visningen til det brukeren først og fremst bruker den til.
           </Paragraph>
-          <Heading level={3} data-size="sm">Hvis du ikke vet hva brukerne skal gjøre</Heading>
+
+          <Heading level={3} data-size="sm">Når du ikke vet hva som er brukerens viktigste oppgave</Heading>
           <Paragraph variant="long">
-            Noen ganger brukes visningen til mye forskjellig, eller virksomheten vil dele data uten å vite hva de skal
-            brukes til. Da kan du lage noen ferdige visninger for de vanligste spørsmålene, og gi tilgang til alle
-            dataene og nedlasting for dem som trenger mer. Ferdige visninger er lettere å tilpasse små skjermer enn
-            rådata.
+            Noen ganger bruker brukerne visningen til mye forskjellig. Det gjelder særlig store datamengder, der det er
+            vanskelig å gjøre et godt utvalg av innhold uten brukerens input. Et eksempel er værdata fordelt på dager:
+            Vi har dataene, men det er vanskelig å vite hva brukeren skal bruke dem til.
           </Paragraph>
+          <Bullets items={[
+            "Vurder å lage to ulike visninger som møter hvert sitt viktigste behov.",
+            "Spør hva brukeren er mest interessert i før visningen kommer, for eksempel når brukeren tar i bruk tjenesten.",
+            "Gjør en antakelse: vis et utvalg av dataene, og la brukeren skru på mer.",
+            <>Vurder å bruke liste eller kort, eller bruk <C slug="table">Table</C> hvis det er den mest hensiktsmessige presentasjonen.</>,
+          ]} />
+
+          <Heading level={3} data-size="sm">Når virksomheten vil dele data uten å vite hva de skal brukes til</Heading>
+          <Paragraph variant="long">
+            Det kan for eksempel være rådata, der virksomheten ikke vil bruke lang tid på å finne ut hva brukerne skal
+            gjøre.
+          </Paragraph>
+          <Bullets items={[
+            "Siden brukeren kan ønske å bruke dataene til mye ulikt, bør du tilby løsninger for det meste: søk, filtrering, sortering, valg av kolonner og nedlasting av dataene.",
+            "Lag noen forslag til visninger som er tilpasset det dataene kan brukes til, og tilby en knapp for å se alle dataene eller laste dem ned. Tydelige spørsmål er enklere å vise på liten skjerm enn rådata. For eksempel: «Se utviklingen i drivstoffprisene i Troms så langt i 2026».",
+            "Å vise dataene helt rått er ikke tilpasset liten skjerm, og gir som regel sideveis rulling.",
+            "Vurder om dataene i det hele tatt skal vises for brukeren, eller bare deles som nedlasting.",
+          ]} />
           <Example
             id="ukjent"
             smallLabel="Ferdige visninger og alle data, liten skjerm"
@@ -261,28 +274,98 @@ export default function Forslag() {
               { label: "CSS", code: cssBetween(eksCss, "Småbilder") },
             ]}
           />
+
+          {/* ------------------------------------------------------------ */}
+          <Heading level={2} data-size="md" id="design">Design og opplevelse</Heading>
           <Paragraph variant="long">
-            Visningene byttes med <C slug="tabs">Tabs</C>. Hver visning svarer på ett spørsmål, så den kan tilpasses
-            små skjermer for seg.
+            Når strukturerte data skal tilpasses små skjermer, handler designjobben om å bevare sammenhengen i dataene,
+            sikre god lesbarhet og gi store nok trykkflater.
+          </Paragraph>
+          <Paragraph variant="long">
+            Vurder hvilke opplysninger brukeren må se med en gang for å løse oppgaven sin, og hvilke som kan legges bak
+            en sekundær handling, for eksempel i en ekspanderbar visning. Gjør den viktigste informasjonen tydelig med
+            plassering og utforming.
+          </Paragraph>
+          <Example
+            id="detaljer"
+            smallLabel="Liste med detaljer ved behov, liten skjerm"
+            caption="Navn og status er alltid synlige. Resten ligger under «Detaljer om saken», som etikett og verdi."
+            render={(id) => <Small id={id}><DetailsList items={sorted} labelledBy={id} /></Small>}
+            code={[
+              { label: "Liste", code: extract(listeSrc, "DetailsList") },
+              { label: "CSS", code: cssBetween(listeCss, "Detaljer ved behov", "Søk og filter") },
+            ]}
+          />
+          <Paragraph variant="long">
+            Pass på at det er nok avstand mellom elementene, så innholdet blir lesbart selv om skjermen er liten.
+          </Paragraph>
+          <Paragraph variant="long">
+            Når en tabell blir til kort eller liste på mobil, må sammenhengen mellom opplysningene bestå. Brukeren skal
+            aldri være i tvil om hva en verdi beskriver, eller hvilke opplysninger som hører til samme oppføring. Sørg
+            for at ledetekstene følger verdiene sine på en entydig måte.
+          </Paragraph>
+          <Mapping />
+          <Heading level={3} data-size="sm">Hjelp brukeren å finne frem</Heading>
+          <Bullets items={[
+            <><strong>Søk</strong> når listen er lang og brukeren leter etter noe bestemt. Bruk <C slug="search">Search</C>.</>,
+            <><strong>Filtrering</strong> når det er få, kjente kategorier, for eksempel status. Bruk <C slug="chip">Chip</C> i en <C slug="fieldset">Fieldset</C>.</>,
+            <><strong>Sortering</strong> når rekkefølgen hjelper oppgaven, for eksempel for å finne høyeste eller laveste verdi.</>,
+            <><strong>Gruppering</strong> når oppføringene har en naturlig inndeling. Gi hver gruppe en overskrift.</>,
+            <><strong>Paginering</strong> når listen blir tung å bla i. Bruk <C slug="pagination">Pagination</C>.</>,
+          ]} />
+
+          {/* ------------------------------------------------------------ */}
+          <Heading level={2} data-size="md" id="visualiseringer">Visualiseringer</Heading>
+          <Paragraph variant="long">
+            På små skjermer er det sjelden plass til tradisjonelle visualiseringer. Her handler visualisering om
+            kompakte figurer som kan stå rett i en tabellcelle eller et listeelement. Da slipper brukeren å hoppe
+            mellom en tabell med tall og en visualisering på en annen skjerm.
+          </Paragraph>
+          <Heading level={3} data-size="sm">Trendgraf</Heading>
+          <Paragraph variant="long">
+            En trendgraf (på engelsk «sparkline») er en enkel datalinje som står rett ved siden av et tall eller i en
+            tabellkolonne. Den tar ikke mer plass enn noen få bokstaver, men viser likevel en hel serie med datapunkter.
+            Når formen på utviklingen vises sammen med den nøyaktige verdien i dag, unngår brukeren å legge for mye vekt
+            på de siste målingene. Si også utviklingen med ord. Se eksempelet under{" "}
+            <Link href="#oppgave-avvik">Oppdage mønstre og avvik</Link>.
+          </Paragraph>
+          <Heading level={3} data-size="sm">Piktogrammer og symboler</Heading>
+          <Paragraph variant="long">
+            Piktogrammer og symboler, som værikoner eller statusindikatorer, sparer plass og kan tolkes med ett blikk.
+            De fungerer best når de oppfører seg som tegn i teksten og er lette å forstå. Eksempler er farevarsler og
+            «5 av 5 stjerner». Symboler skal alltid ha tekst, for eksempel en merkelapp eller et skjult navn.
+          </Paragraph>
+          <Heading level={3} data-size="sm">Små repetisjoner</Heading>
+          <Paragraph variant="long">
+            Små repetisjoner (på engelsk «small multiples») er en serie små, like figurer med samme skala, format og
+            akser. Rammen er lik fra figur til figur, så brukeren slipper å tolke designet på nytt og kan se bare på
+            endringene i dataene. Det gjør dem gode til sammenligning. Se «Utvikling» i eksempelet under{" "}
+            <Link href="#forberedelser">Forberedelser</Link>.
           </Paragraph>
 
           {/* ------------------------------------------------------------ */}
-          <Heading level={2} data-size="md" id="velg-visning">Velg visning etter hva brukerne skal gjøre</Heading>
+          <Heading level={2} data-size="md" id="brukeroppgaver">Brukeroppgaver</Heading>
           <Paragraph variant="long">
-            De samme dataene kan ofte vises som tabell, liste eller kort. Det er oppgaven brukerne skal løse, som
-            avgjør hva som fungerer best.
+            Brukeroppgavene her er valgt for å vise situasjoner der du må ta stilling til om det er best å bruke liste
+            eller tabell. Generelt brukes tabell når brukeren trenger å skanne, sammenligne eller få oversikt over
+            informasjonen. Likevel kan en liste ofte presentere informasjonen i en enklere struktur, og en tabell kan
+            bli til en liste på små skjermer.
+          </Paragraph>
+          <Paragraph variant="long">
+            Tabeller har en rekke utfordringer på små skjermer. Ved å se på hva brukeren skal gjøre, vil du ofte finne
+            gode alternativer. Du kan alltid presentere dataene enklere og gi brukeren mulighet til å se hele tabellen
+            etterpå. Vurder hvor sammensatte dataene er, og hvor mye av dem brukeren trenger å se.
           </Paragraph>
 
-          <Heading level={3} data-size="sm" id="oppgave-finne">Når brukerne skal finne én oppføring</Heading>
+          <Heading level={3} data-size="sm" id="oppgave-finne">1. Finne en oppføring</Heading>
           <Paragraph variant="long">
-            Brukerne skal finne og kjenne igjen én eller noen få oppføringer, ikke sammenligne dem. Det kan for
-            eksempel være en innboks, en oversikt over søknader eller nyheter.
+            Brukeren skal finne én eller noen få oppføringer, ikke sammenligne dem. Eksempler er en innboks, en
+            oversikt over søknader eller nyheter.
           </Paragraph>
-          <Bullets items={[
-            <>Bruk en <C slug="list">List</C>. Velg <C slug="card">Card</C> hvis hver oppføring har handlinger.</>,
-            "Sett det brukerne kjenner igjen oppføringen på, først og som lenke.",
-            <>Gi <C slug="search">Search</C> når listen er lang, og filter med <C slug="chip">Chip</C> når det er få, kjente kategorier.</>,
-          ]} />
+          <Paragraph variant="long">
+            <strong>Anbefaling:</strong> Bruk en variant av liste eller kort. Her er det ekstra relevant å tilby
+            søk.
+          </Paragraph>
           <Example
             id="finne"
             smallLabel="Liste med søk og filter, liten skjerm"
@@ -295,17 +378,18 @@ export default function Forslag() {
             ]}
           />
 
-          <Heading level={3} data-size="sm" id="oppgave-fa">Når brukerne skal sammenligne noen få alternativer</Heading>
+          <Heading level={3} data-size="sm" id="oppgave-fa">2. Sammenligne et mindre utvalg</Heading>
           <Paragraph variant="long">
-            Brukerne skal velge mellom noen få alternativer og sammenligne flere egenskaper, for eksempel studietilbud
-            eller avtaler der pris, varighet og vilkår varierer. Dette passer ikke når brukerne bare vurderer én
-            egenskap.
+            Brukeren står overfor et valg mellom noen få alternativer. Eksempler er studietilbud, værmelding for
+            forskjellige tidspunkter eller steder, og avtaler der sum, varighet og vilkår varierer. Dette passer ikke
+            når det bare er én egenskap brukeren reelt sett vurderer.
           </Paragraph>
+          <Paragraph variant="long"><strong>Anbefalinger:</strong></Paragraph>
           <Bullets items={[
-            <>På stor skjerm: bruk en vanlig <C slug="table">Table</C> med ett alternativ per rad og egenskapene som kolonner.</>,
-            "På liten skjerm: snu tabellen, så egenskapene går nedover og to alternativer står side om side.",
-            <>La brukerne velge hvilke to som sammenlignes, med en <C slug="select">Select</C> over hver kolonne.</>,
-            "Gjør det lett å se det som skiller alternativene.",
+            <>Bruk <C slug="table">Table</C>.</>,
+            "På liten skjerm: list egenskapene nedover i rader, og 2–3 alternativer i kolonner til høyre.",
+            "Finnes det flere alternativer, la brukeren velge hvilke som skal sammenlignes.",
+            "Fremhev egenskapene som skiller alternativene.",
           ]} />
           <Example
             id="fa"
@@ -320,20 +404,29 @@ export default function Forslag() {
           />
           <Paragraph variant="long">
             Studiene velges med <C slug="select">Select</C> fordi det er sju å velge mellom. Er det færre enn sju
-            alternativer, bruk heller <C slug="chip">Chip</C>. En <C slug="switch">Switch</C> skjuler egenskapene som er
-            like for alle.
+            alternativer, bruk heller <C slug="chip">Chip</C>.
           </Paragraph>
 
-          <Heading level={3} data-size="sm" id="oppgave-mange">Når brukerne skal sammenligne mange oppføringer</Heading>
+          <Heading level={3} data-size="sm" id="oppgave-mange">3. Sammenligne et større utvalg</Heading>
           <Paragraph variant="long">
-            Brukerne skal se mange oppføringer og egenskaper i sammenheng: sammenligne, finne høyeste og laveste verdi
-            eller se utvikling over tid. Det kan være tidsserier, prismatriser eller nøkkeltall per kommune.
+            Brukeren må se data i sammenheng, i rader og kolonner. Behovet kan være å sammenligne, oppdage mønstre,
+            finne avvik eller se historisk utvikling. Eksempler:
           </Paragraph>
           <Bullets items={[
-            <>Behold <C slug="table">Table</C>, og la den rulle sideveis.</>,
-            "Lås første kolonne, så navnet på oppføringen alltid er synlig.",
-            "Lås overskriftsraden når tabellen er lang.",
-            "Vis tydelig at tabellen fortsetter til siden.",
+            <><strong>Tidsserier og måledata:</strong> endringer i verdier over tid for flere enheter eller steder, for eksempel temperatur, luftkvalitet eller vannstand gjennom døgnet.</>,
+            <><strong>Pris- og takstmatriser:</strong> tabeller der to faktorer bestemmer summen, for eksempel sone og tidspunkt, eller gebyrsatser etter størrelse og type.</>,
+            <><strong>Statistiske oversikter:</strong> nøkkeltall fordelt på fylker, kommuner eller år.</>,
+            "Opptakskrav for alle skoler som tilbyr studiespesialisering i Bergensområdet, eller prissammenligning.",
+          ]} />
+          <Paragraph variant="long">
+            <strong>Anbefaling:</strong> Vurder om du kan bruke liste eller kort. Har oppføringene mange egenskaper,
+            kan en tabell med flere kolonner være mer egnet. Da bør du
+          </Paragraph>
+          <Bullets items={[
+            "beholde tabellstrukturen, og gjøre tabellen rullbar sideveis hvis det trengs",
+            "låse første kolonne, så navnet på oppføringen alltid er synlig mens brukeren ruller resten sidelengs",
+            "låse kolonneoverskriftene øverst hvis tabellen er lang",
+            "vise tydelig at tabellen fortsetter og kan rulles",
           ]} />
           <Example
             id="mange"
@@ -352,36 +445,16 @@ export default function Forslag() {
             ]}
           />
 
-          <Heading level={3} data-size="sm" id="oppgave-detaljer">Når brukerne trenger detaljer bare av og til</Heading>
+          <Heading level={3} data-size="sm" id="oppgave-avvik">4. Oppdage mønstre og avvik</Heading>
           <Paragraph variant="long">
-            Brukerne trenger noen få egenskaper for å finne oppføringen, og resten bare av og til. Det kan være saker
-            med mange felt, vedtak eller fakturaer.
+            Brukeren vil finne informasjon som samsvarer eller skiller seg ut på tvers av oppføringer og egenskaper.
+            Brukeren leter etter én eller flere ting, men vet ikke hva. Det kan være måleverdier over en grense,
+            utgifter som er høyere enn budsjett, eller saker som har ligget lenge.
           </Paragraph>
           <Bullets items={[
-            "Vis det viktigste i listen, og legg resten bak en handling.",
-            <>Bruk <C slug="details">Details</C> når detaljene er korte, og <C slug="dialog">Dialog</C> når de er mange.</>,
-            "Ikke fjern informasjon. Legg den ett trykk unna.",
-          ]} />
-          <Example
-            id="detaljer"
-            smallLabel="Liste med detaljer ved behov, liten skjerm"
-            caption="Navn og status er alltid synlige. Resten ligger under «Detaljer om saken», som etikett og verdi."
-            render={(id) => <Small id={id}><DetailsList items={sorted} labelledBy={id} /></Small>}
-            code={[
-              { label: "Liste", code: extract(listeSrc, "DetailsList") },
-              { label: "CSS", code: cssBetween(listeCss, "Detaljer ved behov", "Søk og filter") },
-            ]}
-          />
-
-          <Heading level={3} data-size="sm" id="oppgave-avvik">Når brukerne skal oppdage mønstre og avvik</Heading>
-          <Paragraph variant="long">
-            Brukerne leter etter det som skiller seg ut, men vet ikke hva det er på forhånd. Det kan være måleverdier
-            over en grense, utgifter som er høyere enn budsjett, eller saker som har ligget lenge.
-          </Paragraph>
-          <Bullets items={[
-            "La løsningen finne avvikene når den kan, og si det i klartekst over visningen.",
-            <>Merk avvik med tekst, for eksempel med <C slug="tag">Tag</C>, ikke bare med farge.</>,
-            "Sorter så avvikene kommer først.",
+            "Helst bør systemet hjelpe brukeren å finne avviket, og si det i klartekst over visningen.",
+            <>Må et menneske gjøre jobben, merk verdiene som skiller seg ut, for eksempel med <C slug="tag">Tag</C> når en verdi bryter en grense. Bruk tekst, ikke bare farge.</>,
+            "Vis verdiene som skal sammenlignes, nær hverandre.",
             "Vis utviklingen ved siden av verdien, for eksempel med en trendgraf.",
           ]} />
           <Example
@@ -399,16 +472,15 @@ export default function Forslag() {
             Designsystemet har ingen komponent for trendgrafer. Trendgrafen i eksempelet er laget for prototypen.
           </Paragraph>
 
-          <Heading level={3} data-size="sm" id="oppgave-endre">Når brukerne skal endre oppføringer</Heading>
+          <Heading level={3} data-size="sm" id="oppgave-endre">5. Bearbeide oppføringer</Heading>
           <Paragraph variant="long">
-            Brukerne skal endre, slette eller legge til oppføringer, én om gangen eller flere samtidig. Det kan være
-            kostnader i en søknad, status på flere saker eller meldinger som skal arkiveres.
+            Brukeren skal redigere, fjerne eller legge til oppføringer, én om gangen eller flere samtidig. Et eksempel
+            er å endre status på flere saker samtidig.
           </Paragraph>
           <Bullets items={[
             <>Én om gangen: bruk <C slug="card">Card</C> med handlingene nederst i kortet.</>,
-            <>Flere samtidig: la brukerne krysse av med <C slug="checkbox">Checkbox</C> og velge én handling for alle de valgte.</>,
-            <>Vis feil inne i kortet eller raden de gjelder, med <C slug="validation-message">ValidationMessage</C>.</>,
-            "Ikke deaktiver knapper. Si i stedet hva brukerne må gjøre.",
+            <>Flere samtidig: la brukeren merke flere oppføringer med <C slug="checkbox">Checkbox</C> i en kort skjemaflyt. Designsystemet har ingen data grid.</>,
+            "Ikke deaktiver knapper. Si i stedet hva brukeren må gjøre.",
           ]} />
           <Example
             id="endre"
@@ -436,88 +508,114 @@ export default function Forslag() {
             ]}
           />
 
-          <Heading level={3} data-size="sm">Tabell, liste eller kort?</Heading>
-          <Paragraph variant="long">
-            Det er en glidende overgang fra enkle lister til kort med mye innhold. Mengden innhold per oppføring
-            avgjør.
-          </Paragraph>
-          <Card data-color="neutral">
-            {[
-              ["Tabell", ["Brukerne sammenligner verdier på tvers av oppføringene.", "Hver rad er samme type innhold.", "Verdiene er korte."]],
-              ["Liste", ["Brukerne finner eller skanner.", "Det er få egenskaper per oppføring.", "Oppføringen er en vei videre."]],
-              ["Kort", ["Det er mange egenskaper, eller handlinger.", "Brukerne jobber med én oppføring om gangen.", "Innholdet varierer i lengde."]],
-            ].map(([t, items]) => (
-              <Details key={t}>
-                <Details.Summary>{t} kan være et godt valg når …</Details.Summary>
-                <Details.Content><Bullets items={items} /></Details.Content>
-              </Details>
-            ))}
-          </Card>
-
           {/* ------------------------------------------------------------ */}
-          <Heading level={2} data-size="md" id="liten-skjerm">Tilpass visningen til små skjermer</Heading>
+          <Heading level={2} data-size="md" id="komponenter">Komponenter</Heading>
           <Paragraph variant="long">
-            Når en tabell blir en liste eller kort, må sammenhengen bestå. Brukerne skal aldri være i tvil om hva en
-            verdi beskriver, eller hvilke verdier som hører til samme oppføring.
-          </Paragraph>
-          <Heading level={3} data-size="sm">Gi hver oppføring fire faste plasser</Heading>
-          <Mapping />
-          <Heading level={3} data-size="sm">Hjelp brukerne å finne frem</Heading>
-          <Bullets items={[
-            <><strong>Søk</strong> når listen er lang og brukerne vet hva de leter etter. Bruk <C slug="search">Search</C>.</>,
-            <><strong>Filter</strong> når det er få, kjente kategorier, for eksempel status. Bruk <C slug="chip">Chip</C> i en <C slug="fieldset">Fieldset</C>.</>,
-            <><strong>Sortering</strong> når rekkefølgen hjelper oppgaven, for eksempel høyest først. Bruk <C slug="chip">Chip</C>, og <C slug="select">Select</C> fra sju valg.</>,
-            <><strong>Gruppering</strong> når oppføringene har en naturlig inndeling. Gi hver gruppe en overskrift og en egen liste.</>,
-            <><strong>Oppdeling i sider</strong> når listen blir tung å bla i. Bruk <C slug="pagination">Pagination</C>.</>,
-            <><strong>Fast overskrift og kolonne</strong> når tabellen beholdes og ruller. Se <C slug="table">Table</C>.</>,
-          ]} />
-          <Paragraph variant="long">
-            Endringer fra søk, filter og sortering skal meldes til skjermlesere, for eksempel «Viser 3 av 8 saker».
+            Det er hovedsakelig tre visningsformer som brukes til dette formålet: tabell, liste og kort. Ofte kan alle
+            tre presentere de samme dataene. Forskjellen ligger i hva brukeren skal gjøre. Tabeller egner seg best for
+            sammenligning, lister for rask oversikt over mange oppføringer, og kort når hver oppføring trenger mer
+            plass, kontekst eller flere handlinger.
           </Paragraph>
 
-          {/* ------------------------------------------------------------ */}
-          <Heading level={2} data-size="md" id="visualiseringer">Små visualiseringer</Heading>
+          <Heading level={3} data-size="sm">Tabell kan være greit når …</Heading>
+          <Bullets items={[
+            "formålet først og fremst er å sammenligne verdier på tvers av oppføringene",
+            "sammenhengen mellom ledetekst og innhold er viktig for å forstå informasjonen",
+            "hver rad er samme type innhold, så det gir mening å sammenligne radene",
+            "det er få nok kolonner til at tabellen får plass uten sideveis rulling eller dårligere lesbarhet",
+            "innholdet er kort nok til at det ikke gir mye linjebryting",
+            "tabellen gir brukeren mer enn en liste eller kort ville gjort",
+          ]} />
+          <Paragraph variant="long"><strong>Vær oppmerksom på at</strong></Paragraph>
+          <Bullets items={[
+            "tabeller kan bli vanskelige å bruke på små skjermer når de har mange kolonner eller mye tekst",
+            "sideveis rulling gjør det vanskeligere å sammenligne og orientere seg",
+            "lange tekster i celler kan gi mye linjebryting og dårligere lesbarhet",
+            "mange kolonner kan kreve at innholdet prioriteres eller presenteres på en annen måte",
+            "liste eller kort kan være bedre hvis sammenligning ikke er en sentral oppgave",
+          ]} />
+
+          <Heading level={3} data-size="sm">Liste kan være greit når …</Heading>
+          <Bullets items={[
+            "brukeren skal se gjennom mange oppføringer",
+            "hver oppføring er enkel og avgrenset, med få eller ingen ekstra egenskaper",
+            "brukeren først og fremst skal lese, finne eller skanne informasjon",
+            "hver oppføring kan forstås for seg",
+            "innholdet har en naturlig rekkefølge, for eksempel kronologisk, alfabetisk eller etter prioritet",
+            "brukeren ikke trenger å sammenligne mange egenskaper på tvers av oppføringene",
+            "den viktigste informasjonen kan stå først i hver oppføring",
+          ]} />
+          <Paragraph variant="long"><strong>Vær oppmerksom på at</strong></Paragraph>
+          <Bullets items={[
+            "lister fungerer dårlig når brukeren skal sammenligne mange verdier mellom oppføringer",
+            "lange lister kan bli krevende å skanne uten søk, filtrering eller gruppering",
+            "sammenhenger mellom egenskaper kan bli mindre tydelige enn i en tabell",
+          ]} />
+
+          <Heading level={3} data-size="sm">Kort kan være greit når …</Heading>
+          <Bullets items={[
+            "hver oppføring har flere egenskaper som bør presenteres samlet",
+            "brukeren først og fremst skal se på én oppføring om gangen",
+            "informasjonen varierer i lengde eller innhold mellom oppføringene",
+            "du vil fremheve enkelte opplysninger",
+            "hver oppføring har handlinger, for eksempel rediger, slett eller åpne",
+            "visuelle elementer som status, kategorier, ikoner eller bilder hjelper brukeren å forstå",
+          ]} />
+          <Paragraph variant="long"><strong>Vær oppmerksom på at</strong></Paragraph>
+          <Bullets items={[
+            "kort bruker mye mer plass enn lister og tabeller",
+            "det ofte blir vanskeligere å sammenligne oppføringer",
+            "mange kort etter hverandre kan gi mye rulling",
+            "ulikt innhold i hvert kort kan gjøre informasjonen mindre oversiktlig",
+          ]} />
+
+          <Heading level={3} data-size="sm">Utforming av liste og kort</Heading>
           <Paragraph variant="long">
-            På små skjermer er det sjelden plass til store grafer. Små visualiseringer kan stå rett i en celle eller en
-            listeoppføring, så brukerne slipper å hoppe mellom tall og graf.
+            Det er en glidende overgang fra enkle lister til komplekse kort, og de kan utformes på mange måter.
           </Paragraph>
           <Bullets items={[
-            <><strong>Trendgraf:</strong> en linje ved siden av verdien som viser utviklingen. Si også utviklingen med ord. Se eksempelet under <Link href="#oppgave-avvik">Når brukerne skal oppdage mønstre og avvik</Link>.</>,
-            <><strong>Symboler:</strong> sparer plass, men skal alltid ha tekst, for eksempel en merkelapp eller et skjult navn.</>,
-            <><strong>Småbilder</strong> (small multiples): samme lille figur med samme skala for hver oppføring, så bare dataene endrer seg. Se «Utvikling» i eksempelet under <Link href="#forberedelser">Forberedelser</Link>.</>,
+            "Vurder om ledetekstene skal stå i hvert kort, eller som beskrivende kolonnetitler over kortene, slik Yr gjør.",
+            "Oppføringen kan være klikkbar eller ikke. Tilpass det til behovet.",
+            "Skjul sekundær informasjon.",
+            "Lag et tydelig hierarki, så den viktigste informasjonen er lett å finne.",
+            <>Bruk <C slug="details">Details</C> når innholdet er omfattende og ikke alle trenger å lese alt.</>,
           ]} />
-          <Paragraph variant="long">
-            Store grafer hører til et eget mønster. Har du en graf, bør dataene også finnes som tabell, for
-            skjermlesere, KI-agenter og alle som trenger de nøyaktige tallene.
-          </Paragraph>
 
           {/* ------------------------------------------------------------ */}
           <Heading level={2} data-size="md" id="sprak">Språk</Heading>
+          <Heading level={3} data-size="sm">Forkortelser</Heading>
           <Paragraph variant="long">
-            På små skjermer er det fristende å forkorte. Korte ord er bedre enn forkortelser, og brukerne skal forstå
-            ordene uten å kjenne virksomheten.
+            Plassmangel på små skjermer gjør det fristende å forkorte ord og ledetekster. Unngå forkortelser som er
+            unødvendige eller ukjente for brukeren, og som gjør teksten vanskeligere å lese.
           </Paragraph>
-          <Heading level={3} data-size="sm">Bruk disse ordene</Heading>
-          <UseAvoid use="Dato" avoid="Reg.dato">
-            <Paragraph variant="long">Velg et kortere ord fremfor å forkorte.</Paragraph>
+          <UseAvoid use="Allment kjente forkortelser, som org.nr., tlf. og kr." avoid="Interne fagbegreper og sjargong, som s-beh. og jfr.">
+            <Paragraph variant="long">Begrens forkortelsene til etablerte standarder.</Paragraph>
           </UseAvoid>
-          <UseAvoid use="Allment kjente forkortelser, som org.nr., tlf. og kr." avoid="Interne forkortelser og saksbehandlerbegreper">
-            <Paragraph variant="long">Brukerne kjenner ikke begrepene virksomheten bruker internt.</Paragraph>
+          <UseAvoid use="Dato" avoid="Reg.dato">
+            <Paragraph variant="long">Velg et kortere ord der det er mulig, i stedet for å forkorte.</Paragraph>
           </UseAvoid>
           <Divider />
+          <Paragraph variant="long">
+            Må du bruke en forkortelse som ikke er kjent, kan du merke den med en stjerne og forklare den under
+            tabellen.
+          </Paragraph>
           <Heading level={3} data-size="sm">Avkorting av tekst</Heading>
+          <Paragraph variant="long">
+            Avkorting betyr å erstatte deler av teksten med en ellipse (…) for å spare plass. Det skjuler innhold og
+            bør være en nødløsning. La heller teksten bryte over flere linjer.
+          </Paragraph>
           <Bullets items={[
-            "La teksten bryte over flere linjer i stedet for å kutte den.",
-            "Kutter du likevel, må hele teksten kunne leses, og skjermlesere skal alltid få hele teksten.",
-            "Kutt i slutten. Kutt i midten når oppføringene ligner hverandre, eller når det er filnavn, så filtypen synes.",
+            "Avkorter du, må brukeren kunne lese hele teksten med en bevisst handling. Skjermlesere skal alltid få hele teksten.",
+            "Som hovedregel avkorter du i slutten.",
+            "Avkort i midten når oppføringene gjentar seg og lett kan forveksles med hverandre.",
+            "Avkort i midten når oppføringen er et filnavn, så filtypen synes.",
           ]} />
 
           {/* ------------------------------------------------------------ */}
-          <Heading level={2} data-size="md" id="kode">Koding og tilgjengelighet</Heading>
+          <Heading level={2} data-size="md" id="kode">Kode</Heading>
           <Paragraph variant="long">
-            Kod innholdet etter hva det er, ikke etter hvordan det ser ut. Velg element ut fra strukturen i innholdet,
-            og style det etterpå. Utseendet skal ikke love mer struktur enn koden har. Vises kolonneoverskrifter, skal
-            det være en tabell.
+            Kod innholdet etter hva det er, ikke etter hvordan det ser ut. Utseendet skal ikke love mer struktur enn
+            koden har. Vises kolonneoverskrifter, skal det være en tabell.
           </Paragraph>
           <Table data-size="sm" zebra className="article-table">
             <caption>Hvilket element passer til innholdet</caption>
@@ -542,44 +640,34 @@ export default function Forslag() {
               ))}
             </Table.Body>
           </Table>
-          <Heading level={3} data-size="sm">Når tabellen blir en liste</Heading>
           <Bullets items={[
-            "Vis ulik kode på stor og liten skjerm: en tabell der det er en tabell, og en liste der det er en liste.",
-            <>Ikke gjør om en tabell med CSS. <code>display: block</code> på tabellelementer fjerner tabellstrukturen for skjermlesere i flere nettlesere.</>,
-            "Mål bredden på flaten tabellen står i, ikke bare vinduet.",
-            <>En sortert liste er fortsatt en <code>ul</code>. Rekkefølgen endrer seg når brukerne sorterer på nytt.</>,
-            <>Lister der kulepunktene er fjernet med CSS, trenger <code>role="list"</code> for å bli lest som liste i Safari.</>,
-            <>Meld endringer fra søk, filter og sortering med <code>role="status"</code>.</>,
+            <><strong>Tabell:</strong> følg spesifikasjonen, og vær oppmerksom hvis det blir mange tomme celler.</>,
+            <><strong>Beskrivelsesliste (<code>dl</code>):</strong> følg spesifikasjonen, men vær oppmerksom på at skjermlesere ikke alltid leser opp sammenhengen mellom etikett og verdi.</>,
+            <><strong>Punktliste og nummerert liste (<code>ul</code>, <code>ol</code>):</strong> følg spesifikasjonen. Lister der kulepunktene er fjernet med CSS, trenger <code>role="list"</code> for å bli lest som liste i Safari.</>,
+            <><strong>Sortering:</strong> rekkefølgen i innholdet endres. Gi beskjed om endringen med <code>role="status"</code>.</>,
+            <><strong>Filtrering:</strong> det som vises, endres. Gi beskjed om endringen, for eksempel «Viser 3 av 8 saker».</>,
+            <><strong>Sideveis rulling og fast kolonne:</strong> rulleflaten må kunne nås og rulles med tastatur. Se <C slug="table">Table</C>.</>,
+            <><strong>Når tabellen blir en liste:</strong> vis ulik kode på stor og liten skjerm. Ikke gjør om en tabell med CSS, for <code>display: block</code> på tabellelementer fjerner tabellstrukturen for skjermlesere i flere nettlesere.</>,
           ]} />
-          <Paragraph variant="long">Følg komponentdokumentasjonen for detaljene, og lenk dit i stedet for å gjenta den.</Paragraph>
+          <Paragraph variant="long">
+            Følg komponentdokumentasjonen for detaljene, og lenk dit i stedet for å gjenta den.
+          </Paragraph>
 
           {/* ------------------------------------------------------------ */}
-          <Heading level={2} data-size="md" id="oppsummering">Oppsummering</Heading>
-          <Paragraph variant="long">Start med hva brukerne skal gjøre, og velg visningen som lar dem løse oppgaven raskest.</Paragraph>
+          <Heading level={2} data-size="md" id="kilder">Kilder og annen relevant informasjon</Heading>
           <Bullets items={[
-            "Bruk liste for å finne én oppføring, og kort når oppføringene har handlinger.",
-            "Bruk en snudd tabell for å sammenligne noen få alternativer.",
-            "Behold tabellen og la den rulle sideveis for å sammenligne mange oppføringer.",
-            "Legg detaljer ett trykk unna i stedet for å fjerne dem.",
-            "Merk avvik med tekst, og sorter dem først.",
-            "Kod innholdet etter hva det er, og meld endringer til skjermlesere.",
-          ]} />
-
-          {/* ------------------------------------------------------------ */}
-          <Heading level={2} data-size="md" id="kilder">Kilder og relevant informasjon</Heading>
-          <Bullets items={[
-            <Link key="131" href="https://www.w3.org/WAI/WCAG22/Understanding/info-and-relationships.html">Understanding 1.3.1 Info and Relationships (w3.org)</Link>,
-            <Link key="1410" href="https://www.w3.org/WAI/WCAG22/Understanding/reflow.html">Understanding 1.4.10 Reflow (w3.org)</Link>,
+            <Link key="tab" href="https://www.uutilsynet.no/veiledning/tabeller/225">Tabeller (uutilsynet.no)</Link>,
+            <Link key="131" href="https://www.uutilsynet.no/wcag-standarden/131-informasjon-og-relasjoner-niva/90">WCAG-standarden 1.3.1 Informasjon og relasjoner, nivå A (uutilsynet.no)</Link>,
+            <Link key="131v" href="https://www.uutilsynet.no/veiledning/131-informasjon-og-relasjoner/1234">Veiledning og løsningsforslag til 1.3.1 (uutilsynet.no)</Link>,
             <Link key="fdk" href="https://data.norge.no">Felles datakatalog (data.norge.no)</Link>,
-            "Uutilsynet: Tabeller. Lenken legges inn.",
           ]} />
 
           <Card data-color="warning" variant="tinted">
             <Paragraph variant="long">
               <strong>Mer innsikt ønskes</strong>
               <br />
-              Har du erfaringer, brukertesting eller andre funn om strukturert informasjon på små skjermer? Del dem
-              gjerne i <Link href={DISCUSSION}>diskusjonstråden på github.com</Link>.
+              Har du erfaringer, brukertesting eller andre funn om strukturerte data på små skjermer? Del dem gjerne i{" "}
+              <Link href={DISCUSSION}>diskusjonstråden på github.com</Link>.
             </Paragraph>
           </Card>
 
@@ -587,9 +675,17 @@ export default function Forslag() {
           <Heading level={2} data-size="md" id="avklaring">Til avklaring i arbeidsgruppen</Heading>
           <Paragraph variant="long">Denne delen er bare med i forslaget og fjernes før artikkelen publiseres.</Paragraph>
           <Bullets items={[
-            <>Utkastet foreslår også et chatgrensesnitt i stedet for visningen, og å la være å dele dataene. Skal det anbefales? Se <Link href="#forberedelser">Forberedelser</Link>.</>,
-            <>Er det riktig å anbefale tabell med sideveis rulling når oppføringene har mange egenskaper, eller bør vi først anbefale liste eller kort? Det må begrunnes ut fra WCAG 1.4.10. Se <Link href="#oppgave-mange">Når brukerne skal sammenligne mange oppføringer</Link>.</>,
-            <>Designsystemet har ingen data grid. Er avkryssing og én handling for de valgte godt nok, eller skal endring av flere oppføringer samtidig holdes utenfor mønsteret? Se <Link href="#oppgave-endre">Når brukerne skal endre oppføringer</Link>.</>,
+            <>Hvilket ord skal vi bruke for det oppføringene har: detaljer, verdier, egenskaper eller attributter? Forslaget bruker «egenskaper». Se <Link href="#definisjon">Definisjon</Link>.</>,
+            <>Skal Forberedelser flyttes under <Link href="#design">Design og opplevelse</Link>?</>,
+            "Skal vi anbefale et chatgrensesnitt med forslag over visningen når vi ikke vet hva brukeren skal gjøre?",
+            <>Hva skal vi kalle liste og kort? Utviklere bruker «liste» om mer, for eksempel en liste med kort. Alternativer er panel, flis eller innholdselement, eller å velge mellom bare liste og tabell. Se <Link href="#komponenter">Komponenter</Link>.</>,
+            <>Er det riktig å anbefale tabell med sideveis rulling når oppføringene har mange egenskaper, eller bør vi først anbefale liste eller kort? Det må begrunnes ut fra WCAG 1.4.10. Se <Link href="#oppgave-mange">Sammenligne et større utvalg</Link>.</>,
+            <>Hvilke eksempler skal vi bruke for å oppdage mønstre og avvik, og hvilken komponent anbefaler vi? Se <Link href="#oppgave-avvik">Oppdage mønstre og avvik</Link>.</>,
+            <>Overlapper bearbeiding av én oppføring med å finne en oppføring, og passer bearbeiding inn i et mønster om strukturerte data? Se <Link href="#oppgave-endre">Bearbeide oppføringer</Link>.</>,
+            "Skal komponenten grid eller data grid med? Designsystemet har ingen data grid i dag.",
+            "Finnes det et bedre norsk ord for «small multiples» enn «små repetisjoner»?",
+            "Hvilke piktogrammer er gode eksempler? Farevarsel, terningkast og stedsikon er nevnt.",
+            "Skal vi ta med noe om stolpediagram og linjediagram når brukeren sammenligner et mindre utvalg?",
           ]} />
 
           <section className="contributors" aria-labelledby="bidragsytere">
