@@ -136,6 +136,23 @@ body {
 
 .frame--phone {
   border-radius: 2.25rem;
+  /* Mobilrammen ruller ikke. Den er minst like høy som telefonen og vokser med innholdet,
+     så hele eksempelet vises og siden rundt ruller i stedet. clip i stedet for hidden,
+     så position: sticky i eksemplene fester seg til nettleservinduet. */
+  height: auto;
+  min-height: var(--frame-height);
+  overflow: clip;
+}
+
+.frame--phone .frame__screen {
+  overflow: visible;
+  /* Høyden følger innholdet, så bare bredden kan måles */
+  container-type: inline-size;
+}
+
+/* Tabeller ruller fortsatt sideveis, men ikke nedover */
+.frame--phone .scroll-area {
+  max-height: none;
 }
 
 .frame--browser {
