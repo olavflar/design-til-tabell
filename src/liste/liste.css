@@ -43,6 +43,8 @@
 .active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-size-2); }
 .active-filters > p { margin: 0; }
 .active-filters ul { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); margin: 0; padding: 0; list-style: none; }
+/* Listepunktene arver marg mellom seg, som skjøv alle unntatt det første ned */
+.active-filters li { margin: 0; }
 
 /* Søkefelt: Input type="search" med egen tøm-knapp (Search er avviklet) */
 .search-field { position: relative; }

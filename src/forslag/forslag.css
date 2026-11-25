@@ -44,8 +44,9 @@
 .article-content { grid-area: content; min-width: 0; display: flex; flex-direction: column; gap: var(--ds-size-5); }
 .article-content > * { margin: 0; }
 .article-content > :not(.examples) { max-width: 44rem; }
-.article-content li { line-height: var(--ds-body-long-md-line-height); }
-.article-content li + li { margin-top: var(--ds-size-2); }
+/* Bare punktlistene i artikkelteksten, ikke listene inne i eksemplene */
+.article-content > :is(ul, ol) li { line-height: var(--ds-body-long-md-line-height); }
+.article-content > :is(ul, ol) li + li { margin-top: var(--ds-size-2); }
 .article-content > h2 { margin-top: var(--ds-size-12); scroll-margin-top: var(--ds-size-6); }
 .article-content > h3 { margin-top: var(--ds-size-6); scroll-margin-top: var(--ds-size-6); }
 .article-content > h2 + h3 { margin-top: 0; }

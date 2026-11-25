@@ -343,7 +343,8 @@ export function SearchableCases({ id, large = false }) {
   const [query, setQuery] = useState("");
   const [statuses, setStatuses] = useState([]);
   const toggleStatus = (s) =>
-    setStatuses((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]));
+    // Valgte filtre står i samme rekkefølge som valgene, ikke i rekkefølgen brukeren klikket
+    setStatuses((cur) => STATUSES.filter((x) => (x === s ? !cur.includes(s) : cur.includes(x))));
   const [order, setOrder] = useState("nyest");
 
   const q = query.trim().toLocaleLowerCase("nb");
