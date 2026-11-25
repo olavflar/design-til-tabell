@@ -5,6 +5,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   base: "./",
   plugins: [react()],
+  // Tidspunktet siden ble bygd, så forslaget kan vise nøyaktig når det sist ble oppdatert
+  define: { __BUILD_TIME__: JSON.stringify(new Date().toISOString()) },
   build: {
     rollupOptions: {
       input: {

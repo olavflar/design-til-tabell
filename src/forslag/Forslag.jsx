@@ -49,6 +49,15 @@ const SECTIONS = [
 
 const sorted = [...CASES].sort(byNewest);
 
+/* Når siden sist ble bygd og lagt ut, i norsk tid, for eksempel «25. november 2026 kl. 14.50» */
+const UPDATED = (() => {
+  const d = new Date(__BUILD_TIME__);
+  const opts = { timeZone: "Europe/Oslo" };
+  const date = d.toLocaleDateString("nb-NO", { ...opts, day: "numeric", month: "long", year: "numeric" });
+  const time = d.toLocaleTimeString("nb-NO", { ...opts, hour: "2-digit", minute: "2-digit" }).replace(":", ".");
+  return `${date} kl. ${time}`;
+})();
+
 /** Komponentnavn som lenke til dokumentasjonen, slik mønsterartiklene gjør */
 const C = ({ slug, children }) => (
   <Link href={`https://designsystemet.no/no/components/docs/${slug}/overview`}><code>{children}</code></Link>
@@ -173,7 +182,7 @@ export default function Forslag() {
           tilgjengelighet.
         </Paragraph>
         <Paragraph data-size="sm" className="article-header__meta">
-          {PARTNERS.join(", ")} · Oppdatert 25. november 2026
+          {PARTNERS.join(", ")} · Oppdatert <time dateTime={__BUILD_TIME__}>{UPDATED}</time>
         </Paragraph>
       </header>
 
