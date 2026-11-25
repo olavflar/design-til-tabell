@@ -39,11 +39,11 @@ const STUDIES = [
 ];
 
 const STUDY_ROWS = [
-  { key: "grade", label: "Poeng\u00ADgrense 2026", num: true, format: (v) => nb.format(v) },
-  { key: "places", label: "Studie\u00ADplasser", num: true, format: (v) => v },
+  { key: "grade", label: "Poeng\u00ADgrense 2026", format: (v) => nb.format(v) },
+  { key: "places", label: "Studie\u00ADplasser", format: (v) => v },
   { key: "practice", label: "Praksis", format: (v) => v },
   { key: "language", label: "Språk", format: (v) => v },
-  { key: "points", label: "Studie\u00ADpoeng", num: true, format: (v) => v },
+  { key: "points", label: "Studie\u00ADpoeng", format: (v) => v },
   { key: "start", label: "Oppstart", format: (v) => v },
 ];
 
@@ -99,7 +99,7 @@ export function CompareStudies({ large = false }) {
               <Table.Row>
                 <Table.HeaderCell scope="col">Studie</Table.HeaderCell>
                 {rows.map((r) => (
-                  <Table.HeaderCell key={r.key} scope="col" className={r.num ? "num" : undefined}>{r.label}</Table.HeaderCell>
+                  <Table.HeaderCell key={r.key} scope="col">{r.label}</Table.HeaderCell>
                 ))}
               </Table.Row>
             </Table.Head>
@@ -108,7 +108,7 @@ export function CompareStudies({ large = false }) {
                 <Table.Row key={s.id}>
                   <Table.HeaderCell scope="row">{s.name}</Table.HeaderCell>
                   {rows.map((r) => (
-                    <Table.Cell key={r.key} className={r.num ? "num" : undefined}>{r.format(s[r.key])}</Table.Cell>
+                    <Table.Cell key={r.key}>{r.format(s[r.key])}</Table.Cell>
                   ))}
                 </Table.Row>
               ))}
@@ -130,7 +130,7 @@ export function CompareStudies({ large = false }) {
                 <Table.Row key={r.key}>
                   <Table.HeaderCell scope="row">{r.label}</Table.HeaderCell>
                   {shown.map((s, i) => (
-                    <Table.Cell key={i} className={r.num ? "num" : undefined}>{r.format(s[r.key])}</Table.Cell>
+                    <Table.Cell key={i}>{r.format(s[r.key])}</Table.Cell>
                   ))}
                 </Table.Row>
               ))}
