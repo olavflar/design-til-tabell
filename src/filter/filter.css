@@ -1,23 +1,13 @@
-/* Kontobevegelser med filter */
+/* Kontobevegelser med filter. Bare oppsett: alt annet kommer fra Designsystemet. */
 .tx-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--ds-size-3); }
 /* Knappene holdes på én linje, og går under nedlastingen samlet når det er trangt */
 .tx-filters { display: flex; gap: var(--ds-size-2); }
-/* Boksen med filteret står under knappene og skyver listen ned */
-.tx-panel {
-  display: flex; flex-direction: column; gap: var(--ds-size-4);
-  padding: var(--ds-size-4); border: 1px solid var(--ds-color-neutral-border-subtle);
-  border-radius: var(--ds-border-radius-md); background: var(--ds-color-neutral-background-tinted);
-}
-.tx-panel[hidden] { display: none; }
+/* Filteret åpnes i et Card under knappene og skyver listen ned */
+.tx-panel { display: flex; flex-direction: column; gap: var(--ds-size-4); }
 .tx-panel > * { margin: 0; }
 .tx-panel__actions { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); }
 /* Fra og til, og minst og høyst, står ved siden av hverandre når det er plass */
 .tx-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--ds-size-3); }
-.amount { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.amount--in { color: var(--ds-color-success-text-default); }
-.tx-table { width: 100%; }
-.tx-table .num { text-align: right; }
-.num-date { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tx .stacked .row { flex-wrap: nowrap; }
 .tx-account { max-width: 24rem; }
 .tx-account .ds-select { width: 100%; }

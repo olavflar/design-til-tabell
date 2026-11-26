@@ -1,6 +1,7 @@
 import { useId, useMemo, useState } from "react";
 import {
   Button,
+  Card,
   Chip,
   Field,
   Fieldset,
@@ -82,12 +83,8 @@ const ROWS = Object.fromEntries(ACCOUNTS.map((a) => [a.id, makeRows(a, a.count)]
 const kr = new Intl.NumberFormat("nb-NO", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtDate = (d) => d.toLocaleDateString("nb-NO", { day: "2-digit", month: "2-digit", year: "numeric" });
 const isoDate = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-/** Inn får pluss, ut får minus. Fargen er bare i tillegg til tegnet. */
-const Amount = ({ value }) => (
-  <span className={value > 0 ? "amount amount--in" : "amount"}>
-    {value > 0 ? "+" : "−"}{kr.format(Math.abs(value))}
-  </span>
-);
+/** Inn får pluss, ut får minus, så retningen står i teksten */
+const fmtAmount = (value) => `${value > 0 ? "+" : "−"}${kr.format(Math.abs(value))}`;
 const parseKr = (s) => {
   const n = Number(String(s).replace(/\s/g, "").replace(",", "."));
   return s.trim() === "" || Number.isNaN(n) ? null : n;
@@ -225,7 +222,9 @@ export function Transactions({ large = false }) {
         </div>
       </div>
 
-      <div id={`${uid}-panel`} hidden={!open} className="tx-panel">
+      <div id={`${uid}-panel`} hidden={!open}>
+        {open && (
+        <Card variant="tinted" className="tx-panel">
         {open === "dato" && (
           <Fieldset data-size="sm">
             <Fieldset.Legend>Dato</Fieldset.Legend>
@@ -265,6 +264,8 @@ export function Transactions({ large = false }) {
           <Button data-size="sm" onClick={() => apply(open)}>Bruk filter</Button>
           <Button data-size="sm" variant="tertiary" onClick={() => close(open)}>Avbryt</Button>
         </div>
+        </Card>
+        )}
       </div>
 
       {active.length > 0 && (
@@ -303,10 +304,10 @@ export function Transactions({ large = false }) {
           <Table.Body>
             {visible.map((r) => (
               <Table.Row key={r.id}>
-                <Table.Cell className="num-date">{fmtDate(r.date)}</Table.Cell>
+                <Table.Cell>{fmtDate(r.date)}</Table.Cell>
                 <Table.Cell>{r.type}</Table.Cell>
                 <Table.Cell>{r.text}</Table.Cell>
-                <Table.Cell className="num"><Amount value={r.amount} /></Table.Cell>
+                <Table.Cell className="num">{fmtAmount(r.amount)}</Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
@@ -317,7 +318,7 @@ export function Transactions({ large = false }) {
             <li key={r.id}>
               <div className="row">
                 <strong className="row__title">{r.text}</strong>
-                <span className="num"><Amount value={r.amount} /> kr</span>
+                <span className="num">{fmtAmount(r.amount)} kr</span>
               </div>
               <span className="meta">{fmtDate(r.date)} · {r.type}</span>
             </li>
@@ -355,7 +356,7 @@ export default function Filter() {
           id="tx"
           smallLabel="Kontobevegelser med filter, liten skjerm"
           large={<Transactions large />}
-          caption="På stor skjerm er bevegelsene en tabell, på liten skjerm en liste der beskrivelse og beløp står først. Kontoen velges med en nedtrekksliste. Beløp inn har pluss og ut har minus, og fargen kommer i tillegg. Det vises 25 om gangen."
+          caption="På stor skjerm er bevegelsene en tabell, på liten skjerm en liste der beskrivelse og beløp står først. Kontoen velges med en nedtrekksliste. Beløp inn har pluss og ut har minus. Det vises 25 om gangen."
           render={() => <Transactions />}
         />
       </section>
