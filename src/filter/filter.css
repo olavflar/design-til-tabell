@@ -11,3 +11,5 @@
 .tx-table .num { text-align: right; }
 .num-date { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tx .stacked .row { flex-wrap: nowrap; }
+.tx-account { max-width: 24rem; }
+.tx-account .ds-select { width: 100%; }

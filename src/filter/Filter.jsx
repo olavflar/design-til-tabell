@@ -2,11 +2,14 @@ import { useId, useMemo, useState } from "react";
 import {
   Button,
   Chip,
+  Field,
   Fieldset,
   Heading,
+  Label,
   List,
   Paragraph,
   Popover,
+  Select,
   Table,
   Tag,
   Textfield,
@@ -119,7 +122,7 @@ function FilterButton({ label, on, children }) {
 
 /**
  * Kontobevegelser med filter.
- * Konto velges med Chip, fordi det er fem kontoer (Select brukes først fra 7 valg).
+ * Konto velges med Select, med navn og kontonummer, som i den opprinnelige løsningen.
  * Hvert filter har sin egen knapp som åpner en Popover, som i den opprinnelige løsningen.
  * Valgte filtre står samlet og kan fjernes ett og ett. Antall treff meldes med role="status".
  * Stor skjerm: tabell. Liten skjerm: liste med beskrivelse og beløp først.
@@ -170,19 +173,16 @@ export function Transactions({ large = false }) {
         hvorfor. Banken vurderer da om du kan få innsyn.
       </Paragraph>
 
-      {/* Fem kontoer: Select brukes først fra 7 valg, så kontoene er filterbrikker med ett valg */}
-      <Fieldset data-size="sm">
-        <Fieldset.Legend>Velg konto ({ACCOUNTS.length})</Fieldset.Legend>
-        <div className="chips">
+      {/* Nedtrekksliste etter ønske fra arbeidsgruppen, som i den opprinnelige løsningen,
+          selv om det bare er fem kontoer (Designsystemet anbefaler Select fra 7 valg) */}
+      <Field data-size="sm" className="tx-account">
+        <Label>Velg konto ({ACCOUNTS.length})</Label>
+        <Select value={account} onChange={(e) => { setAccount(e.target.value); setLimit(PAGE); }}>
           {ACCOUNTS.map((a) => (
-            <Chip.Radio key={a.id} data-size="sm" name={`${uid}-account`} value={a.id} checked={account === a.id}
-              onChange={() => { setAccount(a.id); setLimit(PAGE); }}>
-              {a.name}
-            </Chip.Radio>
+            <Select.Option key={a.id} value={a.id}>{a.name} – {a.number}</Select.Option>
           ))}
-        </div>
-      </Fieldset>
-      <Paragraph data-size="sm" className="meta">Kontonummer {acc.number}</Paragraph>
+        </Select>
+      </Field>
 
       <div className="tx-tools">
         <Button data-size="sm" variant="tertiary" onClick={downloadCsv}>
@@ -317,7 +317,7 @@ export default function Filter() {
           id="tx"
           smallLabel="Kontobevegelser med filter, liten skjerm"
           large={<Transactions large />}
-          caption="På stor skjerm er bevegelsene en tabell, på liten skjerm en liste der beskrivelse og beløp står først. Kontoen velges med filterbrikker, fordi det er fem kontoer. Beløp inn har pluss og ut har minus, og fargen kommer i tillegg. Det vises 25 om gangen."
+          caption="På stor skjerm er bevegelsene en tabell, på liten skjerm en liste der beskrivelse og beløp står først. Kontoen velges med en nedtrekksliste. Beløp inn har pluss og ut har minus, og fargen kommer i tillegg. Det vises 25 om gangen."
           render={() => <Transactions />}
         />
       </section>
