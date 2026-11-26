@@ -1,0 +1,12 @@
+/* Kontobevegelser med filter */
+.tx-tools { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--ds-size-3); }
+.tx-filter { flex: 1 1 18rem; }
+.tx-filter__body { display: flex; flex-direction: column; gap: var(--ds-size-5); }
+/* Fra og til, og minst og høyst, står ved siden av hverandre når det er plass */
+.tx-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--ds-size-3); }
+.amount { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.amount--in { color: var(--ds-color-success-text-default); }
+.tx-table { width: 100%; }
+.tx-table .num { text-align: right; }
+.num-date { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tx .stacked .row { flex-wrap: nowrap; }

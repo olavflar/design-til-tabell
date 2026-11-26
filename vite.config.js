@@ -16,6 +16,7 @@ export default defineConfig({
         liste: "liste.html",
         kort: "kort.html",
         forslag: "forslag.html",
+        filter: "filter.html",
       },
     },
   },
