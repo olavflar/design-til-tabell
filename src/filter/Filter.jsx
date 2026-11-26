@@ -13,9 +13,8 @@ import {
   Table,
   Tag,
   Textfield,
-  ValidationMessage,
 } from "@digdir/designsystemet-react";
-import { DownloadIcon, FunnelFillIcon, FunnelIcon } from "@navikt/aksel-icons";
+import { DownloadIcon, FunnelIcon } from "@navikt/aksel-icons";
 import HifiNav from "../components/HifiNav.jsx";
 import { Example } from "../components/cases.jsx";
 
@@ -91,7 +90,6 @@ const parseKr = (s) => {
 };
 
 const DIRECTIONS = [["alle", "Alle"], ["inn", "Inn"], ["ut", "Ut"]];
-const FILTERS = [["dato", "Dato"], ["belop", "Beløp"], ["retning", "Inn/ut"]];
 const PAGE = 25;
 
 function downloadCsv() {
@@ -104,12 +102,28 @@ function downloadCsv() {
   URL.revokeObjectURL(url);
 }
 
+/** Bevegelsene som passer filtrene. Beløpsfiltrene gjelder både inn og ut. */
+function filterRows(rows, f) {
+  const lo = parseKr(f.min ?? ""), hi = parseKr(f.max ?? "");
+  return rows.filter((r) => {
+    const day = isoDate(r.date);
+    if (f.from && day < f.from) return false;
+    if (f.to && day > f.to) return false;
+    if (lo !== null && Math.abs(r.amount) < lo) return false;
+    if (hi !== null && Math.abs(r.amount) > hi) return false;
+    if (f.direction === "inn" && r.amount < 0) return false;
+    if (f.direction === "ut" && r.amount > 0) return false;
+    return true;
+  });
+}
+
 /**
  * Kontobevegelser med filter.
  * Konto velges med Select, med navn og kontonummer, som i den opprinnelige løsningen.
- * Hvert filter har sin egen knapp. Knappen åpner en boks under knappene, der brukeren
- * fyller ut og trykker «Bruk filter». Da lukkes boksen, og filteret står som en brikke
- * som kan fjernes. Ingenting endres i listen før brukeren har trykket «Bruk filter».
+ * Én knapp, «Filter», åpner en oversikt med alle filtrene under knappen. Brukeren fyller ut
+ * og trykker «Vis … treff», som sier på forhånd hvor mange treff det blir. Da lukkes
+ * oversikten, og hvert filter står som en brikke som kan fjernes. Listen endres ikke før
+ * brukeren har trykket på knappen. Feil vises ved feltet de gjelder.
  * Valgte filtre står samlet og kan fjernes ett og ett. Antall treff meldes med role="status".
  * Stor skjerm: tabell. Liten skjerm: liste med beskrivelse og beløp først.
  */
@@ -122,52 +136,43 @@ export function Transactions({ large = false }) {
   const [max, setMax] = useState("");
   const [direction, setDirection] = useState("alle");
   const [limit, setLimit] = useState(PAGE);
-  // Filteret som er åpent, og verdiene i det før brukeren har trykket «Bruk filter»
-  const [open, setOpen] = useState(null);
+  // Filteroversikten er åpen, og verdiene i den før brukeren har trykket «Vis treff»
+  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState({});
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
   const set = (key) => (e) => setDraft((d) => ({ ...d, [key]: e.target.value }));
-  const toggle = (key) => {
-    setError("");
-    if (open === key) return setOpen(null);
-    setDraft({ from, to, min, max, direction });
-    setOpen(key);
+  const toggle = () => {
+    setErrors({});
+    if (!open) setDraft({ from, to, min, max, direction });
+    setOpen(!open);
   };
-  const close = (key) => {
-    setOpen(null);
-    setError("");
-    document.getElementById(`${uid}-btn-${key}`)?.focus();
+  const close = () => {
+    setOpen(false);
+    setErrors({});
+    document.getElementById(`${uid}-filter-btn`)?.focus();
   };
-  const apply = (key) => {
-    if (key === "dato") {
-      if (draft.from && draft.to && draft.from > draft.to) return setError("Fra-datoen må være før til-datoen.");
-      setFrom(draft.from); setTo(draft.to);
-    }
-    if (key === "belop") {
-      const a = parseKr(draft.min), b = parseKr(draft.max);
-      if ((draft.min.trim() && a === null) || (draft.max.trim() && b === null)) return setError("Skriv beløpet med tall, for eksempel 1500.");
-      if (a !== null && b !== null && a > b) return setError("Minst må være lavere enn høyst.");
-      setMin(draft.min); setMax(draft.max);
-    }
-    if (key === "retning") setDirection(draft.direction);
+  const apply = () => {
+    // Feilmeldingene står ved feltet de gjelder, som i mønsteret for feilmeldinger
+    const a = parseKr(draft.min), b = parseKr(draft.max);
+    const e = {};
+    if (draft.from && draft.to && draft.from > draft.to) e.to = "Til-datoen må være etter fra-datoen.";
+    if (draft.min.trim() && a === null) e.min = "Skriv beløpet med tall, for eksempel 1500.";
+    if (draft.max.trim() && b === null) e.max = "Skriv beløpet med tall, for eksempel 1500.";
+    if (!e.min && !e.max && a !== null && b !== null && a > b) e.max = "Høyst må være mer enn minst.";
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    setFrom(draft.from); setTo(draft.to); setMin(draft.min); setMax(draft.max); setDirection(draft.direction);
     setLimit(PAGE);
-    close(key);
+    close();
   };
 
   const acc = ACCOUNTS.find((a) => a.id === account);
   const all = ROWS[account];
   const lo = parseKr(min);
   const hi = parseKr(max);
-  const shown = useMemo(() => all.filter((r) => {
-    const day = isoDate(r.date);
-    if (from && day < from) return false;
-    if (to && day > to) return false;
-    if (lo !== null && Math.abs(r.amount) < lo) return false;
-    if (hi !== null && Math.abs(r.amount) > hi) return false;
-    if (direction === "inn" && r.amount < 0) return false;
-    if (direction === "ut" && r.amount > 0) return false;
-    return true;
-  }), [all, from, to, lo, hi, direction]);
+  const shown = useMemo(() => filterRows(all, { from, to, min, max, direction }), [all, from, to, min, max, direction]);
+  // Antall treff med verdiene i oversikten, til knappen «Vis … treff»
+  const draftCount = open ? filterRows(all, draft).length : 0;
   const visible = shown.slice(0, limit);
 
   const active = [
@@ -206,65 +211,54 @@ export function Transactions({ large = false }) {
           <DownloadIcon aria-hidden />
           Last ned alle kontoer (CSV)
         </Button>
-        {/* Hver knapp åpner og lukker boksen under. Fylt trakt betyr at filteret er i bruk. */}
-        <div className="tx-filters">
-          {FILTERS.map(([key, label]) => {
-            const on = key === "dato" ? Boolean(from || to) : key === "belop" ? lo !== null || hi !== null : direction !== "alle";
-            return (
-              <Button key={key} id={`${uid}-btn-${key}`} data-size="sm" variant={on ? "primary" : "secondary"}
-                aria-expanded={open === key} aria-controls={`${uid}-panel`} onClick={() => toggle(key)}>
-                {label}
-                {on ? <FunnelFillIcon aria-hidden /> : <FunnelIcon aria-hidden />}
-                {on && <span className="ds-sr-only">, i bruk</span>}
-              </Button>
-            );
-          })}
-        </div>
+        {/* Én filterknapp som åpner en oversikt med alle filtrene. Tallet sier hvor mange som er i bruk. */}
+        <Button id={`${uid}-filter-btn`} data-size="sm" variant="secondary"
+          aria-expanded={open} aria-controls={`${uid}-panel`} onClick={toggle}>
+          <FunnelIcon aria-hidden />
+          Filter{active.length > 0 && ` (${active.length})`}
+        </Button>
       </div>
 
       <div id={`${uid}-panel`} hidden={!open}>
         {open && (
-        <Card variant="tinted" className="tx-panel">
-        {open === "dato" && (
-          <Fieldset data-size="sm">
-            <Fieldset.Legend>Dato</Fieldset.Legend>
-            <div className="tx-pair">
-              <Textfield data-size="sm" type="date" label="Fra og med" value={draft.from}
-                min={isoDate(FIRST)} max={isoDate(DEATH)} onChange={set("from")} />
-              <Textfield data-size="sm" type="date" label="Til og med" value={draft.to}
-                min={isoDate(FIRST)} max={isoDate(DEATH)} onChange={set("to")} />
+          <Card variant="tinted" className="tx-panel">
+            <Heading level={4} data-size="2xs">Filtrer kontobevegelser</Heading>
+            <Fieldset data-size="sm">
+              <Fieldset.Legend>Dato</Fieldset.Legend>
+              <div className="tx-pair">
+                <Textfield data-size="sm" type="date" label="Fra og med" value={draft.from}
+                  min={isoDate(FIRST)} max={isoDate(DEATH)} onChange={set("from")} />
+                <Textfield data-size="sm" type="date" label="Til og med" value={draft.to} error={errors.to}
+                  min={isoDate(FIRST)} max={isoDate(DEATH)} onChange={set("to")} />
+              </div>
+            </Fieldset>
+            <Fieldset data-size="sm">
+              <Fieldset.Legend>Beløp</Fieldset.Legend>
+              <Fieldset.Description>Gjelder både inn og ut.</Fieldset.Description>
+              <div className="tx-pair">
+                <Textfield data-size="sm" label="Minst" suffix="kr" inputMode="decimal" value={draft.min}
+                  error={errors.min} onChange={set("min")} />
+                <Textfield data-size="sm" label="Høyst" suffix="kr" inputMode="decimal" value={draft.max}
+                  error={errors.max} onChange={set("max")} />
+              </div>
+            </Fieldset>
+            <Fieldset data-size="sm">
+              <Fieldset.Legend>Inn eller ut</Fieldset.Legend>
+              <div className="chips">
+                {DIRECTIONS.map(([value, label]) => (
+                  <Chip.Radio key={value} data-size="sm" name={`${uid}-dir`} value={value}
+                    checked={draft.direction === value} onChange={set("direction")}>
+                    {label}
+                  </Chip.Radio>
+                ))}
+              </div>
+            </Fieldset>
+            {/* Knappen sier hvor mange treff brukeren får, før filtrene brukes */}
+            <div className="tx-panel__actions">
+              <Button data-size="sm" onClick={apply}>Vis {draftCount} treff</Button>
+              <Button data-size="sm" variant="tertiary" onClick={close}>Avbryt</Button>
             </div>
-          </Fieldset>
-        )}
-        {open === "belop" && (
-          <Fieldset data-size="sm">
-            <Fieldset.Legend>Beløp</Fieldset.Legend>
-            <Fieldset.Description>Gjelder både inn og ut.</Fieldset.Description>
-            <div className="tx-pair">
-              <Textfield data-size="sm" label="Minst" suffix="kr" inputMode="decimal" value={draft.min} onChange={set("min")} />
-              <Textfield data-size="sm" label="Høyst" suffix="kr" inputMode="decimal" value={draft.max} onChange={set("max")} />
-            </div>
-          </Fieldset>
-        )}
-        {open === "retning" && (
-          <Fieldset data-size="sm">
-            <Fieldset.Legend>Inn eller ut</Fieldset.Legend>
-            <div className="chips">
-              {DIRECTIONS.map(([value, label]) => (
-                <Chip.Radio key={value} data-size="sm" name={`${uid}-dir`} value={value}
-                  checked={draft.direction === value} onChange={set("direction")}>
-                  {label}
-                </Chip.Radio>
-              ))}
-            </div>
-          </Fieldset>
-        )}
-        {error && <ValidationMessage data-size="sm">{error}</ValidationMessage>}
-        <div className="tx-panel__actions">
-          <Button data-size="sm" onClick={() => apply(open)}>Bruk filter</Button>
-          <Button data-size="sm" variant="tertiary" onClick={() => close(open)}>Avbryt</Button>
-        </div>
-        </Card>
+          </Card>
         )}
       </div>
 
@@ -346,9 +340,9 @@ export default function Filter() {
         <Heading level={1} data-size="lg">Filtrering</Heading>
         <Paragraph>
           Kontobevegelser i et dødsbo. Det er mange bevegelser, og brukeren leter etter noe bestemt: en dato, et beløp
-          eller penger inn eller ut. Hvert filter har sin egen knapp som åpner en boks under. Når brukeren trykker
-          «Bruk filter», lukkes boksen, og filteret blir en brikke over listen som kan fjernes. Antall treff leses
-          opp av skjermleser.
+          eller penger inn eller ut. Én filterknapp åpner en oversikt med alle filtrene. Knappen «Vis … treff» sier
+          hvor mange treff det blir før filtrene brukes. Valgte filtre blir brikker over listen som kan fjernes ett og
+          ett, og antall treff leses opp av skjermleser.
         </Paragraph>
       </header>
       <section>

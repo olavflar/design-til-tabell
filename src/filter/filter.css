@@ -1,8 +1,6 @@
 /* Kontobevegelser med filter. Bare oppsett: alt annet kommer fra Designsystemet. */
 .tx-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--ds-size-3); }
-/* Knappene holdes på én linje, og går under nedlastingen samlet når det er trangt */
-.tx-filters { display: flex; gap: var(--ds-size-2); }
-/* Filteret åpnes i et Card under knappene og skyver listen ned */
+/* Filteroversikten åpnes i et Card under knappen og skyver listen ned */
 .tx-panel { display: flex; flex-direction: column; gap: var(--ds-size-4); }
 .tx-panel > * { margin: 0; }
 .tx-panel__actions { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); }

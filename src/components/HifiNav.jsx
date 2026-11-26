@@ -3,6 +3,7 @@ const PAGES = [
   { href: "tabell.html", label: "Tabell" },
   { href: "liste.html", label: "Liste" },
   { href: "kort.html", label: "Kort" },
+  { href: "filter.html", label: "Filtrering" },
   { href: "forslag.html", label: "Forslag til artikkel" },
 ];
 
