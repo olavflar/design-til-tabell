@@ -2,16 +2,16 @@ import { useId, useMemo, useState } from "react";
 import {
   Button,
   Chip,
-  Details,
   Fieldset,
   Heading,
   List,
   Paragraph,
+  Popover,
   Table,
   Tag,
   Textfield,
 } from "@digdir/designsystemet-react";
-import { DownloadIcon } from "@navikt/aksel-icons";
+import { DownloadIcon, FunnelFillIcon, FunnelIcon } from "@navikt/aksel-icons";
 import HifiNav from "../components/HifiNav.jsx";
 import { Example } from "../components/cases.jsx";
 
@@ -103,10 +103,24 @@ function downloadCsv() {
   URL.revokeObjectURL(url);
 }
 
+/** Knapp som åpner ett filter i en Popover. Teksten sier om filteret er i bruk, ikke bare ikonet. */
+function FilterButton({ label, on, children }) {
+  return (
+    <Popover.TriggerContext>
+      <Popover.Trigger data-size="sm" variant={on ? "primary" : "secondary"}>
+        {label}
+        {on ? <FunnelFillIcon aria-hidden /> : <FunnelIcon aria-hidden />}
+        {on && <span className="ds-sr-only">, i bruk</span>}
+      </Popover.Trigger>
+      <Popover placement="bottom-end" className="tx-popover">{children}</Popover>
+    </Popover.TriggerContext>
+  );
+}
+
 /**
  * Kontobevegelser med filter.
  * Konto velges med Chip, fordi det er fem kontoer (Select brukes først fra 7 valg).
- * Filtrene ligger i en Details, så de ikke tar plass før brukeren trenger dem.
+ * Hvert filter har sin egen knapp som åpner en Popover, som i den opprinnelige løsningen.
  * Valgte filtre står samlet og kan fjernes ett og ett. Antall treff meldes med role="status".
  * Stor skjerm: tabell. Liten skjerm: liste med beskrivelse og beløp først.
  */
@@ -171,47 +185,49 @@ export function Transactions({ large = false }) {
       <Paragraph data-size="sm" className="meta">Kontonummer {acc.number}</Paragraph>
 
       <div className="tx-tools">
-        <Details className="tx-filter">
-          <Details.Summary>Filtrer{active.length > 0 && ` (${active.length} valgt)`}</Details.Summary>
-          <Details.Content>
-            <div className="tx-filter__body">
-              <Fieldset data-size="sm">
-                <Fieldset.Legend>Dato</Fieldset.Legend>
-                <div className="tx-pair">
-                  <Textfield data-size="sm" type="date" label="Fra og med" value={from}
-                    min={isoDate(FIRST)} max={isoDate(DEATH)} onChange={(e) => setFrom(e.target.value)} />
-                  <Textfield data-size="sm" type="date" label="Til og med" value={to}
-                    min={isoDate(FIRST)} max={isoDate(DEATH)} onChange={(e) => setTo(e.target.value)} />
-                </div>
-              </Fieldset>
-              <Fieldset data-size="sm">
-                <Fieldset.Legend>Beløp</Fieldset.Legend>
-                <Fieldset.Description>Gjelder både inn og ut.</Fieldset.Description>
-                <div className="tx-pair">
-                  <Textfield data-size="sm" label="Minst" suffix="kr" inputMode="decimal" value={min}
-                    onChange={(e) => setMin(e.target.value)} />
-                  <Textfield data-size="sm" label="Høyst" suffix="kr" inputMode="decimal" value={max}
-                    onChange={(e) => setMax(e.target.value)} />
-                </div>
-              </Fieldset>
-              <Fieldset data-size="sm">
-                <Fieldset.Legend>Inn eller ut</Fieldset.Legend>
-                <div className="chips">
-                  {DIRECTIONS.map(([value, label]) => (
-                    <Chip.Radio key={value} data-size="sm" name={`${uid}-dir`} value={value}
-                      checked={direction === value} onChange={() => setDirection(value)}>
-                      {label}
-                    </Chip.Radio>
-                  ))}
-                </div>
-              </Fieldset>
-            </div>
-          </Details.Content>
-        </Details>
         <Button data-size="sm" variant="tertiary" onClick={downloadCsv}>
           <DownloadIcon aria-hidden />
           Last ned alle kontoer (CSV)
         </Button>
+        {/* Hvert filter har sin egen knapp som åpner en Popover. Fylt trakt betyr at filteret er i bruk. */}
+        <div className="tx-filters">
+          <FilterButton label="Dato" on={Boolean(from || to)}>
+            <Fieldset data-size="sm">
+              <Fieldset.Legend>Dato</Fieldset.Legend>
+              <div className="tx-pair">
+                <Textfield data-size="sm" type="date" label="Fra og med" value={from}
+                  min={isoDate(FIRST)} max={isoDate(DEATH)} onChange={(e) => setFrom(e.target.value)} />
+                <Textfield data-size="sm" type="date" label="Til og med" value={to}
+                  min={isoDate(FIRST)} max={isoDate(DEATH)} onChange={(e) => setTo(e.target.value)} />
+              </div>
+            </Fieldset>
+          </FilterButton>
+          <FilterButton label="Beløp" on={lo !== null || hi !== null}>
+            <Fieldset data-size="sm">
+              <Fieldset.Legend>Beløp</Fieldset.Legend>
+              <Fieldset.Description>Gjelder både inn og ut.</Fieldset.Description>
+              <div className="tx-pair">
+                <Textfield data-size="sm" label="Minst" suffix="kr" inputMode="decimal" value={min}
+                  onChange={(e) => setMin(e.target.value)} />
+                <Textfield data-size="sm" label="Høyst" suffix="kr" inputMode="decimal" value={max}
+                  onChange={(e) => setMax(e.target.value)} />
+              </div>
+            </Fieldset>
+          </FilterButton>
+          <FilterButton label="Inn/ut" on={direction !== "alle"}>
+            <Fieldset data-size="sm">
+              <Fieldset.Legend>Inn eller ut</Fieldset.Legend>
+              <div className="chips">
+                {DIRECTIONS.map(([value, label]) => (
+                  <Chip.Radio key={value} data-size="sm" name={`${uid}-dir`} value={value}
+                    checked={direction === value} onChange={() => setDirection(value)}>
+                    {label}
+                  </Chip.Radio>
+                ))}
+              </div>
+            </Fieldset>
+          </FilterButton>
+        </div>
       </div>
 
       {active.length > 0 && (
@@ -292,7 +308,7 @@ export default function Filter() {
         <Heading level={1} data-size="lg">Filtrering</Heading>
         <Paragraph>
           Kontobevegelser i et dødsbo. Det er mange bevegelser, og brukeren leter etter noe bestemt: en dato, et beløp
-          eller penger inn eller ut. Filtrene ligger samlet bak «Filtrer», valgte filtre vises over listen og kan
+          eller penger inn eller ut. Hvert filter har sin egen knapp, valgte filtre vises over listen og kan
           fjernes ett og ett, og antall treff leses opp av skjermleser.
         </Paragraph>
       </header>

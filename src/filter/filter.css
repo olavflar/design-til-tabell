@@ -1,7 +1,8 @@
 /* Kontobevegelser med filter */
-.tx-tools { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--ds-size-3); }
-.tx-filter { flex: 1 1 18rem; }
-.tx-filter__body { display: flex; flex-direction: column; gap: var(--ds-size-5); }
+.tx-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--ds-size-3); }
+/* Knappene holdes på én linje, og går under nedlastingen samlet når det er trangt */
+.tx-filters { display: flex; gap: var(--ds-size-2); }
+.ds-popover.tx-popover { width: min(22rem, calc(100vw - var(--ds-size-8))); }
 /* Fra og til, og minst og høyst, står ved siden av hverandre når det er plass */
 .tx-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--ds-size-3); }
 .amount { font-variant-numeric: tabular-nums; white-space: nowrap; }
